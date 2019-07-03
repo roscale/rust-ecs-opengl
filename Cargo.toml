@@ -5,3 +5,9 @@ authors = ["Rosca Alex <roscaalex19@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+glfw = "0.29.0"
+gl = "0.6.0"
+
+[features]
+default = ["gl_debug"]
+gl_debug = []
