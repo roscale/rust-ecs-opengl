@@ -90,9 +90,21 @@ impl Program {
         self
     }
 
+    pub fn set_uniform_matrix4fv(&self, name: &str, matrix: *const f32) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::UniformMatrix4fv(location, 1, gl::FALSE, matrix));
+        self
+    }
+
     pub fn set_uniform1f(&self, name: &str, value: f32) -> &Self {
         let location = self.get_uniform_location(name);
         gl_call!(gl::Uniform1f(location, value));
+        self
+    }
+
+    pub fn set_uniform1i(&self, name: &str, value: i32) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::Uniform1i(location, value));
         self
     }
 

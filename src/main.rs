@@ -4,6 +4,7 @@ extern crate gl;
 #[macro_use]
 mod debugging;
 mod gl_wrapper;
+mod ecs;
 
 use glfw::{Action, Context, Key, WindowHint, OpenGlProfileHint, WindowMode, Window, WindowEvent};
 use std::ffi::CString;
@@ -13,7 +14,10 @@ use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::VBO;
 use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::shader_compilation::*;
-use glfw::ffi::glfwGetTime;
+use crate::gl_wrapper::texture_2d::Texture2D;
+use crate::ecs::components::{Position, Velocity, Rotation, Scale};
+use specs::prelude::*;
+use crate::ecs::systems::{MoveSystem, MeshRenderer};
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -29,6 +33,13 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 }
 
 fn main() {
+    let mut world = World::new();
+    world.register::<Position>();
+    world.register::<Velocity>();
+    world.register::<Rotation>();
+    world.register::<Scale>();
+    world.register::<ecs::components::Shader>();
+
     let (mut window, events) = setup_window("Window", 800, 600, glfw::WindowMode::Windowed);
 
     let vert_shader = Shader::from_vert_source(
@@ -39,22 +50,21 @@ fn main() {
         &CString::new(include_str!("triangle.frag")).unwrap()
     ).unwrap();
 
-    let prog = Program::from_shaders(vert_shader, frag_shader).unwrap();
-
-    gl_call!(gl::Viewport(0, 0, 800, 600));
+    gl_call!(gl::Viewport(0, 0, 800, 800));
     gl_call!(gl::ClearColor(0.2, 0.3, 0.3, 1.0));
 
     let vertices = [
-        0.5f32, 0.5, 0.0, 1.0, 0.0, 0.0,
-        0.5, -0.5, 0.0, 0.0, 1.0, 0.0,
-        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0,
-        -0.5, 0.5, 0.0, 0.0, 0.0, 1.0
+        0.5f32, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+        0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0
     ].to_vec();
 
     let indices = [
         0u32, 1, 3,
         1, 2, 3
     ].to_vec();
+
 
     let vao = VAO::new();
     vao.bind();
@@ -65,31 +75,54 @@ fn main() {
     let ebo = EBO::new();
     ebo.bind().fill(&indices);
 
-    vao.set_attributes(&[(3, gl::FLOAT, std::mem::size_of::<f32>()),
-        (3, gl::FLOAT, std::mem::size_of::<f32>())]);
+    vao.set_attributes(&[
+        (3, gl::FLOAT, std::mem::size_of::<f32>()),
+        (3, gl::FLOAT, std::mem::size_of::<f32>()),
+        (2, gl::FLOAT, std::mem::size_of::<f32>()),
+    ]);
 
-    prog.use_program();
+    gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32));
+    gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32));
+
+    let texture = Texture2D::new();
+    texture.bind().fill("src/wall.jpg");
+
+    let prog = Program::from_shaders(vert_shader, frag_shader).unwrap();
+
+
+    Texture2D::activate(0);
+    texture.bind();
+
     vao.bind();
 
-    let mut offset = 0f32;
+    let entity = world.create_entity()
+        .with(Position((0.0f32, 0.0, 0.0).into()))
+        .with(Rotation((0.0f32, 0.0, 1.0).into()))
+        .with(Scale((1.5f32, 1.0, 1.0).into()))
+//        .with(Velocity((0.01f32, 0.0, 0.0).into()))
+        .with(ecs::components::Shader(prog))
+        .build();
+
+    let mut dispatcher = DispatcherBuilder::new()
+        .with(MoveSystem, "move_system", &[])
+        .with_thread_local(MeshRenderer)
+        .build();
 
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
         };
         gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT));
+
+
+        dispatcher.dispatch(&mut world);
         gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   indices.len() as i32,
                                   gl::UNSIGNED_INT, 0 as *const c_void));
+
         window.swap_buffers();
         window.glfw.poll_events();
 
-        offset += 0.001;
-        prog.set_uniform1f("offset", offset);
-//        unsafe {
-//            let time: f32 = (glfwGetTime().sin() as f32 + 1f32) / 2f32;
-//            prog.set_uniform("inputColor", &[0.0, time, 0.0, 1.0]);
-//        }
     }
 }
 

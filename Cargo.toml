@@ -7,6 +7,10 @@ edition = "2018"
 [dependencies]
 glfw = "0.29.0"
 gl = "0.6.0"
+image = "0.21.2"
+cgmath = "0.17.0"
+specs = "0.15.0"
+genmesh = "0.6.2"
 
 [features]
 default = ["gl_debug"]

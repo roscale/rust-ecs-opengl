@@ -2,11 +2,15 @@
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 color;
-out vec3 out_color;
-uniform float offset;
+layout (location = 2) in vec2 tex_coords;
 
-void main()
-{
-    gl_Position = vec4(pos.x + offset, pos.yz, 1.0);
+out vec3 out_color;
+out vec2 texture_coords;
+
+uniform mat4 model_matrix;
+
+void main() {
+    gl_Position = model_matrix * vec4(pos, 1.0f);
     out_color = color;
+    texture_coords = tex_coords;
 }
