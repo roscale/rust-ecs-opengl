@@ -2,6 +2,7 @@ use gl;
 use std;
 use std::ffi::{CString, CStr};
 
+#[derive(Debug)]
 pub struct Shader {
     id: gl::types::GLuint,
 }
@@ -63,6 +64,7 @@ fn create_whitespace_cstring_with_len(len: usize) -> CString {
     unsafe { CString::from_vec_unchecked(buffer) }
 }
 
+#[derive(Debug)]
 pub struct Program {
     id: gl::types::GLuint
 }
@@ -70,6 +72,28 @@ pub struct Program {
 impl Program {
     pub fn use_program(&self) {
         gl_call!(gl::UseProgram(self.id));
+    }
+
+    fn get_uniform_location(&self, name: &str) -> i32 {
+        let c_name = CString::new(name).unwrap();
+        let location = gl_call!(gl::GetUniformLocation(self.id, c_name.as_ptr()));
+        // Error checking
+        if location == -1 {
+            panic!("Can't find uniform '{}' in program with id: {}", name, self.id);
+        }
+        location
+    }
+
+    pub fn set_uniform4f(&self, name: &str, values: &[f32; 4]) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::Uniform4f(location, values[0], values[1], values[2], values[3]));
+        self
+    }
+
+    pub fn set_uniform1f(&self, name: &str, value: f32) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::Uniform1f(location, value));
+        self
     }
 
     pub fn from_shaders(vertex: Shader, fragment: Shader) -> Result<Program, String> {
