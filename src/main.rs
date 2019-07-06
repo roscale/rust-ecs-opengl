@@ -15,9 +15,10 @@ use crate::gl_wrapper::vbo::VBO;
 use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::shader_compilation::*;
 use crate::gl_wrapper::texture_2d::Texture2D;
-use crate::ecs::components::{Position, Velocity, Rotation, Scale};
+use crate::ecs::components::{Transform, Velocity};
 use specs::prelude::*;
 use crate::ecs::systems::{MoveSystem, MeshRenderer};
+use cgmath::vec3;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -34,13 +35,11 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 
 fn main() {
     let mut world = World::new();
-    world.register::<Position>();
+    world.register::<Transform>();
     world.register::<Velocity>();
-    world.register::<Rotation>();
-    world.register::<Scale>();
     world.register::<ecs::components::Shader>();
 
-    let (mut window, events) = setup_window("Window", 800, 600, glfw::WindowMode::Windowed);
+    let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     let vert_shader = Shader::from_vert_source(
         &CString::new(include_str!("triangle.vert")).unwrap()
@@ -54,10 +53,47 @@ fn main() {
     gl_call!(gl::ClearColor(0.2, 0.3, 0.3, 1.0));
 
     let vertices = [
-        0.5f32, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-        0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
-        -0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        -0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0
+        -0.5f32, -0.5, -0.5, 0.0, 0.0,
+         0.5,  0.5, -0.5, 1.0, 1.0,
+         0.5, -0.5, -0.5, 1.0, 0.0,
+         0.5,  0.5, -0.5, 1.0, 1.0,
+        -0.5, -0.5, -0.5, 0.0, 0.0,
+        -0.5,  0.5, -0.5, 0.0, 1.0,
+
+        -0.5, -0.5,  0.5, 0.0, 0.0,
+         0.5, -0.5,  0.5, 1.0, 0.0,
+         0.5,  0.5,  0.5, 1.0, 1.0,
+         0.5,  0.5,  0.5, 1.0, 1.0,
+        -0.5,  0.5,  0.5, 0.0, 1.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0,
+
+        -0.5,  0.5,  0.5, 1.0, 0.0,
+        -0.5,  0.5, -0.5, 1.0, 1.0,
+        -0.5, -0.5, -0.5, 0.0, 1.0,
+        -0.5, -0.5, -0.5, 0.0, 1.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0,
+        -0.5,  0.5,  0.5, 1.0, 0.0,
+
+         0.5,  0.5,  0.5, 1.0, 0.0,
+         0.5, -0.5, -0.5, 0.0, 1.0,
+         0.5,  0.5, -0.5, 1.0, 1.0,
+         0.5, -0.5, -0.5, 0.0, 1.0,
+         0.5,  0.5,  0.5, 1.0, 0.0,
+         0.5, -0.5,  0.5, 0.0, 0.0,
+
+        -0.5, -0.5, -0.5, 0.0, 1.0,
+         0.5, -0.5, -0.5, 1.0, 1.0,
+         0.5, -0.5,  0.5, 1.0, 0.0,
+         0.5, -0.5,  0.5, 1.0, 0.0,
+        -0.5, -0.5,  0.5, 0.0, 0.0,
+        -0.5, -0.5, -0.5, 0.0, 1.0,
+
+        -0.5,  0.5, -0.5, 0.0, 1.0,
+         0.5,  0.5,  0.5, 1.0, 0.0,
+         0.5,  0.5, -0.5, 1.0, 1.0,
+         0.5,  0.5,  0.5, 1.0, 0.0,
+        -0.5,  0.5, -0.5, 0.0, 1.0,
+        -0.5, 0.5, 0.5, 0.0, 0.0,
     ].to_vec();
 
     let indices = [
@@ -65,20 +101,18 @@ fn main() {
         1, 2, 3
     ].to_vec();
 
-
     let vao = VAO::new();
     vao.bind();
 
-    let vbo = VBO::new();
-    vbo.bind().fill(&vertices);
+    let vbo_vertices = VBO::new();
+    vbo_vertices.bind().fill(&vertices);
 
     let ebo = EBO::new();
     ebo.bind().fill(&indices);
 
     vao.set_attributes(&[
-        (3, gl::FLOAT, std::mem::size_of::<f32>()),
-        (3, gl::FLOAT, std::mem::size_of::<f32>()),
-        (2, gl::FLOAT, std::mem::size_of::<f32>()),
+        (0, 3, gl::FLOAT, std::mem::size_of::<f32>()),
+        (1, 2, gl::FLOAT, std::mem::size_of::<f32>()),
     ]);
 
     gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32));
@@ -96,10 +130,12 @@ fn main() {
     vao.bind();
 
     let entity = world.create_entity()
-        .with(Position((0.0f32, 0.0, 0.0).into()))
-        .with(Rotation((0.0f32, 0.0, 1.0).into()))
-        .with(Scale((1.5f32, 1.0, 1.0).into()))
-//        .with(Velocity((0.01f32, 0.0, 0.0).into()))
+        .with(Transform {
+            position: vec3(0.0f32, 0.0, 0.0),
+            rotation: vec3(2.2f32, 0.9, 1.7),
+            scale: vec3(1.0f32, 1.0, 1.0),
+        })
+//        .with(Velocity(vec3(0.01f32, 0.0, 0.0)))
         .with(ecs::components::Shader(prog))
         .build();
 
@@ -108,21 +144,22 @@ fn main() {
         .with_thread_local(MeshRenderer)
         .build();
 
+    gl_call!(gl::Enable(gl::DEPTH_TEST));
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
         };
-        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT));
+        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
 
 
         dispatcher.dispatch(&mut world);
-        gl_call!(gl::DrawElements(gl::TRIANGLES,
-                                  indices.len() as i32,
-                                  gl::UNSIGNED_INT, 0 as *const c_void));
+//        gl_call!(gl::DrawElements(gl::TRIANGLES,
+//                                  indices.len() as i32,
+//                                  gl::UNSIGNED_INT, 0 as *const c_void));
+        gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32));
 
         window.swap_buffers();
         window.glfw.poll_events();
-
     }
 }
 
