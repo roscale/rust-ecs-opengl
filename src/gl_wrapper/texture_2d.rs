@@ -1,6 +1,7 @@
 use image::GenericImageView;
 use std::os::raw::c_void;
 
+#[derive(Clone)]
 pub struct Texture2D {
     pub id: u32
 }
@@ -38,6 +39,9 @@ impl Texture2D {
                                 gl::UNSIGNED_BYTE, pixels.as_ptr() as *const c_void));
 
         gl_call!(gl::GenerateMipmap(gl::TEXTURE_2D));
+
+        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST_MIPMAP_NEAREST as i32));
+        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32));
 
         self
     }

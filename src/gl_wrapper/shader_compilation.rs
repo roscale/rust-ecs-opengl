@@ -3,26 +3,26 @@ use std;
 use std::ffi::{CString, CStr};
 
 #[derive(Debug)]
-pub struct Shader {
+pub struct ShaderPart {
     id: gl::types::GLuint,
 }
 
-impl Shader {
-    pub fn from_source(source: &CStr, kind: gl::types::GLenum) -> Result<Shader, String> {
+impl ShaderPart {
+    pub fn from_source(source: &CStr, kind: gl::types::GLenum) -> Result<ShaderPart, String> {
         let id = shader_from_source(source, kind)?;
-        Ok(Shader { id })
+        Ok(ShaderPart { id })
     }
 
-    pub fn from_vert_source(source: &CStr) -> Result<Shader, String> {
-        Shader::from_source(source, gl::VERTEX_SHADER)
+    pub fn from_vert_source(source: &CStr) -> Result<ShaderPart, String> {
+        ShaderPart::from_source(source, gl::VERTEX_SHADER)
     }
 
-    pub fn from_frag_source(source: &CStr) -> Result<Shader, String> {
-        Shader::from_source(source, gl::FRAGMENT_SHADER)
+    pub fn from_frag_source(source: &CStr) -> Result<ShaderPart, String> {
+        ShaderPart::from_source(source, gl::FRAGMENT_SHADER)
     }
 }
 
-impl Drop for Shader {
+impl Drop for ShaderPart {
     fn drop(&mut self) {
         gl_call!(gl::DeleteShader(self.id));
     }
@@ -65,11 +65,12 @@ fn create_whitespace_cstring_with_len(len: usize) -> CString {
 }
 
 #[derive(Debug)]
-pub struct Program {
-    id: gl::types::GLuint
+#[derive(Clone)]
+pub struct ShaderProgram {
+    pub id: u32
 }
 
-impl Program {
+impl ShaderProgram {
     pub fn use_program(&self) {
         gl_call!(gl::UseProgram(self.id));
     }
@@ -82,6 +83,12 @@ impl Program {
             panic!("Can't find uniform '{}' in program with id: {}", name, self.id);
         }
         location
+    }
+
+    pub fn set_uniform3f(&self, name: &str, values: &[f32; 3]) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::Uniform3f(location, values[0], values[1], values[2]));
+        self
     }
 
     pub fn set_uniform4f(&self, name: &str, values: &[f32; 4]) -> &Self {
@@ -108,7 +115,7 @@ impl Program {
         self
     }
 
-    pub fn from_shaders(vertex: Shader, fragment: Shader) -> Result<Program, String> {
+    pub fn from_shaders(vertex: ShaderPart, fragment: ShaderPart) -> Result<ShaderProgram, String> {
         let program_id = gl_call!(gl::CreateProgram());
 
         gl_call!(gl::AttachShader(program_id, vertex.id));
@@ -137,11 +144,11 @@ impl Program {
 
         gl_call!(gl::DetachShader(program_id, vertex.id));
         gl_call!(gl::DetachShader(program_id, fragment.id));
-        Ok(Program { id: program_id })
+        Ok(ShaderProgram { id: program_id })
     }
 }
 
-impl Drop for Program {
+impl Drop for ShaderProgram {
     fn drop(&mut self) {
         gl_call!(gl::DeleteProgram(self.id));
     }

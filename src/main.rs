@@ -5,20 +5,24 @@ extern crate gl;
 mod debugging;
 mod gl_wrapper;
 mod ecs;
+mod shaders;
 
 use glfw::{Action, Context, Key, WindowHint, OpenGlProfileHint, WindowMode, Window, WindowEvent};
 use std::ffi::CString;
 use std::sync::mpsc::Receiver;
 use std::os::raw::c_void;
-use crate::gl_wrapper::vao::VAO;
-use crate::gl_wrapper::vbo::VBO;
-use crate::gl_wrapper::ebo::EBO;
-use crate::gl_wrapper::shader_compilation::*;
-use crate::gl_wrapper::texture_2d::Texture2D;
-use crate::ecs::components::{Transform, Velocity};
+use gl_wrapper::vao::VAO;
+use gl_wrapper::vbo::VBO;
+use gl_wrapper::ebo::EBO;
+use gl_wrapper::shader_compilation::*;
+use gl_wrapper::texture_2d::Texture2D;
+use ecs::components::{Transform, Velocity, Mesh, Camera};
 use specs::prelude::*;
-use crate::ecs::systems::{MoveSystem, MeshRenderer};
-use cgmath::vec3;
+use ecs::systems::{MoveSystem, MeshRenderer};
+use cgmath::{vec3, Vector3};
+use ecs::resources::ActiveCamera;
+use shaders::diffuse;
+use crate::shaders::diffuse::DiffuseShader;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -37,62 +41,52 @@ fn main() {
     let mut world = World::new();
     world.register::<Transform>();
     world.register::<Velocity>();
-    world.register::<ecs::components::Shader>();
+    world.register::<ecs::components::Material>();
+    world.register::<Mesh>();
+    world.register::<Camera>();
+    world.insert(ActiveCamera::default());
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
-
-    let vert_shader = Shader::from_vert_source(
-        &CString::new(include_str!("triangle.vert")).unwrap()
-    ).unwrap();
-
-    let frag_shader = Shader::from_frag_source(
-        &CString::new(include_str!("triangle.frag")).unwrap()
-    ).unwrap();
 
     gl_call!(gl::Viewport(0, 0, 800, 800));
     gl_call!(gl::ClearColor(0.2, 0.3, 0.3, 1.0));
 
     let vertices = [
         -0.5f32, -0.5, -0.5, 0.0, 0.0,
-         0.5,  0.5, -0.5, 1.0, 1.0,
-         0.5, -0.5, -0.5, 1.0, 0.0,
-         0.5,  0.5, -0.5, 1.0, 1.0,
+        0.5, 0.5, -0.5, 1.0, 1.0,
+        0.5, -0.5, -0.5, 1.0, 0.0,
+        0.5, 0.5, -0.5, 1.0, 1.0,
         -0.5, -0.5, -0.5, 0.0, 0.0,
-        -0.5,  0.5, -0.5, 0.0, 1.0,
-
-        -0.5, -0.5,  0.5, 0.0, 0.0,
-         0.5, -0.5,  0.5, 1.0, 0.0,
-         0.5,  0.5,  0.5, 1.0, 1.0,
-         0.5,  0.5,  0.5, 1.0, 1.0,
-        -0.5,  0.5,  0.5, 0.0, 1.0,
-        -0.5, -0.5,  0.5, 0.0, 0.0,
-
-        -0.5,  0.5,  0.5, 1.0, 0.0,
-        -0.5,  0.5, -0.5, 1.0, 1.0,
+        -0.5, 0.5, -0.5, 0.0, 1.0,
+        -0.5, -0.5, 0.5, 0.0, 0.0,
+        0.5, -0.5, 0.5, 1.0, 0.0,
+        0.5, 0.5, 0.5, 1.0, 1.0,
+        0.5, 0.5, 0.5, 1.0, 1.0,
+        -0.5, 0.5, 0.5, 0.0, 1.0,
+        -0.5, -0.5, 0.5, 0.0, 0.0,
+        -0.5, 0.5, 0.5, 1.0, 0.0,
+        -0.5, 0.5, -0.5, 1.0, 1.0,
         -0.5, -0.5, -0.5, 0.0, 1.0,
         -0.5, -0.5, -0.5, 0.0, 1.0,
-        -0.5, -0.5,  0.5, 0.0, 0.0,
-        -0.5,  0.5,  0.5, 1.0, 0.0,
-
-         0.5,  0.5,  0.5, 1.0, 0.0,
-         0.5, -0.5, -0.5, 0.0, 1.0,
-         0.5,  0.5, -0.5, 1.0, 1.0,
-         0.5, -0.5, -0.5, 0.0, 1.0,
-         0.5,  0.5,  0.5, 1.0, 0.0,
-         0.5, -0.5,  0.5, 0.0, 0.0,
-
+        -0.5, -0.5, 0.5, 0.0, 0.0,
+        -0.5, 0.5, 0.5, 1.0, 0.0,
+        0.5, 0.5, 0.5, 1.0, 0.0,
+        0.5, -0.5, -0.5, 0.0, 1.0,
+        0.5, 0.5, -0.5, 1.0, 1.0,
+        0.5, -0.5, -0.5, 0.0, 1.0,
+        0.5, 0.5, 0.5, 1.0, 0.0,
+        0.5, -0.5, 0.5, 0.0, 0.0,
         -0.5, -0.5, -0.5, 0.0, 1.0,
-         0.5, -0.5, -0.5, 1.0, 1.0,
-         0.5, -0.5,  0.5, 1.0, 0.0,
-         0.5, -0.5,  0.5, 1.0, 0.0,
-        -0.5, -0.5,  0.5, 0.0, 0.0,
+        0.5, -0.5, -0.5, 1.0, 1.0,
+        0.5, -0.5, 0.5, 1.0, 0.0,
+        0.5, -0.5, 0.5, 1.0, 0.0,
+        -0.5, -0.5, 0.5, 0.0, 0.0,
         -0.5, -0.5, -0.5, 0.0, 1.0,
-
-        -0.5,  0.5, -0.5, 0.0, 1.0,
-         0.5,  0.5,  0.5, 1.0, 0.0,
-         0.5,  0.5, -0.5, 1.0, 1.0,
-         0.5,  0.5,  0.5, 1.0, 0.0,
-        -0.5,  0.5, -0.5, 0.0, 1.0,
+        -0.5, 0.5, -0.5, 0.0, 1.0,
+        0.5, 0.5, 0.5, 1.0, 0.0,
+        0.5, 0.5, -0.5, 1.0, 1.0,
+        0.5, 0.5, 0.5, 1.0, 0.0,
+        -0.5, 0.5, -0.5, 0.0, 1.0,
         -0.5, 0.5, 0.5, 0.0, 0.0,
     ].to_vec();
 
@@ -115,29 +109,58 @@ fn main() {
         (1, 2, gl::FLOAT, std::mem::size_of::<f32>()),
     ]);
 
-    gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32));
-    gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32));
-
     let texture = Texture2D::new();
     texture.bind().fill("src/wall.jpg");
-
-    let prog = Program::from_shaders(vert_shader, frag_shader).unwrap();
-
-
-    Texture2D::activate(0);
-    texture.bind();
 
     vao.bind();
 
     let entity = world.create_entity()
         .with(Transform {
-            position: vec3(0.0f32, 0.0, 0.0),
+            position: vec3(0.0f32, 0.0, 5.0),
             rotation: vec3(2.2f32, 0.9, 1.7),
             scale: vec3(1.0f32, 1.0, 1.0),
         })
-//        .with(Velocity(vec3(0.01f32, 0.0, 0.0)))
-        .with(ecs::components::Shader(prog))
+        .with(Velocity(vec3(0.0f32, 0.0, -0.01)))
+        .with(ecs::components::Material {
+            shader: Box::new(DiffuseShader::new(
+                texture.clone(),
+                vec3(1.0, 1.0, 1.0),
+                1.0))
+        })
+        .with(Mesh(vertices.clone()))
         .build();
+
+    let entity = world.create_entity()
+        .with(Transform {
+            position: vec3(1.0f32, 1.0, 0.0),
+            rotation: vec3(0.0f32, 1.0, 1.5),
+            scale: vec3(0.5f32, 0.5, 0.5),
+        })
+        .with(ecs::components::Material {
+            shader: Box::new(DiffuseShader::new(
+                texture,
+                vec3(1.0, 1.0, 1.0),
+                0.1))
+        })
+        .with(Mesh(vertices))
+        .build();
+
+    use std::f32;
+    let camera_entity = world.create_entity()
+        .with(Transform {
+            position: vec3(0.0, 0.0, 3.0),
+            rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
+            scale: vec3(1.0, 1.0, 1.0),
+        })
+        .with(Velocity(vec3(0.0f32, 0.0, 0.0)))
+        .with(Camera {
+            fov: 60.0,
+            aspect_ratio: 1.0,
+            near_plane: 0.1,
+            far_plane: 100.0,
+        }).build();
+
+    world.write_resource::<ActiveCamera>().entity = Some(camera_entity);
 
     let mut dispatcher = DispatcherBuilder::new()
         .with(MoveSystem, "move_system", &[])
@@ -156,7 +179,6 @@ fn main() {
 //        gl_call!(gl::DrawElements(gl::TRIANGLES,
 //                                  indices.len() as i32,
 //                                  gl::UNSIGNED_INT, 0 as *const c_void));
-        gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32));
 
         window.swap_buffers();
         window.glfw.poll_events();
