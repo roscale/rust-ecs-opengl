@@ -9,12 +9,17 @@ pub struct DiffuseShader {
     pub diffuse_texture: Texture2D,
     pub light_color: Vector3<f32>,
     pub ambient_strength: f32,
+    pub specular_strength: f32,
+    pub shininess: f32,
+
 }
 
 impl DiffuseShader {
     pub fn new(diffuse_texture: Texture2D,
                light_color: Vector3<f32>,
-               ambient_strength: f32) -> Self {
+               ambient_strength: f32,
+               specular_strength: f32,
+               shininess: f32) -> Self {
         let vert_shader = ShaderPart::from_vert_source(
             &CString::new(include_str!("diffuse.vert")).unwrap()
         ).unwrap();
@@ -30,6 +35,8 @@ impl DiffuseShader {
             diffuse_texture,
             light_color,
             ambient_strength,
+            specular_strength,
+            shininess
         }
     }
 }
@@ -48,9 +55,21 @@ impl Shader for DiffuseShader {
         self.program.set_uniform_matrix4fv("view", Matrix4::as_ptr(view));
         self.program.set_uniform_matrix4fv("projection", Matrix4::as_ptr(projection));
         self.program.set_uniform1i("diffuse", 0);
+
+        let light_view_space: Vector4<f32> = view * Vector4 {
+            x: 0.0f32,
+            y: 0.0,
+            z: 5.0,
+            w: 1.0,
+        };
+        self.program.set_uniform3f("light_pos", &[
+            light_view_space.x, light_view_space.y, light_view_space.z,
+        ]);
         self.program.set_uniform3f("light_color", &[
             self.light_color.x, self.light_color.y, self.light_color.z
         ]);
         self.program.set_uniform1f("ambient_strength", self.ambient_strength);
+        self.program.set_uniform1f("specular_strength", self.specular_strength);
+        self.program.set_uniform1f("shininess", self.shininess);
     }
 }

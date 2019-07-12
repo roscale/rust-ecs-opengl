@@ -32,7 +32,7 @@ impl VAO {
 
         let mut offset = 0;
         for (index, count, gl_type, type_size) in attributes {
-            let total_size = 3 * *type_size;
+            let total_size = *count as usize * *type_size;
             gl_call!(gl::VertexAttribPointer(*index, *count, *gl_type, gl::FALSE,
                                     stride,
                                     offset as *const c_void));

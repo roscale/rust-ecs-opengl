@@ -19,13 +19,15 @@ impl<'a> System<'a> for MoveSystem {
 }
 
 pub struct MeshRenderer;
+
 use crate::shaders::Shader;
+use specs::storage::UnprotectedStorage;
 
 impl<'a> System<'a> for MeshRenderer {
     type SystemData = (ReadStorage<'a, Transform>,
                        ReadStorage<'a, Material>,
                        ReadStorage<'a, Mesh>,
-                        ReadStorage<'a, Material>,
+                       ReadStorage<'a, Material>,
                        ReadStorage<'a, Camera>,
                        Read<'a, ActiveCamera>);
 
@@ -41,7 +43,7 @@ impl<'a> System<'a> for MeshRenderer {
         let direction = Vector3 {
             x: Rad(cam_tr.rotation.x).cos() * Rad(cam_tr.rotation.y).cos(),
             y: Rad(cam_tr.rotation.x).sin(),
-            z: Rad(cam_tr.rotation.x).cos() * Rad(cam_tr.rotation.y).sin()
+            z: Rad(cam_tr.rotation.x).cos() * Rad(cam_tr.rotation.y).sin(),
         };
 
         let up = vec3(0.0f32, 1.0, 0.0);
@@ -53,6 +55,14 @@ impl<'a> System<'a> for MeshRenderer {
             y: cam_tr.position.y,
             z: cam_tr.position.z,
         }, direction, up);
+
+        let view_matrix = look_at * Matrix4::from_translation(-cam_tr.position);
+        let projection_matrix = cgmath::perspective(
+            Deg(camera.fov),
+            camera.aspect_ratio,
+            camera.near_plane,
+            camera.far_plane,
+        );
 
         for (transform, shader, mesh, material) in (&transform, &shader, &mesh, &material).join() {
             let model_matrix = {
@@ -68,14 +78,6 @@ impl<'a> System<'a> for MeshRenderer {
                 let scale_matrix: Matrix4<f32> = Matrix4::from_nonuniform_scale(transform.scale.x, transform.scale.y, transform.scale.y);
                 translate_matrix * rotate_matrix * scale_matrix
             };
-
-            let view_matrix = look_at * Matrix4::from_translation(-cam_tr.position);
-            let projection_matrix = cgmath::perspective(
-                Deg(camera.fov),
-                camera.aspect_ratio,
-                camera.near_plane,
-                camera.far_plane
-            );
 
             let material = material as &Material;
             let ref shader = material.shader;
