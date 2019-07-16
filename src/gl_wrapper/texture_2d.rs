@@ -35,7 +35,7 @@ impl Texture2D {
         let pixels = img.raw_pixels();
 
         gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
-                                gl::RGB as i32, width, height, 0, gl::RGB,
+                                gl::RGBA as i32, width, height, 0, gl::RGBA,
                                 gl::UNSIGNED_BYTE, pixels.as_ptr() as *const c_void));
 
         gl_call!(gl::GenerateMipmap(gl::TEXTURE_2D));

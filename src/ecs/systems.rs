@@ -1,8 +1,9 @@
 use specs::prelude::*;
 use specs::{System, WriteStorage, ReadStorage};
-use crate::ecs::components::{Transform, Velocity, Material, Mesh, Camera};
-use crate::ecs::resources::ActiveCamera;
-use cgmath::{Matrix4, Point3, Vector3, Rad, Decomposed, Matrix, vec3, Deg, Angle, InnerSpace};
+use crate::ecs::components::*;
+use crate::ecs::resources::*;
+use cgmath::{Matrix4, Point3, Vector3, Rad, Decomposed, Matrix, vec3, Deg, Angle, InnerSpace, vec2};
+use std::ops::Deref;
 
 pub struct MoveSystem;
 
@@ -18,6 +19,48 @@ impl<'a> System<'a> for MoveSystem {
     }
 }
 
+pub struct InputSystem;
+
+impl<'a> System<'a> for InputSystem {
+    type SystemData = (Write<'a, InputEventQueue>,
+                       ReadStorage<'a, Input>,
+                       WriteStorage<'a, Transform>,
+                       ReadStorage<'a, Camera>,
+                       Read<'a, ActiveCamera>,
+                       Write<'a, InputCache>);
+
+    fn run(&mut self, (mut input_event_queue, inputs, mut transforms, cameras, active_camera, mut input_cache): Self::SystemData) {
+        let active_camera = active_camera.entity.unwrap();
+        let camera = cameras.get(active_camera).unwrap();
+        let transform = transforms.get_mut(active_camera).unwrap();
+
+        while let Some(ref event) = input_event_queue.queue.pop_front() {
+            match event {
+                glfw::WindowEvent::CursorPos(x, y) => {
+                    let x = *x as f32;
+                    let y = *y as f32;
+                    let current_pos = vec2(x, y);
+                    input_cache.cursor_rel_pos = current_pos - input_cache.last_cursor_pos;
+                    input_cache.last_cursor_pos = vec2(x, y);
+                    let (x, y) = (input_cache.cursor_rel_pos.x, input_cache.cursor_rel_pos.y);
+                    println!("x: {} y: {}", x, y);
+
+                    transform.rotation.y += x * 0.001;
+                    transform.rotation.x -= y * 0.001;
+                },
+
+//                glfw::WindowEvent::CursorEnter(enter) => {
+//                    if *enter {
+//                        input_cache.cursor_rel_pos = vec2(0.0, 0.0);
+//                        input_cache.last_cursor_pos = vec2(0.0, 0.0);
+//                    }
+//                }
+                _ => {}
+            }
+        }
+    }
+}
+
 pub struct MeshRenderer;
 
 use crate::shaders::Shader;
@@ -29,9 +72,10 @@ impl<'a> System<'a> for MeshRenderer {
                        ReadStorage<'a, Mesh>,
                        ReadStorage<'a, Material>,
                        ReadStorage<'a, Camera>,
-                       Read<'a, ActiveCamera>);
+                       Read<'a, ActiveCamera>,
+                       ReadStorage<'a, PointLight>);
 
-    fn run(&mut self, (transform, shader, mesh, material, camera, active_camera): Self::SystemData) {
+    fn run(&mut self, (transform, shader, mesh, material, camera, active_camera, point_lights): Self::SystemData) {
         let (camera, cam_tr) = match active_camera.entity {
             Some(e) => (
                 camera.get(e).expect("Active camera must have a Camera component"),
@@ -63,6 +107,10 @@ impl<'a> System<'a> for MeshRenderer {
             camera.near_plane,
             camera.far_plane,
         );
+
+        for light in (&point_lights).join() {
+            println!("Range: {}", light.range);
+        }
 
         for (transform, shader, mesh, material) in (&transform, &shader, &mesh, &material).join() {
             let model_matrix = {
