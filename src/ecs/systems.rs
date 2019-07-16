@@ -2,7 +2,7 @@ use specs::prelude::*;
 use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
-use cgmath::{Matrix4, Point3, Vector3, Rad, Decomposed, Matrix, vec3, Deg, Angle, InnerSpace, vec2};
+use nalgebra_glm::{Vec2, Vec3, vec2, Mat4, vec3};
 use std::ops::Deref;
 
 pub struct MoveSystem;
@@ -47,7 +47,7 @@ impl<'a> System<'a> for InputSystem {
 
                     transform.rotation.y += x * 0.001;
                     transform.rotation.x -= y * 0.001;
-                },
+                }
 
 //                glfw::WindowEvent::CursorEnter(enter) => {
 //                    if *enter {
@@ -65,6 +65,7 @@ pub struct MeshRenderer;
 
 use crate::shaders::Shader;
 use specs::storage::UnprotectedStorage;
+use nalgebra::{Vector3, Translation, Matrix4, Translation3, Point3};
 
 impl<'a> System<'a> for MeshRenderer {
     type SystemData = (ReadStorage<'a, Transform>,
@@ -84,29 +85,16 @@ impl<'a> System<'a> for MeshRenderer {
             None => return
         };
 
-        let direction = Vector3 {
-            x: Rad(cam_tr.rotation.x).cos() * Rad(cam_tr.rotation.y).cos(),
-            y: Rad(cam_tr.rotation.x).sin(),
-            z: Rad(cam_tr.rotation.x).cos() * Rad(cam_tr.rotation.y).sin(),
-        };
-
-        let up = vec3(0.0f32, 1.0, 0.0);
-//        let cam_right = Vector3::normalize(Vector3::cross(up, direction));
-//        let cam_up = Vector3::cross(direction, cam_right);
-
-        let look_at: Matrix4<f32> = Matrix4::look_at_dir(Point3 {
-            x: cam_tr.position.x,
-            y: cam_tr.position.y,
-            z: cam_tr.position.z,
-        }, direction, up);
-
-        let view_matrix = look_at * Matrix4::from_translation(-cam_tr.position);
-        let projection_matrix = cgmath::perspective(
-            Deg(camera.fov),
-            camera.aspect_ratio,
-            camera.near_plane,
-            camera.far_plane,
+        let mut direction = vec3(
+            cam_tr.rotation.x.cos() * cam_tr.rotation.y.cos(),
+            cam_tr.rotation.x.sin(),
+            cam_tr.rotation.x.cos() * cam_tr.rotation.y.sin(),
         );
+
+        let look_at = nalgebra_glm::look_at(&cam_tr.position, &(cam_tr.position + direction), &Vector3::y());
+        let view_matrix = look_at.prepend_translation(&(-cam_tr.position));
+
+        let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
 
         for light in (&point_lights).join() {
             println!("Range: {}", light.range);
@@ -114,16 +102,15 @@ impl<'a> System<'a> for MeshRenderer {
 
         for (transform, shader, mesh, material) in (&transform, &shader, &mesh, &material).join() {
             let model_matrix = {
-                let translate_matrix = Matrix4::from_translation(transform.position);
+                let translate_matrix = Matrix4::new_translation(&transform.position);
 
-                let rotate_matrix = {
-                    let rotate_matrix_x = Matrix4::from_angle_x(Rad(transform.rotation.x));
-                    let rotate_matrix_y = Matrix4::from_angle_y(Rad(transform.rotation.y));
-                    let rotate_matrix_z = Matrix4::from_angle_z(Rad(transform.rotation.z));
-                    rotate_matrix_x * rotate_matrix_y * rotate_matrix_z
-                };
+                let rotate_matrix = Matrix4::from_euler_angles(
+                    transform.rotation.x,
+                    transform.rotation.y,
+                    transform.rotation.z,
+                );
 
-                let scale_matrix: Matrix4<f32> = Matrix4::from_nonuniform_scale(transform.scale.x, transform.scale.y, transform.scale.y);
+                let scale_matrix: Mat4 = Matrix4::new_nonuniform_scaling(&transform.scale);
                 translate_matrix * rotate_matrix * scale_matrix
             };
 

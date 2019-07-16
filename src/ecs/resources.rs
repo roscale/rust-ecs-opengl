@@ -1,7 +1,7 @@
 use crate::Camera;
 use specs::Entity;
 use std::collections::VecDeque;
-use cgmath::{Vector2, vec2};
+use nalgebra_glm::{Vec2, vec2};
 
 pub struct ActiveCamera {
     pub entity: Option<Entity>
@@ -19,8 +19,8 @@ pub struct InputEventQueue {
 }
 
 pub struct InputCache {
-    pub last_cursor_pos: Vector2<f32>,
-    pub cursor_rel_pos: Vector2<f32>,
+    pub last_cursor_pos: Vec2,
+    pub cursor_rel_pos: Vec2,
 }
 
 impl Default for InputCache {

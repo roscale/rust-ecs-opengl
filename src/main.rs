@@ -21,12 +21,13 @@ use gl_wrapper::texture_2d::Texture2D;
 use ecs::components::*;
 use specs::prelude::*;
 use ecs::systems::*;
-use cgmath::{vec3, Vector3};
 use ecs::resources::*;
 use shaders::diffuse;
 use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
 use glfw::ffi::glfwSwapInterval;
+use nalgebra_glm::vec3;
+use std::time::Duration;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -67,7 +68,7 @@ fn main() {
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     gl_call!(gl::Viewport(0, 0, 800, 800));
-    gl_call!(gl::ClearColor(0.2, 0.3, 0.3, 1.0));
+    gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
     let vertices = [
         -0.5f32, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0,
@@ -183,7 +184,7 @@ fn main() {
         })
         .with(Velocity(vec3(0.0f32, 0.0, 0.0)))
         .with(Camera {
-            fov: 60.0,
+            fov: 60.0f32.to_radians(),
             aspect_ratio: 1.0,
             near_plane: 0.1,
             far_plane: 100.0,
@@ -225,5 +226,6 @@ fn main() {
 
         window.swap_buffers();
         window.glfw.poll_events();
+        std::thread::sleep(Duration::new(0, 16666666));
     }
 }

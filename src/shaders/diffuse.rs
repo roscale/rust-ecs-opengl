@@ -2,13 +2,13 @@ use crate::gl_wrapper::texture_2d::*;
 use super::Shader;
 use crate::gl_wrapper::shader_compilation::*;
 use std::ffi::CString;
-use cgmath::{Matrix4, Matrix, Vector3, Vector4};
+use nalgebra_glm::{Vec3, Mat4, Vec4, vec4};
 
 pub struct DiffuseShader {
     program: ShaderProgram,
     pub diffuse_texture: Texture2D,
     pub specular_texture: Texture2D,
-    pub light_color: Vector3<f32>,
+    pub light_color: Vec3,
     pub ambient_strength: f32,
     pub intensity: f32,
     pub shininess: f32,
@@ -18,7 +18,7 @@ pub struct DiffuseShader {
 impl DiffuseShader {
     pub fn new(diffuse_texture: Texture2D,
                specular_texture: Texture2D,
-               light_color: Vector3<f32>,
+               light_color: Vec3,
                ambient_strength: f32,
                intensity: f32,
                shininess: f32) -> Self {
@@ -55,22 +55,22 @@ impl Shader for DiffuseShader {
         self.program.use_program();
     }
 
-    fn bind_uniforms(&self, model: &Matrix4<f32>,
-                     view: &Matrix4<f32>,
-                     projection: &Matrix4<f32>) {
-        self.program.set_uniform_matrix4fv("model", Matrix4::as_ptr(model));
-        self.program.set_uniform_matrix4fv("view", Matrix4::as_ptr(view));
-        self.program.set_uniform_matrix4fv("projection", Matrix4::as_ptr(projection));
+    fn bind_uniforms(&self, model: &Mat4,
+                     view: &Mat4,
+                     projection: &Mat4) {
+        self.program.set_uniform_matrix4fv("model", model.as_ptr());
+        self.program.set_uniform_matrix4fv("view", view.as_ptr());
+        self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
         self.program.set_uniform1i("material.diffuse", 0);
         self.program.set_uniform1i("material.specular", 1);
         self.program.set_uniform1f("material.shininess", self.shininess);
 
-        let light_view_space: Vector4<f32> = view * Vector4 {
-            x: 0.0f32,
-            y: 0.0,
-            z: 5.0,
-            w: 1.0,
-        };
+        let light_view_space: Vec4 = view * vec4(
+            0.0f32,
+            0.0,
+            5.0,
+            1.0,
+        );
         self.program.set_uniform3f("light.position", &[
             light_view_space.x, light_view_space.y, light_view_space.z,
         ]);

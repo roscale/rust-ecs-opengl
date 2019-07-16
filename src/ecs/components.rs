@@ -1,18 +1,18 @@
 use specs::prelude::*;
-use cgmath::Vector3;
+use nalgebra_glm::Vec3;
 use crate::shaders::Shader;
 
 // TODO implement Default trait to all the components
 
 #[derive(Component, Debug)]
 pub struct Transform {
-    pub position: Vector3<f32>,
-    pub rotation: Vector3<f32>,
-    pub scale: Vector3<f32>,
+    pub position: Vec3,
+    pub rotation: Vec3,
+    pub scale: Vec3,
 }
 
 #[derive(Component, Debug)]
-pub struct Velocity(pub Vector3<f32>);
+pub struct Velocity(pub Vec3);
 
 #[derive(Component)]
 pub struct Material {
@@ -32,22 +32,22 @@ pub struct Camera {
 
 #[derive(Component, Debug)]
 pub struct DirLight {
-    pub color: Vector3<f32>,
+    pub color: Vec3,
     pub range: f32,
     pub intensity: f32,
-    pub direction: Vector3<f32>,
+    pub direction: Vec3,
 }
 
 #[derive(Component, Debug)]
 pub struct PointLight {
-    pub color: Vector3<f32>,
+    pub color: Vec3,
     pub range: f32,
     pub intensity: f32
 }
 
 #[derive(Component, Debug)]
 pub struct Spotlight {
-    pub color: Vector3<f32>,
+    pub color: Vec3,
     pub range: f32,
     pub intensity: f32
 }
