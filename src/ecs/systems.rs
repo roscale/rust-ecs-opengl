@@ -19,6 +19,50 @@ impl<'a> System<'a> for MoveSystem {
     }
 }
 
+pub struct TransformSystem {
+    pub reader_id: ReaderId<ComponentEvent>,
+    pub dirty: BitSet,
+}
+
+impl<'a> System<'a> for TransformSystem {
+    type SystemData = (Entities<'a>, WriteStorage<'a, Transform>);
+
+    fn run(&mut self, (entities, mut transforms): Self::SystemData) {
+        self.dirty.clear();
+        let events = transforms.channel().read(&mut self.reader_id);
+
+        for event in events {
+            println!("EVENT: {:#?}", *event);
+            match event {
+                ComponentEvent::Modified(id) | ComponentEvent::Inserted(id) => {
+                    self.dirty.add(*id);
+                }
+                ComponentEvent::Removed(_) => (),
+            }
+        }
+
+        for (mut transforms, en) in (&mut transforms.restrict_mut(), &self.dirty).join() {
+            let mut transform = transforms.get_mut_unchecked();
+
+            transform.model_matrix = {
+                let translate_matrix = Matrix4::new_translation(&transform.position);
+
+                let rotate_matrix = Matrix4::from_euler_angles(
+                    transform.rotation.x,
+                    transform.rotation.y,
+                    transform.rotation.z,
+                );
+
+                let scale_matrix: Mat4 = Matrix4::new_nonuniform_scaling(&transform.scale);
+                translate_matrix * rotate_matrix * scale_matrix
+            };
+        }
+
+        // Workaround for unflagging the components
+        transforms.channel().read(&mut self.reader_id);
+    }
+}
+
 pub struct InputSystem;
 
 impl<'a> System<'a> for InputSystem {
@@ -32,11 +76,12 @@ impl<'a> System<'a> for InputSystem {
     fn run(&mut self, (mut input_event_queue, inputs, mut transforms, cameras, active_camera, mut input_cache): Self::SystemData) {
         let active_camera = active_camera.entity.unwrap();
         let camera = cameras.get(active_camera).unwrap();
-        let transform = transforms.get_mut(active_camera).unwrap();
 
         while let Some(ref event) = input_event_queue.queue.pop_front() {
+            let transform = transforms.get_mut(active_camera).unwrap();
+
             match event {
-                glfw::WindowEvent::CursorPos(x, y) => {
+                WindowEvent::CursorPos(x, y) => {
                     let x = *x as f32;
                     let y = *y as f32;
                     let current_pos = vec2(x, y);
@@ -49,6 +94,10 @@ impl<'a> System<'a> for InputSystem {
                     transform.rotation.x -= y * 0.001;
                 }
 
+                WindowEvent::Key(key, _, action, _) => {
+                    input_cache.key_states.insert(*key, *action);
+                }
+
 //                glfw::WindowEvent::CursorEnter(enter) => {
 //                    if *enter {
 //                        input_cache.cursor_rel_pos = vec2(0.0, 0.0);
@@ -58,6 +107,26 @@ impl<'a> System<'a> for InputSystem {
                 _ => {}
             }
         }
+
+        if input_cache.is_key_pressed(Key::W) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position += transform.forward().scale(0.1f32);
+        }
+
+        if input_cache.is_key_pressed(Key::S) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position -= transform.forward().scale(0.1f32);
+        }
+
+        if input_cache.is_key_pressed(Key::A) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position -= transform.forward().cross(&Vector3::y()).scale(0.1f32);
+        }
+
+        if input_cache.is_key_pressed(Key::D) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position += transform.forward().cross(&Vector3::y()).scale(0.1f32);
+        }
     }
 }
 
@@ -65,7 +134,8 @@ pub struct MeshRenderer;
 
 use crate::shaders::Shader;
 use specs::storage::UnprotectedStorage;
-use nalgebra::{Vector3, Translation, Matrix4, Translation3, Point3};
+use nalgebra::{Vector3, Translation, Matrix4, Translation3, Point3, Vector4};
+use glfw::{Key, Action, WindowEvent};
 
 impl<'a> System<'a> for MeshRenderer {
     type SystemData = (ReadStorage<'a, Transform>,
@@ -101,18 +171,7 @@ impl<'a> System<'a> for MeshRenderer {
         }
 
         for (transform, shader, mesh, material) in (&transform, &shader, &mesh, &material).join() {
-            let model_matrix = {
-                let translate_matrix = Matrix4::new_translation(&transform.position);
-
-                let rotate_matrix = Matrix4::from_euler_angles(
-                    transform.rotation.x,
-                    transform.rotation.y,
-                    transform.rotation.z,
-                );
-
-                let scale_matrix: Mat4 = Matrix4::new_nonuniform_scaling(&transform.scale);
-                translate_matrix * rotate_matrix * scale_matrix
-            };
+            let model_matrix = transform.model_matrix;
 
             let material = material as &Material;
             let ref shader = material.shader;

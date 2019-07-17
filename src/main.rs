@@ -67,7 +67,7 @@ fn main() {
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
-    gl_call!(gl::Viewport(0, 0, 800, 800));
+    gl_call!(gl::Viewport(0, 0, 1000, 1000));
     gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
     let vertices = [
@@ -130,46 +130,69 @@ fn main() {
     ]);
 
     let diffuse = Texture2D::new();
-    diffuse.bind().fill("src/diffuse.png");
+    diffuse.bind().fill("src/planks_oak.png");
 
     let specular = Texture2D::new();
     specular.bind().fill("src/specular.png");
 
     vao.bind();
 
-    let entity = world.create_entity()
-        .with(Transform {
-            position: vec3(0.5f32, 0.0, 5.0),
-//            rotation: vec3(2.2f32, 0.9, 1.7),
-            rotation: vec3(0.0f32, 0.0, 0.0),
-            scale: vec3(1.0f32, 1.0, 1.0),
-        })
-        .with(Velocity(vec3(0.0f32, 0.0, -0.01)))
-        .with(ecs::components::Material {
-            shader: Box::new(DiffuseShader::new(
-                diffuse.clone(),
-                specular.clone(),
-                vec3(1.0, 1.0, 1.0),
-                0.2,
-                1.5,
-                128.0))
-        })
-        .with(Mesh(vertices.clone()))
+
+
+    let transform_system = {
+        let mut comps = world.write_storage::<Transform>();
+        TransformSystem {
+            reader_id: comps.register_reader(),
+            dirty: BitSet::new(),
+        }
+    };
+
+    let mut dispatcher = DispatcherBuilder::new()
+        .with(MoveSystem, "move_system", &[])
+        .with_barrier()
+        .with(transform_system, "transform_system", &[])
+        .with_thread_local(MeshRenderer)
         .build();
+
+
+
+
+    for i in 0..10 {
+        for j in 0..10 {
+            let entity = world.create_entity()
+                .with(Transform {
+                    position: vec3(i as f32, -3.0, j as f32),
+                    ..Transform::default()
+                })
+                .with(ecs::components::Material {
+                    shader: Box::new(DiffuseShader::new(
+                        diffuse.clone(),
+                        specular.clone(),
+                        vec3(1.0, 1.0, 1.0),
+                        1.0,
+                        0.0,
+                        32.0))
+                })
+                .with(Mesh(vertices.clone()))
+                .build();
+        }
+    }
 
     let entity = world.create_entity()
         .with(Transform {
             position: vec3(1.0f32, 1.0, 0.0),
             rotation: vec3(0.0f32, 1.0, 1.5),
             scale: vec3(0.5f32, 0.5, 0.5),
+            ..Transform::default()
         })
+        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(ecs::components::Material {
             shader: Box::new(DiffuseShader::new(
                 diffuse,
                 specular.clone(),
                 vec3(1.0, 1.0, 1.0),
-                0.2,
-                0.5,
+                1.0,
+                0.0,
                 32.0))
         })
         .with(Mesh(vertices))
@@ -180,9 +203,9 @@ fn main() {
         .with(Transform {
             position: vec3(0.0, 0.0, 3.0),
             rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
-            scale: vec3(1.0, 1.0, 1.0),
+            ..Transform::default()
         })
-        .with(Velocity(vec3(0.0f32, 0.0, 0.0)))
+//        .with(Velocity(vec3(0.0f32, 0.0, 0.0)))
         .with(Camera {
             fov: 60.0f32.to_radians(),
             aspect_ratio: 1.0,
@@ -192,15 +215,14 @@ fn main() {
         .with(Input)
         .build();
 
+
     world.write_resource::<ActiveCamera>().entity = Some(camera_entity);
 
-    let mut dispatcher = DispatcherBuilder::new()
-        .with(MoveSystem, "move_system", &[])
-        .with_thread_local(MeshRenderer)
-        .build();
 
     let mut input_system = InputSystem;
 
+    gl_call!(gl::Enable(gl::CULL_FACE));
+    gl_call!(gl::CullFace(gl::BACK));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
@@ -209,7 +231,6 @@ fn main() {
                     window.set_should_close(true)
                 }
                 _ => {
-                    println!("Event {:?}", event);
                     world.write_resource::<InputEventQueue>().queue.push_back(event);
                 }
             }
