@@ -3,6 +3,7 @@ use specs::Entity;
 use std::collections::{VecDeque, HashMap};
 use nalgebra_glm::{Vec2, vec2};
 use glfw::{Key, Action};
+use crate::gl_wrapper::texture_2d::Texture2D;
 
 pub struct ActiveCamera {
     pub entity: Option<Entity>
@@ -41,6 +42,25 @@ impl InputCache {
         match self.key_states.get(&key) {
             None => false,
             Some(action) => *action == Action::Press || *action == Action::Repeat
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct Textures {
+    textures: HashMap<String, Texture2D>
+}
+
+impl Textures {
+    pub fn get(&mut self, id: &str) -> Texture2D {
+        match self.textures.get(id) {
+            Some(t) => t.clone(),
+            None => {
+                let t = Texture2D::new();
+                self.textures.insert(id.into(), t.clone());
+                t.bind().fill(id);
+                t
+            }
         }
     }
 }

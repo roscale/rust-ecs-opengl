@@ -85,13 +85,13 @@ impl ShaderProgram {
         location
     }
 
-    pub fn set_uniform3f(&self, name: &str, values: &[f32; 3]) -> &Self {
+    pub fn set_uniform3f(&self, name: &str, values: &[f32]) -> &Self {
         let location = self.get_uniform_location(name);
         gl_call!(gl::Uniform3f(location, values[0], values[1], values[2]));
         self
     }
 
-    pub fn set_uniform4f(&self, name: &str, values: &[f32; 4]) -> &Self {
+    pub fn set_uniform4f(&self, name: &str, values: &[f32]) -> &Self {
         let location = self.get_uniform_location(name);
         gl_call!(gl::Uniform4f(location, values[0], values[1], values[2], values[3]));
         self

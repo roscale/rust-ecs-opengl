@@ -7,8 +7,13 @@ in vec3 frag_view_space;
 in vec3 pass_normal;
 
 struct Material {
-    sampler2D diffuse;
-    sampler2D specular;
+    bool using_textures;
+    sampler2D diffuse_texture;
+    sampler2D specular_texture;
+
+    vec3 diffuse_color;
+    vec3 specular_color;
+
     float shininess;
 };
 
@@ -23,8 +28,16 @@ uniform Material material;
 uniform Light light;
 
 void main() {
-    vec3 diffuse_frag = texture(material.diffuse, texture_coords).rgb;
-    vec3 specular_frag = texture(material.specular, texture_coords).rgb;
+    vec3 diffuse_frag;
+    vec3 specular_frag;
+    if (material.using_textures) {
+        diffuse_frag = texture(material.diffuse_texture, texture_coords).rgb;
+        specular_frag = texture(material.specular_texture, texture_coords).rgb;
+    } else {
+        diffuse_frag = material.diffuse_color;
+        specular_frag = material.specular_color;
+    }
+
     // ambient
     vec3 ambient_color = light.ambient_strength * diffuse_frag;
 
@@ -39,8 +52,8 @@ void main() {
     vec3 light_reflection = reflect(-light_dir, normal);
 
     float spec = pow(max(dot(frag_to_camera, light_reflection), 0.0), material.shininess);
-    vec3 specular_color = light.color * spec * light.intensity * vec3(texture(material.specular, texture_coords));
+    vec3 specular_color = light.color * spec * light.intensity * specular_frag;
 
-    vec3 result = (ambient_color + diffuse_color + specular_color) * texture(material.diffuse, texture_coords).xyz;
+    vec3 result = (ambient_color + diffuse_color + specular_color) * diffuse_frag;
     Color = vec4(result, 1.0);
 }

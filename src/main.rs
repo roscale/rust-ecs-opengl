@@ -25,9 +25,10 @@ use ecs::resources::*;
 use shaders::diffuse;
 use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
-use glfw::ffi::glfwSwapInterval;
+use glfw::ffi::{glfwSwapInterval, glfwGetTime};
 use nalgebra_glm::vec3;
 use std::time::Duration;
+use std::path::Path;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -64,76 +65,47 @@ fn main() {
     world.register::<Input>();
     world.insert(InputEventQueue::default());
     world.insert(InputCache::default());
+    world.insert(Textures::default());
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     gl_call!(gl::Viewport(0, 0, 1000, 1000));
     gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
-    let vertices = [
-        -0.5f32, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0,
-        0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, -1.0,
-        0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 0.0, -1.0,
-        0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 0.0, -1.0,
-        -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, -1.0,
-        -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, -1.0,
-        -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
-        0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 1.0,
-        0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 1.0,
-        0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 1.0,
-        -0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0,
-        -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
-        -0.5, 0.5, 0.5, 1.0, 0.0, -1.0, 0.0, 0.0,
-        -0.5, 0.5, -0.5, 1.0, 1.0, -1.0, 0.0, 0.0,
-        -0.5, -0.5, -0.5, 0.0, 1.0, -1.0, 0.0, 0.0,
-        -0.5, -0.5, -0.5, 0.0, 1.0, -1.0, 0.0, 0.0,
-        -0.5, -0.5, 0.5, 0.0, 0.0, -1.0, 0.0, 0.0,
-        -0.5, 0.5, 0.5, 1.0, 0.0, -1.0, 0.0, 0.0,
-        0.5, 0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0,
-        0.5, 0.5, -0.5, 1.0, 1.0, 1.0, 0.0, 0.0,
-        0.5, -0.5, -0.5, 0.0, 1.0, 1.0, 0.0, 0.0,
-        0.5, -0.5, -0.5, 0.0, 1.0, 1.0, 0.0, 0.0,
-        0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0,
-        0.5, 0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0,
-        -0.5, -0.5, -0.5, 0.0, 1.0, 0.0, -1.0, 0.0,
-        0.5, -0.5, -0.5, 1.0, 1.0, 0.0, -1.0, 0.0,
-        0.5, -0.5, 0.5, 1.0, 0.0, 0.0, -1.0, 0.0,
-        0.5, -0.5, 0.5, 1.0, 0.0, 0.0, -1.0, 0.0,
-        -0.5, -0.5, 0.5, 0.0, 0.0, 0.0, -1.0, 0.0,
-        -0.5, -0.5, -0.5, 0.0, 1.0, 0.0, -1.0, 0.0,
-        -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0,
-        -0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
-        -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 1.0, 0.0,
-    ].to_vec();
+    let vertices = Vec::new();
 
-//    let indices = [
-//        0u32, 1, 3,
-//        1, 2, 3
-//    ].to_vec();
+    let teapot = tobj::load_obj(&Path::new("src/teapot.obj"));
+    assert!(teapot.is_ok());
+
+    let (models, materials) = teapot.unwrap();
+    let first_model = models.first().unwrap();
+
+    let material = first_model.mesh.material_id.map(|id| &materials[id]);
+    if let Some(material) = material {
+        println!("{}", material.name);
+    }
 
     let vao = VAO::new();
     vao.bind();
 
+    // Indices
+    let ebo = EBO::new();
+    ebo.bind().fill(&first_model.mesh.indices);
+    println!("Len ind: {}", &first_model.mesh.indices.len());
+
+    // Positions
     let vbo_vertices = VBO::new();
-    vbo_vertices.bind().fill(&vertices);
+    vbo_vertices.bind().fill(&first_model.mesh.positions);
+    println!("Len pos: {}", &first_model.mesh.positions.len());
 
-//    let ebo = EBO::new();
-//    ebo.bind().fill(&indices);
+    vao.set_attribute((0, 3, gl::FLOAT, std::mem::size_of::<f32>()));
 
-    vao.set_attributes(&[
-        (0, 3, gl::FLOAT, std::mem::size_of::<f32>()),
-        (1, 2, gl::FLOAT, std::mem::size_of::<f32>()),
-        (2, 3, gl::FLOAT, std::mem::size_of::<f32>()),
-    ]);
+    // Normals
+    let vbo_normals = VBO::new();
+    vbo_normals.bind().fill(&first_model.mesh.normals);
+    println!("Len norm: {}", &first_model.mesh.normals.len());
 
-    let diffuse = Texture2D::new();
-    diffuse.bind().fill("src/planks_oak.png");
-
-    let specular = Texture2D::new();
-    specular.bind().fill("src/specular.png");
+    vao.set_attribute((2, 3, gl::FLOAT, std::mem::size_of::<f32>()));
 
     vao.bind();
 
@@ -154,20 +126,24 @@ fn main() {
         .with_thread_local(MeshRenderer)
         .build();
 
-
-
+    let (diffuse, specular) = {
+        let mut textures = world.write_resource::<Textures>();
+        (textures.get("src/planks_oak.png"),
+         textures.get("src/specular.png"))
+    };
 
     for i in 0..10 {
         for j in 0..10 {
             let entity = world.create_entity()
                 .with(Transform {
                     position: vec3(i as f32, -3.0, j as f32),
+                    scale: vec3(0.008, 0.008, 0.008),
                     ..Transform::default()
                 })
                 .with(ecs::components::Material {
-                    shader: Box::new(DiffuseShader::new(
-                        diffuse.clone(),
-                        specular.clone(),
+                    shader: Box::new(DiffuseShader::new_without_textures(
+                        vec3(0.7, 0.7, 0.7),
+                        vec3(0.5, 0.5, 0.5),
                         vec3(1.0, 1.0, 1.0),
                         1.0,
                         0.0,
@@ -180,20 +156,18 @@ fn main() {
 
     let entity = world.create_entity()
         .with(Transform {
-            position: vec3(1.0f32, 1.0, 0.0),
-            rotation: vec3(0.0f32, 1.0, 1.5),
-            scale: vec3(0.5f32, 0.5, 0.5),
+            scale: vec3(0.1f32, 0.1, 0.1),
             ..Transform::default()
         })
-        .with(Velocity(vec3(0.0, 0.0, -0.01)))
+//        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(ecs::components::Material {
-            shader: Box::new(DiffuseShader::new(
-                diffuse,
-                specular.clone(),
+            shader: Box::new(DiffuseShader::new_without_textures(
+                vec3(0.7, 0.0, 0.0),
+                vec3(0.2, 0.2, 0.2),
                 vec3(1.0, 1.0, 1.0),
                 1.0,
                 0.0,
-                32.0))
+                1.0))
         })
         .with(Mesh(vertices))
         .build();
@@ -221,9 +195,13 @@ fn main() {
 
     let mut input_system = InputSystem;
 
-    gl_call!(gl::Enable(gl::CULL_FACE));
-    gl_call!(gl::CullFace(gl::BACK));
+//    gl_call!(gl::Enable(gl::CULL_FACE));
+//    gl_call!(gl::CullFace(gl::FRONT));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
+
+    let mut prev = 0.0;
+    let mut frames = 0;
+
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
             match event {
@@ -241,12 +219,18 @@ fn main() {
         dispatcher.dispatch(&mut world);
         input_system.run_now(&world);
         world.maintain();
-//        gl_call!(gl::DrawElements(gl::TRIANGLES,
-//                                  indices.len() as i32,
-//                                  gl::UNSIGNED_INT, 0 as *const c_void));
 
         window.swap_buffers();
         window.glfw.poll_events();
-        std::thread::sleep(Duration::new(0, 16666666));
+
+        // Calculate framerate
+        let now = unsafe { glfwGetTime() };
+        frames += 1;
+        let delta = now - prev;
+        if delta >= 1.0 {
+            prev = now;
+            println!("Framerate: {}", frames as f64 / delta);
+            frames = 0;
+        }
     }
 }

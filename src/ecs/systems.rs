@@ -4,6 +4,7 @@ use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use nalgebra_glm::{Vec2, Vec3, vec2, Mat4, vec3};
 use std::ops::Deref;
+use std::ffi::c_void;
 
 pub struct MoveSystem;
 
@@ -32,7 +33,7 @@ impl<'a> System<'a> for TransformSystem {
         let events = transforms.channel().read(&mut self.reader_id);
 
         for event in events {
-            println!("EVENT: {:#?}", *event);
+//            println!("EVENT: {:#?}", *event);
             match event {
                 ComponentEvent::Modified(id) | ComponentEvent::Inserted(id) => {
                     self.dirty.add(*id);
@@ -177,7 +178,10 @@ impl<'a> System<'a> for MeshRenderer {
             let ref shader = material.shader;
             shader.prepare();
             shader.bind_uniforms(&model_matrix, &view_matrix, &projection_matrix);
-            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
+//            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
+            gl_call!(gl::DrawElements(gl::TRIANGLES,
+                                  3072,
+                                  gl::UNSIGNED_INT, 0 as *const c_void));
         }
     }
 }

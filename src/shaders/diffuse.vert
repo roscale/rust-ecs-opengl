@@ -20,5 +20,6 @@ void main() {
     texture_coords = tex_coords;
     frag_view_space = frag_view_space_4f.xyz;
     // TODO very expensive, do this on the CPU
-    pass_normal = mat3(transpose(inverse(view_model))) * normal;
+    // TODO Do the calculations in world space
+    pass_normal = mat3(transpose(inverse(model))) * normal;
 }
