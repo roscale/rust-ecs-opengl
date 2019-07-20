@@ -1,9 +1,7 @@
-use crate::Camera;
 use specs::Entity;
 use std::collections::{VecDeque, HashMap};
 use nalgebra_glm::{Vec2, vec2};
 use glfw::{Key, Action};
-use crate::gl_wrapper::texture_2d::Texture2D;
 
 pub struct ActiveCamera {
     pub entity: Option<Entity>
@@ -24,7 +22,7 @@ pub struct InputCache {
     pub last_cursor_pos: Vec2,
     pub cursor_rel_pos: Vec2,
 
-    pub key_states: HashMap<Key, Action>
+    pub key_states: HashMap<Key, Action>,
 }
 
 impl Default for InputCache {
@@ -32,7 +30,7 @@ impl Default for InputCache {
         InputCache {
             last_cursor_pos: vec2(0.0, 0.0),
             cursor_rel_pos: vec2(0.0, 0.0),
-            key_states: HashMap::default()
+            key_states: HashMap::default(),
         }
     }
 }
@@ -42,25 +40,6 @@ impl InputCache {
         match self.key_states.get(&key) {
             None => false,
             Some(action) => *action == Action::Press || *action == Action::Repeat
-        }
-    }
-}
-
-#[derive(Default)]
-pub struct Textures {
-    textures: HashMap<String, Texture2D>
-}
-
-impl Textures {
-    pub fn get(&mut self, id: &str) -> Texture2D {
-        match self.textures.get(id) {
-            Some(t) => t.clone(),
-            None => {
-                let t = Texture2D::new();
-                self.textures.insert(id.into(), t.clone());
-                t.bind().fill(id);
-                t
-            }
         }
     }
 }

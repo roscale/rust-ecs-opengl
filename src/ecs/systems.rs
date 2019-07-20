@@ -2,8 +2,7 @@ use specs::prelude::*;
 use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
-use nalgebra_glm::{Vec2, Vec3, vec2, Mat4, vec3};
-use std::ops::Deref;
+use nalgebra_glm::{vec2, Mat4, vec3};
 use std::ffi::c_void;
 
 pub struct MoveSystem;
@@ -131,23 +130,19 @@ impl<'a> System<'a> for InputSystem {
     }
 }
 
-pub struct MeshRenderer;
+pub struct MeshRendererSystem;
 
-use crate::shaders::Shader;
-use specs::storage::UnprotectedStorage;
-use nalgebra::{Vector3, Translation, Matrix4, Translation3, Point3, Vector4};
-use glfw::{Key, Action, WindowEvent};
+use nalgebra::{Vector3, Matrix4};
+use glfw::{Key, WindowEvent};
 
-impl<'a> System<'a> for MeshRenderer {
+impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (ReadStorage<'a, Transform>,
-                       ReadStorage<'a, Material>,
-                       ReadStorage<'a, Mesh>,
-                       ReadStorage<'a, Material>,
+                       ReadStorage<'a, MeshRenderer>,
                        ReadStorage<'a, Camera>,
                        Read<'a, ActiveCamera>,
                        ReadStorage<'a, PointLight>);
 
-    fn run(&mut self, (transform, shader, mesh, material, camera, active_camera, point_lights): Self::SystemData) {
+    fn run(&mut self, (transform, mesh_renderer, camera, active_camera, point_lights): Self::SystemData) {
         let (camera, cam_tr) = match active_camera.entity {
             Some(e) => (
                 camera.get(e).expect("Active camera must have a Camera component"),
@@ -171,16 +166,17 @@ impl<'a> System<'a> for MeshRenderer {
             println!("Range: {}", light.range);
         }
 
-        for (transform, shader, mesh, material) in (&transform, &shader, &mesh, &material).join() {
+        for (transform, mesh_renderer) in (&transform, &mesh_renderer).join() {
             let model_matrix = transform.model_matrix;
 
-            let material = material as &Material;
-            let ref shader = material.shader;
+            let mesh_renderer = mesh_renderer as &MeshRenderer;
+
+            let ref shader = mesh_renderer.material.shader;
             shader.prepare();
             shader.bind_uniforms(&model_matrix, &view_matrix, &projection_matrix);
 //            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
             gl_call!(gl::DrawElements(gl::TRIANGLES,
-                                  3072,
+                                  mesh_renderer.mesh.indices.len() as i32,
                                   gl::UNSIGNED_INT, 0 as *const c_void));
         }
     }

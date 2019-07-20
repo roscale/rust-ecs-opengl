@@ -1,7 +1,8 @@
 use specs::prelude::*;
 use nalgebra_glm::{Vec3, vec3, Mat4};
 use crate::shaders::Shader;
-use nalgebra::{Vector3, Matrix4};
+use nalgebra::Matrix4;
+use crate::gl_wrapper::vao::VAO;
 
 // TODO implement Default trait to all the components
 
@@ -48,12 +49,23 @@ pub struct TransformCache {
 pub struct Velocity(pub Vec3);
 
 #[derive(Component)]
+pub struct MeshRenderer {
+    pub mesh: Mesh,
+    pub material: Material
+}
+
 pub struct Material {
     pub shader: Box<dyn Shader>,
 }
 
-#[derive(Component, Debug)]
-pub struct Mesh(pub Vec<f32>);
+#[derive(Debug, Clone)]
+pub struct Mesh {
+    pub vao: VAO,
+    pub positions: Vec<f32>,
+    pub indices: Vec<u32>,
+    pub normals: Vec<f32>,
+    pub texcoords: Vec<f32>
+}
 
 #[derive(Component, Debug)]
 pub struct Camera {

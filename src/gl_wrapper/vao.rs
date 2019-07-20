@@ -1,6 +1,6 @@
 use std::os::raw::{c_uint, c_void};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VAO {
     pub id: u32
 }

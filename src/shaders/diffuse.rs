@@ -4,6 +4,7 @@ use crate::gl_wrapper::shader_compilation::*;
 use std::ffi::CString;
 use nalgebra_glm::{Vec3, Mat4, Vec4, vec4, vec3};
 
+#[derive(Clone)]
 pub struct DiffuseShader {
     program: ShaderProgram,
     pub using_textures: bool,
@@ -44,16 +45,16 @@ impl DiffuseShader {
             light_color,
             ambient_strength,
             intensity,
-            shininess
+            shininess,
         }
     }
 
     pub fn new_without_textures(diffuse_color: Vec3,
-                             specular_color: Vec3,
-                             light_color: Vec3,
-                             ambient_strength: f32,
-                             intensity: f32,
-                             shininess: f32) -> Self {
+                                specular_color: Vec3,
+                                light_color: Vec3,
+                                ambient_strength: f32,
+                                intensity: f32,
+                                shininess: f32) -> Self {
         let vert_shader = ShaderPart::from_vert_source(
             &CString::new(include_str!("diffuse.vert")).unwrap()
         ).unwrap();
@@ -67,15 +68,27 @@ impl DiffuseShader {
         DiffuseShader {
             program,
             using_textures: false,
-            diffuse_texture: Texture2D {id: 0},
-            specular_texture: Texture2D {id: 0},
+            diffuse_texture: Texture2D { id: 0 },
+            specular_texture: Texture2D { id: 0 },
             diffuse_color,
             specular_color,
             light_color,
             ambient_strength,
             intensity,
-            shininess
+            shininess,
         }
+    }
+}
+
+impl Default for DiffuseShader {
+    fn default() -> Self {
+        DiffuseShader::new_without_textures(
+            vec3(0.7, 0.7, 0.7),
+            vec3(0.5, 0.5, 0.5),
+            vec3(1.0, 1.0, 1.0),
+            1.0,
+            0.0,
+            32.0)
     }
 }
 
