@@ -10,6 +10,7 @@ struct Material {
     bool using_textures;
     sampler2D diffuse_texture;
     sampler2D specular_texture;
+    sampler2D normal_texture;
 
     vec3 diffuse_color;
     vec3 specular_color;
@@ -30,19 +31,21 @@ uniform Light light;
 void main() {
     vec3 diffuse_frag;
     vec3 specular_frag;
+    vec3 normal;
     if (material.using_textures) {
         diffuse_frag = texture(material.diffuse_texture, texture_coords).rgb;
         specular_frag = texture(material.specular_texture, texture_coords).rgb;
+        normal = texture(material.normal_texture, texture_coords).rgb;
     } else {
         diffuse_frag = material.diffuse_color;
         specular_frag = material.specular_color;
+        normal = normalize(pass_normal);
     }
 
     // ambient
     vec3 ambient_color = light.ambient_strength * diffuse_frag;
 
     // diffuse
-    vec3 normal = normalize(pass_normal);
     vec3 light_dir = normalize(light.position - frag_view_space);
     float diff = max(dot(normal, light_dir), 0.0);
     vec3 diffuse_color = light.color * diff * diffuse_frag;

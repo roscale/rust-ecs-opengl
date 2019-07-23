@@ -24,8 +24,7 @@ use crate::ecs::components::PointLight;
 use glfw::ffi::{glfwSwapInterval, glfwGetTime};
 use nalgebra_glm::vec3;
 use containers::global_instances::*;
-
-static CONTAINER: state::Container = state::Container::new();
+use crate::containers::global_instances::CONTAINER;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -64,6 +63,7 @@ fn main() {
 
     CONTAINER.set_local(|| ModelLoader::default());
     CONTAINER.set_local(|| TextureCache::default());
+    CONTAINER.set_local(|| DiffuseShader::default());
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
@@ -71,7 +71,7 @@ fn main() {
     gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
-    let mesh_renderer = model_loader.load("src/teapot.obj");
+    let mesh_renderer = model_loader.load("models/cube/Cube.obj");
 
     let transform_system = {
         let mut comps = world.write_storage::<Transform>();
@@ -102,14 +102,15 @@ fn main() {
 //                    scale: vec3(0.008, 0.008, 0.008),
 //                    ..Transform::default()
 //                })
-//                .with(mesh_renderer)
+//                .with(mesh_renderer.clone())
 //                .build();
 //        }
 //    }
 
     let entity = world.create_entity()
         .with(Transform {
-            scale: vec3(0.1f32, 0.1, 0.1),
+            position: vec3(20.0, 20.0, -5.0),
+            scale: vec3(0.05f32, 0.05, 0.05),
             ..Transform::default()
         })
 //        .with(Velocity(vec3(0.0, 0.0, -0.01)))

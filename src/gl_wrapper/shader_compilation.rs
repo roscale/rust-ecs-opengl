@@ -4,7 +4,7 @@ use std::ffi::{CString, CStr};
 
 #[derive(Debug)]
 pub struct ShaderPart {
-    id: gl::types::GLuint,
+    id: u32,
 }
 
 impl ShaderPart {
@@ -67,7 +67,7 @@ fn create_whitespace_cstring_with_len(len: usize) -> CString {
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct ShaderProgram {
-    pub id: u32
+    id: u32
 }
 
 impl ShaderProgram {

@@ -1,8 +1,10 @@
 use specs::prelude::*;
 use nalgebra_glm::{Vec3, vec3, Mat4};
-use crate::shaders::Shader;
+use crate::shaders::*;
 use nalgebra::Matrix4;
 use crate::gl_wrapper::vao::VAO;
+use std::sync::Arc;
+use std::marker::Sync;
 
 // TODO implement Default trait to all the components
 
@@ -48,14 +50,14 @@ pub struct TransformCache {
 #[derive(Component, Debug)]
 pub struct Velocity(pub Vec3);
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct MeshRenderer {
-    pub mesh: Mesh,
-    pub material: Material
+    pub mesh: Arc<Mesh>,
+    pub material: Arc<Material>
 }
 
 pub struct Material {
-    pub shader: Box<dyn Shader>,
+    pub shader_data: Box<dyn ShaderData>,
 }
 
 #[derive(Debug, Clone)]

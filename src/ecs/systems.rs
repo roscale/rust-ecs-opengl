@@ -88,7 +88,7 @@ impl<'a> System<'a> for InputSystem {
                     input_cache.cursor_rel_pos = current_pos - input_cache.last_cursor_pos;
                     input_cache.last_cursor_pos = vec2(x, y);
                     let (x, y) = (input_cache.cursor_rel_pos.x, input_cache.cursor_rel_pos.y);
-                    println!("x: {} y: {}", x, y);
+//                    println!("x: {} y: {}", x, y);
 
                     transform.rotation.y += x * 0.001;
                     transform.rotation.x -= y * 0.001;
@@ -98,12 +98,6 @@ impl<'a> System<'a> for InputSystem {
                     input_cache.key_states.insert(*key, *action);
                 }
 
-//                glfw::WindowEvent::CursorEnter(enter) => {
-//                    if *enter {
-//                        input_cache.cursor_rel_pos = vec2(0.0, 0.0);
-//                        input_cache.last_cursor_pos = vec2(0.0, 0.0);
-//                    }
-//                }
                 _ => {}
             }
         }
@@ -171,9 +165,9 @@ impl<'a> System<'a> for MeshRendererSystem {
 
             let mesh_renderer = mesh_renderer as &MeshRenderer;
 
-            let ref shader = mesh_renderer.material.shader;
-            shader.prepare();
-            shader.bind_uniforms(&model_matrix, &view_matrix, &projection_matrix);
+            let ref shader_data = mesh_renderer.material.shader_data;
+//            let ref shader = mesh_renderer.material.shader;
+            shader_data.bind_shader_uniforms(&model_matrix, &view_matrix, &projection_matrix);
 //            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,

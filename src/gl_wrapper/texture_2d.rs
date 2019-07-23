@@ -3,7 +3,7 @@ use std::os::raw::c_void;
 
 #[derive(Clone)]
 pub struct Texture2D {
-    pub id: u32
+    id: u32
 }
 
 impl Texture2D {
@@ -30,12 +30,13 @@ impl Texture2D {
         };
 
         let (width, height) = img.dimensions();
+        let img = img.flipv();
         let (width, height) = (width as i32, height as i32);
 
         let pixels = img.raw_pixels();
 
         gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
-                                gl::RGBA as i32, width, height, 0, gl::RGBA,
+                                gl::RGB as i32, width, height, 0, gl::RGB,
                                 gl::UNSIGNED_BYTE, pixels.as_ptr() as *const c_void));
 
         gl_call!(gl::GenerateMipmap(gl::TEXTURE_2D));
@@ -44,5 +45,11 @@ impl Texture2D {
         gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
 
         self
+    }
+}
+
+impl Drop for Texture2D {
+    fn drop(&mut self) {
+        gl_call!(gl::DeleteTextures(1, &self.id))
     }
 }
