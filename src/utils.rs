@@ -1,5 +1,4 @@
 use nalgebra_glm::{Vec3, vec3};
-use nalgebra::Matrix;
 
 pub trait ToVec3 {
     fn to_vec3(&self) -> Vec3;

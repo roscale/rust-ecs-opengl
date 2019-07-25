@@ -17,7 +17,7 @@ impl VBO {
         self
     }
 
-    pub fn fill(&self, vertices: &Vec<f32>) -> &Self {
+    pub fn fill(&self, vertices: &[f32]) -> &Self {
         gl_call!(gl::BufferData(gl::ARRAY_BUFFER,
                             (vertices.len() * std::mem::size_of::<f32>()) as isize,
                             vertices.as_ptr() as *const c_void,

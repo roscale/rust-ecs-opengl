@@ -20,7 +20,7 @@ impl VAO {
     pub fn set_attribute(&self, attr: (u32, i32, c_uint, usize)) {
         let (index, count, gl_type, _type_size) = &attr;
         gl_call!(gl::VertexAttribPointer(*index, *count, *gl_type, gl::FALSE,
-                                    0, 0 as *const c_void));
+                                    0, std::ptr::null()));
         gl_call!(gl::EnableVertexAttribArray(*index));
     }
 

@@ -61,9 +61,9 @@ fn main() {
     world.insert(InputEventQueue::default());
     world.insert(InputCache::default());
 
-    CONTAINER.set_local(|| ModelLoader::default());
-    CONTAINER.set_local(|| TextureCache::default());
-    CONTAINER.set_local(|| DiffuseShader::default());
+    CONTAINER.set_local(ModelLoader::default);
+    CONTAINER.set_local(TextureCache::default);
+    CONTAINER.set_local(DiffuseShader::default);
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
@@ -107,14 +107,27 @@ fn main() {
 //        }
 //    }
 
+
+
+
     let entity = world.create_entity()
         .with(Transform {
-            position: vec3(20.0, 20.0, -5.0),
+            position: vec3(0.0, 0.0, 0.0),
             scale: vec3(0.05f32, 0.05, 0.05),
             ..Transform::default()
         })
 //        .with(Velocity(vec3(0.0, 0.0, -0.01)))
-        .with(mesh_renderer)
+        .with(mesh_renderer.clone())
+        .build();
+
+    let light_pos = world.create_entity()
+        .with(Transform {
+            position: vec3(10.0, 10.0, 10.0),
+            scale: vec3(0.01f32, 0.01, 0.01),
+            ..Transform::default()
+        })
+//        .with(Velocity(vec3(0.0, 0.0, -0.01)))
+        .with(mesh_renderer.clone())
         .build();
 
     use std::f32;
@@ -137,11 +150,10 @@ fn main() {
 
     world.write_resource::<ActiveCamera>().entity = Some(camera_entity);
 
-
     let mut input_system = InputSystem;
 
-//    gl_call!(gl::Enable(gl::CULL_FACE));
-//    gl_call!(gl::CullFace(gl::FRONT));
+    gl_call!(gl::Enable(gl::CULL_FACE));
+    gl_call!(gl::CullFace(gl::BACK));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
 
     let mut prev = 0.0;
@@ -161,7 +173,7 @@ fn main() {
         gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
 
 
-        dispatcher.dispatch(&mut world);
+        dispatcher.dispatch(&world);
         input_system.run_now(&world);
         world.maintain();
 
@@ -174,7 +186,7 @@ fn main() {
         let delta = now - prev;
         if delta >= 1.0 {
             prev = now;
-            println!("Framerate: {}", frames as f64 / delta);
+            println!("Framerate: {}", f64::from(frames) / delta);
             frames = 0;
         }
     }

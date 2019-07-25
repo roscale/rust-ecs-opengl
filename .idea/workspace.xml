@@ -13,23 +13,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube.obj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_ambient.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_diffuse.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_gloss.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_normal.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_obj.mtl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/cube/Cube_specular.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/containers/global_instances.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/components.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/systems.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/systems.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/ebo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/ebo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/vao.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/vao.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/vbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/vbo.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse.frag" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -57,61 +53,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main.rs">
+        <entry file="file://$PROJECT_DIR$/src/gl_wrapper/ebo.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="111" column="29" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
-              <caret line="111" column="35" selection-start-line="111" selection-start-column="35" selection-end-line="111" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.frag">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="627">
-              <caret line="56" column="70" selection-start-line="56" selection-start-column="70" selection-end-line="56" selection-end-column="88" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/cube/Cube_obj.mtl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="6" column="12" lean-forward="true" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="12" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/cube/Cube_diffuse.jpg">
-          <provider selected="true" editor-type-id="images" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="81">
-              <caret line="32" column="29" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/image-0.21.2/src/dynimage.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
-              <caret line="447" column="11" selection-start-line="447" selection-start-column="11" selection-end-line="447" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/containers/global_instances.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="470">
-              <caret line="153" column="39" selection-start-line="153" selection-start-column="39" selection-end-line="153" selection-end-column="39" />
+            <state relative-caret-position="476">
+              <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -119,17 +64,76 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.rs">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="459">
+              <caret line="147" column="10" selection-start-line="147" selection-start-column="10" selection-end-line="147" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.vert">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="588">
-              <caret line="144" column="14" lean-forward="true" selection-start-line="144" selection-start-column="14" selection-end-line="144" selection-end-column="14" />
+              <caret line="21" column="59" selection-start-line="21" selection-start-column="59" selection-end-line="21" selection-end-column="59" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.vert">
+        <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.frag">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="15" column="18" lean-forward="true" selection-start-line="15" selection-start-column="18" selection-end-line="15" selection-end-column="18" />
+            <state relative-caret-position="599">
+              <caret line="59" lean-forward="true" selection-start-line="59" selection-end-line="59" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gl_wrapper/vao.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="26" column="38" selection-start-line="26" selection-start-column="38" selection-end-line="26" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ecs/resources.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ecs/mod.rs">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/containers/global_instances.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="767">
+              <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ecs/systems.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="28">
+              <caret line="146" column="14" selection-start-line="146" selection-start-column="14" selection-end-line="146" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ecs/components.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-196">
+              <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -145,13 +149,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Vector3&lt;f32&gt;</find>
-      <find>vec2</find>
-      <find>append_translation</find>
-      <find>Vector2&lt;f32&gt;</find>
-      <find>Matrix4&lt;f32&gt;</find>
-      <find>Default</find>
-      <find>popu</find>
       <find>WriteStorage</find>
       <find>Enable</find>
       <find>pri</find>
@@ -175,6 +172,13 @@
       <find>borrow_mut</find>
       <find>x:</find>
       <find>ici</find>
+      <find>frag_v</find>
+      <find>frag_view</find>
+      <find>dbg</find>
+      <find>0</find>
+      <find>cvoi</find>
+      <find>void</find>
+      <find>0 as</find>
     </findStrings>
     <replaceStrings>
       <replace>Vec3</replace>
@@ -191,11 +195,8 @@
         <option value="$PROJECT_DIR$/build.rs" />
         <option value="$PROJECT_DIR$/triangle.vert" />
         <option value="$PROJECT_DIR$/triangle.frag" />
-        <option value="$PROJECT_DIR$/src/debugging.rs" />
         <option value="$PROJECT_DIR$/src/shader_compilation.rs" />
-        <option value="$PROJECT_DIR$/src/gl_wrapper/ebo.rs" />
         <option value="$PROJECT_DIR$/src/gl_wrapper/texture.rs" />
-        <option value="$PROJECT_DIR$/src/gl_wrapper/vbo.rs" />
         <option value="$PROJECT_DIR$/src/triangle.vert" />
         <option value="$PROJECT_DIR$/src/triangle.frag" />
         <option value="$PROJECT_DIR$/src/ecs/mod.rs" />
@@ -204,19 +205,22 @@
         <option value="$PROJECT_DIR$/src/containers/mod.rs" />
         <option value="$PROJECT_DIR$/src/ecs/resources.rs" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/src/utils.rs" />
-        <option value="$PROJECT_DIR$/src/gl_wrapper/vao.rs" />
-        <option value="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" />
-        <option value="$PROJECT_DIR$/src/shaders/mod.rs" />
-        <option value="$PROJECT_DIR$/src/ecs/components.rs" />
-        <option value="$PROJECT_DIR$/src/ecs/systems.rs" />
-        <option value="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" />
-        <option value="$PROJECT_DIR$/src/containers/global_instances.rs" />
-        <option value="$PROJECT_DIR$/src/main.rs" />
-        <option value="$PROJECT_DIR$/src/shaders/diffuse.frag" />
-        <option value="$PROJECT_DIR$/src/shaders/diffuse.vert" />
-        <option value="$PROJECT_DIR$/src/shaders/diffuse.rs" />
         <option value="$PROJECT_DIR$/models/cube/Cube_obj.mtl" />
+        <option value="$PROJECT_DIR$/src/shaders/diffuse.vert" />
+        <option value="$PROJECT_DIR$/src/shaders/mod.rs" />
+        <option value="$PROJECT_DIR$/src/shaders/diffuse.frag" />
+        <option value="$PROJECT_DIR$/src/gl_wrapper/ebo.rs" />
+        <option value="$PROJECT_DIR$/src/main.rs" />
+        <option value="$PROJECT_DIR$/src/debugging.rs" />
+        <option value="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" />
+        <option value="$PROJECT_DIR$/src/gl_wrapper/vao.rs" />
+        <option value="$PROJECT_DIR$/src/gl_wrapper/vbo.rs" />
+        <option value="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" />
+        <option value="$PROJECT_DIR$/src/ecs/systems.rs" />
+        <option value="$PROJECT_DIR$/src/containers/global_instances.rs" />
+        <option value="$PROJECT_DIR$/src/ecs/components.rs" />
+        <option value="$PROJECT_DIR$/src/utils.rs" />
+        <option value="$PROJECT_DIR$/src/shaders/diffuse.rs" />
       </list>
     </option>
   </component>
@@ -226,7 +230,7 @@
   <component name="ProjectFrameBounds">
     <option name="y" value="40" />
     <option name="width" value="1920" />
-    <option name="height" value="1036" />
+    <option name="height" value="1040" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -295,7 +299,7 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+    <property name="settings.editor.selected.configurable" value="language.rust.cargo" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -324,7 +328,7 @@
   <component name="RunManager">
     <configuration name="Run rust-learn" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="channel" value="DEFAULT" />
-      <option name="command" value="run --package rust-learn --bin rust-learn" />
+      <option name="command" value="run --package rust-learn --bin rust-learn --release" />
       <option name="allFeatures" value="false" />
       <option name="nocapture" value="false" />
       <option name="backtrace" value="SHORT" />
@@ -339,6 +343,8 @@
     </recent_temporary>
   </component>
   <component name="RustProjectSettings">
+    <option name="externalLinter" value="Clippy" />
+    <option name="runExternalLinterOnTheFly" value="true" />
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
     <option name="version" value="2" />
   </component>
@@ -380,18 +386,21 @@
       <workItem from="1563617242398" duration="19958000" />
       <workItem from="1563658427078" duration="3775000" />
       <workItem from="1563790687991" duration="8937000" />
-      <workItem from="1563874541950" duration="14776000" />
+      <workItem from="1563874541950" duration="21357000" />
+      <workItem from="1563994609479" duration="4227000" />
+      <workItem from="1564048673510" duration="65000" />
+      <workItem from="1564086313569" duration="1093000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="255565000" />
+    <option name="totallyTimeSpent" value="267531000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="40" width="1920" height="1036" extended-state="0" />
+    <frame x="0" y="40" width="1920" height="1040" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17508055" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18152525" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="0" />
@@ -412,151 +421,13 @@
       <window_info anchor="right" id="Ant Build" order="4" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="5" weight="0.25" />
       <window_info anchor="right" id="Terminal" order="6" weight="0.26745436" />
-      <window_info anchor="right" id="Run" order="7" visible="true" weight="0.26369494" />
+      <window_info anchor="right" id="Run" order="7" visible="true" weight="0.14930183" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="4" column="19" selection-start-line="4" selection-start-column="19" selection-end-line="4" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ecs/mod.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/containers/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="25" selection-start-column="25" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/state-0.4.1/src/lib.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/shred-0.9.2/src/world/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="470" selection-start-line="470" selection-end-line="470" />
-          <folding>
-            <element signature="e#2927#2928#0" expanded="true" />
-            <element signature="e#2981#2982#0" expanded="true" />
-            <element signature="e#13700#13701#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
-          <caret line="16" column="21" selection-start-line="16" selection-start-column="21" selection-end-line="16" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libcore/slice/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="99" column="11" selection-start-line="99" selection-start-column="11" selection-end-line="99" selection-end-column="11" />
-          <folding>
-            <element signature="e#2633#2634#0" expanded="true" />
-            <element signature="e#2659#2660#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-glm-0.4.0/src/aliases.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="198" column="9" selection-start-line="198" selection-start-column="9" selection-end-line="198" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="10" column="5" lean-forward="true" selection-start-line="10" selection-start-column="5" selection-end-line="10" selection-end-column="5" />
-          <folding>
-            <element signature="e#144#145#0" expanded="true" />
-            <element signature="e#165#166#0" expanded="true" />
-            <element signature="e#262#263#0" expanded="true" />
-            <element signature="e#308#309#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/liballoc/boxed.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="100" column="11" selection-start-line="100" selection-start-column="11" selection-end-line="100" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libcore/clone.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="109" column="10" selection-start-line="109" selection-start-column="10" selection-end-line="109" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libcore/convert.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15176">
-          <caret line="550" column="7" selection-start-line="550" selection-start-column="7" selection-end-line="550" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/liballoc/rc.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36792">
-          <caret line="1372" column="11" selection-start-line="1372" selection-start-column="11" selection-end-line="1372" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/vao.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ecs/resources.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libcore/ops/function.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="223" column="10" selection-start-line="223" selection-start-column="10" selection-end-line="223" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/specs-0.15.0/src/world/world_ext.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9240">
-          <caret line="352" column="25" selection-start-line="352" selection-start-column="25" selection-end-line="352" selection-end-column="25" />
-          <folding>
-            <element signature="e#10181#10182#0" expanded="true" />
-            <element signature="e#10214#10215#0" expanded="true" />
-            <element signature="e#10280#10281#0" expanded="true" />
-            <element signature="e#10313#10314#0" expanded="true" />
-            <element signature="e#10369#10370#0" expanded="true" />
-            <element signature="e#10396#10397#0" expanded="true" />
-            <element signature="e#10456#10457#0" expanded="true" />
-            <element signature="e#10487#10488#0" expanded="true" />
-            <element signature="e#10710#10711#0" expanded="true" />
-            <element signature="e#10755#10756#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/specs-0.15.0/src/world/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3920">
@@ -584,9 +455,6 @@
           <caret line="415" column="32" selection-start-line="415" selection-start-column="32" selection-end-line="415" selection-end-column="32" />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/ebo.rs">
-      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/thread_local-0.3.3/src/lib.rs">
       <provider selected="true" editor-type-id="text-editor">
@@ -616,13 +484,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/cube/Cube_obj.obj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/models/cube/Cube_obj.obj" />
     <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/liballoc/sync.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="283">
@@ -671,67 +533,11 @@
     <entry file="file://$PROJECT_DIR$/src/planks_oak.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ecs/components.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="59" column="8" selection-start-line="59" selection-start-column="8" selection-end-line="59" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shaders/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="11" column="7" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ecs/systems.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="169" column="33" selection-start-line="169" selection-start-column="33" selection-end-line="169" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="111" column="11" selection-start-line="111" selection-start-column="11" selection-end-line="111" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/tobj-0.1.7/src/lib.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="161" column="8" selection-start-line="161" selection-start-column="8" selection-end-line="161" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/cube/Cube_ambient.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/models/cube/Cube_diffuse.jpg">
       <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="32" column="29" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/containers/global_instances.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="470">
-          <caret line="153" column="39" selection-start-line="153" selection-start-column="39" selection-end-line="153" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.frag">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="627">
-          <caret line="56" column="70" selection-start-line="56" selection-start-column="70" selection-end-line="56" selection-end-column="88" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/cube/Cube_obj.mtl">
       <provider selected="true" editor-type-id="text-editor">
@@ -750,25 +556,198 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-0.18.0/src/base/alias.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="36" column="25" lean-forward="true" selection-start-line="36" selection-start-column="25" selection-end-line="36" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-glm-0.4.0/src/aliases.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="501">
+          <caret line="341" column="20" lean-forward="true" selection-start-line="341" selection-start-column="20" selection-end-line="341" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/alga-0.9.1/src/linear/transformation.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="10304">
+          <caret line="408" column="42" lean-forward="true" selection-start-line="408" selection-start-column="42" selection-end-line="408" selection-end-column="42" />
+          <folding>
+            <element signature="e#13881#13882#0" expanded="true" />
+            <element signature="e#13905#13906#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-0.18.0/src/geometry/similarity.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-7781">
+          <caret line="43" column="11" selection-start-line="43" selection-start-column="11" selection-end-line="43" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-0.18.0/src/geometry/similarity_alias.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="392">
+          <caret line="14" column="35" selection-start-line="14" selection-start-column="35" selection-end-line="14" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/glfw-0.29.0/src/ffi/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="14140">
+          <caret line="505" column="11" selection-start-line="505" selection-start-column="11" selection-end-line="505" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/nalgebra-0.18.0/src/base/matrix.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7924">
+          <caret line="301" column="11" selection-start-line="301" selection-start-column="11" selection-end-line="301" selection-end-column="11" />
+          <folding>
+            <element signature="e#9760#9761#0" expanded="true" />
+            <element signature="e#9790#9791#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/shred-0.9.2/src/dispatch/dispatcher.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="52" column="11" selection-start-line="52" selection-start-column="11" selection-end-line="52" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libcore/convert.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="377" column="7" selection-start-line="377" selection-start-column="7" selection-end-line="377" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/containers/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/vbo.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="445">
+          <caret line="19" column="26" selection-start-line="19" selection-start-column="26" selection-end-line="19" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shaders/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="5" column="16" selection-start-line="5" selection-start-column="16" selection-end-line="5" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3360">
+          <caret line="142" column="9" lean-forward="true" selection-start-line="142" selection-start-column="9" selection-end-line="142" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/tobj-0.1.7/src/lib.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="229" column="8" selection-start-line="229" selection-start-column="8" selection-end-line="229" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="111" column="29" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
-          <caret line="111" column="35" selection-start-line="111" selection-start-column="35" selection-end-line="111" selection-end-column="35" />
+        <state relative-caret-position="333">
+          <caret line="77" column="25" selection-start-line="77" selection-start-column="25" selection-end-line="77" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1400">
+          <caret line="54" column="1" selection-start-line="54" selection-start-column="1" selection-end-line="54" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/debugging.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="31" selection-start-column="31" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ecs/resources.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ecs/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/containers/global_instances.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="767">
+          <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ecs/systems.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="146" column="14" selection-start-line="146" selection-start-column="14" selection-end-line="146" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ecs/components.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-196">
+          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/ebo.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="144" column="14" lean-forward="true" selection-start-line="144" selection-start-column="14" selection-end-line="144" selection-end-column="14" />
+        <state relative-caret-position="459">
+          <caret line="147" column="10" selection-start-line="147" selection-start-column="10" selection-end-line="147" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.vert">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="15" column="18" lean-forward="true" selection-start-line="15" selection-start-column="18" selection-end-line="15" selection-end-column="18" />
+        <state relative-caret-position="588">
+          <caret line="21" column="59" selection-start-line="21" selection-start-column="59" selection-end-line="21" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gl_wrapper/vao.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="26" column="38" selection-start-line="26" selection-start-column="38" selection-end-line="26" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shaders/diffuse.frag">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="599">
+          <caret line="59" lean-forward="true" selection-start-line="59" selection-end-line="59" />
         </state>
       </provider>
     </entry>

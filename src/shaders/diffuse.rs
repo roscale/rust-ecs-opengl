@@ -24,18 +24,18 @@ pub enum DiffuseData {
 
 impl Default for DiffuseData {
     fn default() -> Self {
-        return DiffuseData::Colors {
+        DiffuseData::Colors {
             diffuse_color: vec3(0.7, 0.7, 0.7),
             specular_color: vec3(0.5, 0.5, 0.5),
-            shininess: 32.0
+            shininess: 32.0,
         }
     }
 }
 
 impl ShaderData for DiffuseData {
-    fn bind_shader_uniforms(&self, model: &Mat4, view: &Mat4, projection: &Mat4) {
+    fn bind_shader_uniforms(&self, model: &Mat4, view: &Mat4, projection: &Mat4, camera_pos: &Vec3) {
         let shader = CONTAINER.get_local::<DiffuseShader>();
-        shader.bind_uniforms(model, view, projection);
+        shader.bind_uniforms(model, view, projection, camera_pos);
 
         match &self {
             DiffuseData::Textures {
@@ -59,7 +59,7 @@ impl ShaderData for DiffuseData {
                 shader.program.set_uniform1i("material.normal_texture", 2);
 
                 shader.program.set_uniform1f("material.shininess", *shininess);
-            },
+            }
             DiffuseData::Colors {
                 diffuse_color,
                 specular_color,
@@ -70,7 +70,7 @@ impl ShaderData for DiffuseData {
                 shader.program.set_uniform3f("material.specular_color", specular_color.as_slice());
 
                 shader.program.set_uniform1f("material.shininess", *shininess);
-            },
+            }
         }
     }
 }
@@ -131,29 +131,30 @@ impl Default for DiffuseShader {
 impl Shader for DiffuseShader {
     fn bind_uniforms(&self, model: &Mat4,
                      view: &Mat4,
-                     projection: &Mat4) {
-
+                     projection: &Mat4,
+                     camera_pos: &Vec3) {
         self.program.use_program();
 
         self.program.set_uniform_matrix4fv("model", model.as_ptr());
         self.program.set_uniform_matrix4fv("view", view.as_ptr());
         self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
+        self.program.set_uniform3f("camera_pos", camera_pos.as_slice());
 
-        let light_view_space: Vec4 = view * vec4(
-            0.0f32,
-            0.0,
-            -5.0,
+        let light_pos: Vec4 = vec4(
+            10.0f32,
+            10.0,
+            10.0,
             1.0,
         );
 
         // TODO Modular lights
         self.program.set_uniform3f("light.position", &[
-            light_view_space.x, light_view_space.y, light_view_space.z,
+            light_pos.x, light_pos.y, light_pos.z,
         ]);
         self.program.set_uniform3f("light.color", &[
             1.0, 1.0, 1.0
         ]);
-        self.program.set_uniform1f("light.ambient_strength", 1.0);
+        self.program.set_uniform1f("light.ambient_strength", 0.5);
         self.program.set_uniform1f("light.intensity", 1.0);
     }
 }

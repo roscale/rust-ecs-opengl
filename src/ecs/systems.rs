@@ -3,7 +3,6 @@ use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use nalgebra_glm::{vec2, Mat4, vec3};
-use std::ffi::c_void;
 
 pub struct MoveSystem;
 
@@ -27,7 +26,7 @@ pub struct TransformSystem {
 impl<'a> System<'a> for TransformSystem {
     type SystemData = (Entities<'a>, WriteStorage<'a, Transform>);
 
-    fn run(&mut self, (entities, mut transforms): Self::SystemData) {
+    fn run(&mut self, (_entities, mut transforms): Self::SystemData) {
         self.dirty.clear();
         let events = transforms.channel().read(&mut self.reader_id);
 
@@ -41,7 +40,7 @@ impl<'a> System<'a> for TransformSystem {
             }
         }
 
-        for (mut transforms, en) in (&mut transforms.restrict_mut(), &self.dirty).join() {
+        for (mut transforms, _entity) in (&mut transforms.restrict_mut(), &self.dirty).join() {
             let mut transform = transforms.get_mut_unchecked();
 
             transform.model_matrix = {
@@ -73,9 +72,9 @@ impl<'a> System<'a> for InputSystem {
                        Read<'a, ActiveCamera>,
                        Write<'a, InputCache>);
 
-    fn run(&mut self, (mut input_event_queue, inputs, mut transforms, cameras, active_camera, mut input_cache): Self::SystemData) {
+    fn run(&mut self, (mut input_event_queue, _inputs, mut transforms, cameras, active_camera, mut input_cache): Self::SystemData) {
         let active_camera = active_camera.entity.unwrap();
-        let camera = cameras.get(active_camera).unwrap();
+        let _camera = cameras.get(active_camera).unwrap();
 
         while let Some(ref event) = input_event_queue.queue.pop_front() {
             let transform = transforms.get_mut(active_camera).unwrap();
@@ -145,7 +144,7 @@ impl<'a> System<'a> for MeshRendererSystem {
             None => return
         };
 
-        let mut direction = vec3(
+        let direction = vec3(
             cam_tr.rotation.x.cos() * cam_tr.rotation.y.cos(),
             cam_tr.rotation.x.sin(),
             cam_tr.rotation.x.cos() * cam_tr.rotation.y.sin(),
@@ -165,13 +164,13 @@ impl<'a> System<'a> for MeshRendererSystem {
 
             let mesh_renderer = mesh_renderer as &MeshRenderer;
 
-            let ref shader_data = mesh_renderer.material.shader_data;
+            let shader_data = &mesh_renderer.material.shader_data;
 //            let ref shader = mesh_renderer.material.shader;
-            shader_data.bind_shader_uniforms(&model_matrix, &view_matrix, &projection_matrix);
+            shader_data.bind_shader_uniforms(&model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
 //            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,
-                                  gl::UNSIGNED_INT, 0 as *const c_void));
+                                  gl::UNSIGNED_INT, std::ptr::null()));
         }
     }
 }

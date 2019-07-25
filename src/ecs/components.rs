@@ -4,7 +4,6 @@ use crate::shaders::*;
 use nalgebra::Matrix4;
 use crate::gl_wrapper::vao::VAO;
 use std::sync::Arc;
-use std::marker::Sync;
 
 // TODO implement Default trait to all the components
 
@@ -40,11 +39,6 @@ impl Transform {
             self.rotation.x.cos() * self.rotation.y.sin(),
         )
     }
-}
-
-#[derive(Component, Debug)]
-pub struct TransformCache {
-
 }
 
 #[derive(Component, Debug)]

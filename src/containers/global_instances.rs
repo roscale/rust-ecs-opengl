@@ -4,15 +4,12 @@ use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::VBO;
 use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
-use std::cell::{RefCell, RefMut};
-use crate::ecs::components::{self, *};
-use crate::shaders::diffuse::{self, DiffuseShader, DiffuseData};
+use std::cell::{RefCell};
+use crate::ecs::components::*;
+use crate::shaders::diffuse::{self, DiffuseData};
 use tobj;
-use nalgebra_glm::vec3;
-use crate::utils;
 use crate::utils::ToVec3;
 use std::sync::{Arc, Weak};
-use tobj::Model;
 
 pub static CONTAINER: state::Container = state::Container::new();
 
@@ -31,7 +28,7 @@ impl TextureCache {
             t
         };
 
-        let texture = self.textures.borrow().get(id).map(|t| t.clone());
+        let texture = self.textures.borrow().get(id).cloned();
         match texture {
             Some(tex) => {
                 let tex = tex.upgrade();
@@ -140,14 +137,14 @@ impl ModelLoader {
                     shader_data = diffuse::DiffuseData::Colors {
                         diffuse_color: material.diffuse.to_vec3(),
                         specular_color: material.specular.to_vec3(),
-                        shininess: material.shininess.clone()
+                        shininess: material.shininess
                     };
                 } else {
                     // TODO load textures and material
                     let diffuse_texture = texture_cache.get_texture(&material.diffuse_texture);
                     let specular_texture = texture_cache.get_texture(&material.specular_texture);
                     let normal_texture = texture_cache.get_texture(&material.normal_texture);
-                    let shininess = material.shininess.clone();
+                    let shininess = material.shininess;
                     shader_data = diffuse::DiffuseData::Textures {
                         diffuse_texture,
                         specular_texture,

@@ -17,7 +17,7 @@ impl EBO {
         self
     }
 
-    pub fn fill(&self, indices: &Vec<u32>) -> &Self {
+    pub fn fill(&self, indices: &[u32]) -> &Self {
         gl_call!(gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
                             (indices.len() * std::mem::size_of::<u32>()) as isize,
                             indices.as_ptr() as *const c_void,
