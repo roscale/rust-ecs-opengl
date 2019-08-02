@@ -5,6 +5,9 @@ use std::ffi::CString;
 use nalgebra_glm::{Vec3, Mat4, Vec4, vec4, vec3};
 use std::sync::Arc;
 use crate::containers::global_instances::CONTAINER;
+use specs::ReadStorage;
+use crate::ecs::components::*;
+use specs::join::Join;
 
 #[derive(Clone)]
 pub enum DiffuseData {
@@ -33,9 +36,14 @@ impl Default for DiffuseData {
 }
 
 impl ShaderData for DiffuseData {
-    fn bind_shader_uniforms(&self, model: &Mat4, view: &Mat4, projection: &Mat4, camera_pos: &Vec3) {
+    fn bind_mvp(&self,
+                model: &Mat4,
+                view: &Mat4,
+                projection: &Mat4,
+                camera_pos: &Vec3
+    ) {
         let shader = CONTAINER.get_local::<DiffuseShader>();
-        shader.bind_uniforms(model, view, projection, camera_pos);
+        shader.bind_mvp(model, view, projection, camera_pos);
 
         match &self {
             DiffuseData::Textures {
@@ -72,6 +80,14 @@ impl ShaderData for DiffuseData {
                 shader.program.set_uniform1f("material.shininess", *shininess);
             }
         }
+    }
+
+    fn bind_lights(&self,
+                   transforms: &ReadStorage<Transform>,
+                   point_lights: &ReadStorage<PointLight>
+    ) {
+        let shader = CONTAINER.get_local::<DiffuseShader>();
+        shader.bind_lights(transforms, point_lights);
     }
 }
 
@@ -128,33 +144,30 @@ impl Default for DiffuseShader {
     }
 }
 
-impl Shader for DiffuseShader {
-    fn bind_uniforms(&self, model: &Mat4,
-                     view: &Mat4,
-                     projection: &Mat4,
-                     camera_pos: &Vec3) {
+impl DiffuseShader {
+    fn bind_mvp(&self, model: &Mat4,
+                view: &Mat4,
+                projection: &Mat4,
+                camera_pos: &Vec3) {
         self.program.use_program();
 
         self.program.set_uniform_matrix4fv("model", model.as_ptr());
         self.program.set_uniform_matrix4fv("view", view.as_ptr());
         self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
         self.program.set_uniform3f("camera_pos", camera_pos.as_slice());
+    }
 
-        let light_pos: Vec4 = vec4(
-            10.0f32,
-            10.0,
-            10.0,
-            1.0,
-        );
+    fn bind_lights(&self, transforms: &ReadStorage<Transform>, point_lights: &ReadStorage<PointLight>) {
+        // TODO bind multiple lights
+        for (transform, point_light) in (transforms, point_lights).join() {
+            let transform = transform as &Transform;
+            let point_light = point_light as &PointLight;
 
-        // TODO Modular lights
-        self.program.set_uniform3f("light.position", &[
-            light_pos.x, light_pos.y, light_pos.z,
-        ]);
-        self.program.set_uniform3f("light.color", &[
-            1.0, 1.0, 1.0
-        ]);
-        self.program.set_uniform1f("light.ambient_strength", 0.5);
-        self.program.set_uniform1f("light.intensity", 1.0);
+            self.program.set_uniform3f("light.position", transform.position.as_slice());
+            self.program.set_uniform3f("light.color", point_light.color.as_slice());
+            self.program.set_uniform1f("light.ambient_strength", 0.5);
+            self.program.set_uniform1f("light.intensity", point_light.intensity);
+            break;
+        }
     }
 }

@@ -25,6 +25,10 @@ use glfw::ffi::{glfwSwapInterval, glfwGetTime};
 use nalgebra_glm::vec3;
 use containers::global_instances::*;
 use crate::containers::global_instances::CONTAINER;
+use crate::utils::ToVec3;
+use nalgebra::Vector;
+use ncollide3d::shape::{ShapeHandle, Cuboid};
+use nphysics3d::object::{ColliderDesc, RigidBodyDesc};
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -64,6 +68,20 @@ fn main() {
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
+
+    let mut physics_world = nphysics3d::world::World::<f32>::new();
+    physics_world.set_timestep(1.0f32 / 500.0f32);
+    physics_world.set_gravity(Vector::y() * -9.81);
+    let shape = ShapeHandle::<f32>::new(Cuboid::new(0.5.to_vec3()));
+    let collider = ColliderDesc::new(shape)
+        .name("First box collider".to_owned());
+
+    let body_handle = RigidBodyDesc::new()
+        .mass(1.0)
+        .velocity(nphysics3d::algebra::Velocity3::linear(0.0, 50.0, 0.0))
+        .collider(&collider)
+        .build(&mut physics_world).handle();
+
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
@@ -120,14 +138,20 @@ fn main() {
         .with(mesh_renderer.clone())
         .build();
 
-    let light_pos = world.create_entity()
+    let light = world.create_entity()
         .with(Transform {
             position: vec3(10.0, 10.0, 10.0),
             scale: vec3(0.01f32, 0.01, 0.01),
             ..Transform::default()
         })
+        .with(Velocity(vec3(-0.001, 0.0, 0.0)))
 //        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(mesh_renderer.clone())
+        .with(PointLight {
+            color: 1.0.to_vec3(),
+            range: 100.0,
+            intensity: 1.0
+        })
         .build();
 
     use std::f32;
@@ -176,6 +200,12 @@ fn main() {
         dispatcher.dispatch(&world);
         input_system.run_now(&world);
         world.maintain();
+
+        physics_world.step();
+        {
+            let body = physics_world.rigid_body(body_handle);
+            println!("Cube physics pos: {}", body.unwrap().position());
+        }
 
         window.swap_buffers();
         window.glfw.poll_events();

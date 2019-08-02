@@ -135,11 +135,11 @@ impl<'a> System<'a> for MeshRendererSystem {
                        Read<'a, ActiveCamera>,
                        ReadStorage<'a, PointLight>);
 
-    fn run(&mut self, (transform, mesh_renderer, camera, active_camera, point_lights): Self::SystemData) {
+    fn run(&mut self, (transforms, mesh_renderer, camera, active_camera, point_lights): Self::SystemData) {
         let (camera, cam_tr) = match active_camera.entity {
             Some(e) => (
                 camera.get(e).expect("Active camera must have a Camera component"),
-                transform.get(e).expect("Active camera must have a Transform component")
+                transforms.get(e).expect("Active camera must have a Transform component")
             ),
             None => return
         };
@@ -155,18 +155,19 @@ impl<'a> System<'a> for MeshRendererSystem {
 
         let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
 
-        for light in (&point_lights).join() {
-            println!("Range: {}", light.range);
-        }
+//        for (light, tr) in (&point_lights, &transforms).join() {
+//            println!("Range: {}", light.range);
+//        }
 
-        for (transform, mesh_renderer) in (&transform, &mesh_renderer).join() {
+        for (transform, mesh_renderer) in (&transforms, &mesh_renderer).join() {
             let model_matrix = transform.model_matrix;
 
             let mesh_renderer = mesh_renderer as &MeshRenderer;
 
             let shader_data = &mesh_renderer.material.shader_data;
 //            let ref shader = mesh_renderer.material.shader;
-            shader_data.bind_shader_uniforms(&model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
+            shader_data.bind_mvp(&model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
+            shader_data.bind_lights(&transforms, &point_lights);
 //            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,
