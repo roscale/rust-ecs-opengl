@@ -29,6 +29,7 @@ use crate::utils::ToVec3;
 use nalgebra::Vector;
 use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::{ColliderDesc, RigidBodyDesc};
+use nphysics3d::material::BasicMaterial;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -65,22 +66,33 @@ fn main() {
     world.insert(InputEventQueue::default());
     world.insert(InputCache::default());
 
+    // Physics stuff
+    world.insert(PhysicsWorld {
+        world: {
+            let mut physics_world = nphysics3d::world::World::<f32>::new();
+            physics_world.set_timestep(1.0f32 / 500.0f32);
+            physics_world.set_gravity(Vector::y() * -9.81);
+            physics_world
+        },
+        ..PhysicsWorld::default()
+    });
+    world.register::<Rigidbody>();
+    world.register::<BoxCollider>();
+
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
 
-    let mut physics_world = nphysics3d::world::World::<f32>::new();
-    physics_world.set_timestep(1.0f32 / 500.0f32);
-    physics_world.set_gravity(Vector::y() * -9.81);
-    let shape = ShapeHandle::<f32>::new(Cuboid::new(0.5.to_vec3()));
-    let collider = ColliderDesc::new(shape)
-        .name("First box collider".to_owned());
 
-    let body_handle = RigidBodyDesc::new()
-        .mass(1.0)
-        .velocity(nphysics3d::algebra::Velocity3::linear(0.0, 50.0, 0.0))
-        .collider(&collider)
-        .build(&mut physics_world).handle();
+//    let shape = ShapeHandle::<f32>::new(Cuboid::new(0.5.to_vec3()));
+//    let collider = ColliderDesc::new(shape)
+//        .name("First box collider".to_owned());
+
+//    let body_handle = RigidBodyDesc::new()
+//        .mass(1.0)
+//        .velocity(nphysics3d::algebra::Velocity3::linear(0.0, 50.0, 0.0))
+//        .collider(&collider)
+//        .build(&mut physics_world).handle();
 
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
@@ -99,13 +111,40 @@ fn main() {
         }
     };
 
+    let sync_bodies_to_physics_system = {
+        let mut transforms = world.write_storage::<Transform>();
+        let mut rigidbodies = world.write_storage::<Rigidbody>();
+        SyncBodiesToPhysicsSystem {
+            transforms_reader_id: transforms.register_reader(),
+            rigidbodies_reader_id: rigidbodies.register_reader(),
+        }
+    };
+
+//    let box_collider_system = {
+//        let mut comps = world.write_storage::<BoxCollider>();
+//        BoxColliderSystem {
+//            reader_id: comps.register_reader(),
+//            dirty: BitSet::new(),
+//        }
+//    };
+
     let mut dispatcher = DispatcherBuilder::new()
         .with(MoveSystem, "move_system", &[])
         .with_barrier()
         .with(transform_system, "transform_system", &[])
+        .with_barrier()
+//        .with(box_collider_system, "box_collider_system", &[])
+//        .with_barrier()
+        // Physics
+        .with(sync_bodies_to_physics_system, "sync_bodies_to_physics_system", &[])
+        .with(PhysicsStepperSystem, "physics_system", &[
+            "sync_bodies_to_physics_system"
+        ])
+        .with(SyncBodiesFromPhysicsSystem, "sync_bodies_from_physics_system",&[
+            "physics_system"
+        ])
         .with_thread_local(MeshRendererSystem)
         .build();
-
 //    let (diffuse, specular) = {
 //        let textures = CONTAINER.get_local::<TextureCache>();
 //        (textures.get("src/planks_oak.png"),
@@ -126,8 +165,6 @@ fn main() {
 //    }
 
 
-
-
     let entity = world.create_entity()
         .with(Transform {
             position: vec3(0.0, 0.0, 0.0),
@@ -136,6 +173,13 @@ fn main() {
         })
 //        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(mesh_renderer.clone())
+//        .with(BoxCollider {
+//            box_size: 1.0.to_vec3(),
+//            material: BasicMaterial::default(),
+//        })
+        .with(Rigidbody {
+            mass: 0.05
+        })
         .build();
 
     let light = world.create_entity()
@@ -150,7 +194,7 @@ fn main() {
         .with(PointLight {
             color: 1.0.to_vec3(),
             range: 100.0,
-            intensity: 1.0
+            intensity: 1.0,
         })
         .build();
 
@@ -166,7 +210,7 @@ fn main() {
             fov: 60.0f32.to_radians(),
             aspect_ratio: 1.0,
             near_plane: 0.1,
-            far_plane: 100.0,
+            far_plane: 10000.0,
         })
         .with(Input)
         .build();
@@ -200,12 +244,10 @@ fn main() {
         dispatcher.dispatch(&world);
         input_system.run_now(&world);
         world.maintain();
-
-        physics_world.step();
-        {
-            let body = physics_world.rigid_body(body_handle);
-            println!("Cube physics pos: {}", body.unwrap().position());
-        }
+//        {
+//            let body = physics_world.rigid_body(body_handle);
+//            println!("Cube physics pos: {}", body.unwrap().position());
+//        }
 
         window.swap_buffers();
         window.glfw.poll_events();

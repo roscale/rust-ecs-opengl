@@ -1,3 +1,6 @@
+mod physics;
+pub use physics::*;
+
 use specs::prelude::*;
 use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
@@ -127,6 +130,9 @@ pub struct MeshRendererSystem;
 
 use nalgebra::{Vector3, Matrix4};
 use glfw::{Key, WindowEvent};
+use ncollide3d::shape::{ShapeHandle, Cuboid};
+use nphysics3d::object::ColliderDesc;
+use nphysics3d::material::MaterialHandle;
 
 impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (ReadStorage<'a, Transform>,
@@ -172,6 +178,51 @@ impl<'a> System<'a> for MeshRendererSystem {
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,
                                   gl::UNSIGNED_INT, std::ptr::null()));
+        }
+    }
+}
+
+//////////////////
+// Physics systems
+//////////////////
+
+pub struct BoxColliderSystem {
+    pub reader_id: ReaderId<ComponentEvent>,
+    pub dirty: BitSet,
+}
+
+impl<'a> System<'a> for BoxColliderSystem {
+    type SystemData = (ReadStorage<'a, Transform>,
+                       Write<'a, PhysicsWorld>,
+                       ReadStorage<'a, BoxCollider>);
+
+    fn run(&mut self, (transforms, mut physics_world, box_colliders): Self::SystemData) {
+        let mut inserted = BitSet::new();
+        let events = box_colliders.channel().read(&mut self.reader_id);
+
+        for event in events {
+            match event {
+                ComponentEvent::Inserted(id) => {
+                    inserted.add(*id);
+                },
+                ComponentEvent::Modified(id) => {
+                    self.dirty.add(*id);
+                },
+                ComponentEvent::Removed(_) => (),
+            }
+        }
+
+        for (transform, box_collider, entity) in (&transforms, &box_colliders, &inserted).join() {
+            let transform = transform as &Transform;
+            let box_collider = box_collider as &BoxCollider;
+
+            let half_size = box_collider.box_size.scale(0.5);
+            let shape = ShapeHandle::<f32>::new(Cuboid::new(half_size));
+            let collider = ColliderDesc::new(shape)
+                .translation(transform.position)
+                .rotation(transform.rotation)
+                .material(MaterialHandle::new(box_collider.material))
+                .build(&mut physics_world.world);
         }
     }
 }

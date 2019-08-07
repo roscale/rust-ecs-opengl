@@ -4,6 +4,7 @@ use crate::shaders::*;
 use nalgebra::Matrix4;
 use crate::gl_wrapper::vao::VAO;
 use std::sync::Arc;
+use nphysics3d::material::BasicMaterial;
 
 // TODO implement Default trait to all the components
 
@@ -61,6 +62,25 @@ pub struct Mesh {
     pub indices: Vec<u32>,
     pub normals: Vec<f32>,
     pub texcoords: Vec<f32>
+}
+
+#[derive(Debug)]
+pub struct BoxCollider {
+    pub box_size: Vec3,
+    pub material: BasicMaterial<f32>,
+}
+
+impl Component for BoxCollider {
+    type Storage = FlaggedStorage<Self>;
+}
+
+#[derive(Debug)]
+pub struct Rigidbody {
+    pub mass: f32
+}
+
+impl Component for Rigidbody {
+    type Storage = FlaggedStorage<Self>;
 }
 
 #[derive(Component, Debug)]
