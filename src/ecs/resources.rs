@@ -2,7 +2,7 @@ use specs::Entity;
 use std::collections::{VecDeque, HashMap};
 use nalgebra_glm::{Vec2, vec2};
 use glfw::{Key, Action};
-use nphysics3d::object::BodyHandle;
+use nphysics3d::object::{BodyHandle, ColliderHandle};
 
 pub struct ActiveCamera {
     pub entity: Option<Entity>
@@ -48,5 +48,6 @@ impl InputCache {
 #[derive(Default)]
 pub struct PhysicsWorld {
     pub world: nphysics3d::world::World<f32>,
-    pub body_handles: HashMap<u32, BodyHandle>
+    pub body_handles: HashMap<u32, BodyHandle>,
+    pub collider_handles: HashMap<u32, ColliderHandle>
 }

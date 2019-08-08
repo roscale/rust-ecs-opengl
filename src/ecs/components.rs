@@ -1,10 +1,13 @@
 use specs::prelude::*;
-use nalgebra_glm::{Vec3, vec3, Mat4};
+use nalgebra_glm::{Vec3, vec3, Mat4, Mat3};
 use crate::shaders::*;
-use nalgebra::Matrix4;
+use nalgebra::{Matrix4, Point3, Point, Vector, Vector3};
 use crate::gl_wrapper::vao::VAO;
 use std::sync::Arc;
 use nphysics3d::material::BasicMaterial;
+use nphysics3d::object::{BodyStatus, ActivationStatus, RigidBodyDesc};
+use nphysics3d::algebra::Velocity3;
+use ncollide3d::shape::ShapeHandle;
 
 // TODO implement Default trait to all the components
 
@@ -42,9 +45,6 @@ impl Transform {
     }
 }
 
-#[derive(Component, Debug)]
-pub struct Velocity(pub Vec3);
-
 #[derive(Component, Clone)]
 pub struct MeshRenderer {
     pub mesh: Arc<Mesh>,
@@ -75,11 +75,46 @@ impl Component for BoxCollider {
 }
 
 #[derive(Debug)]
-pub struct Rigidbody {
-    pub mass: f32
+pub struct RigidBody {
+    pub name: String,
+    pub gravity_enabled: bool,
+    pub status: BodyStatus,
+    pub velocity: Velocity3<f32>,
+    pub angular_inertia: Mat3,
+    pub mass: f32,
+    pub local_center_of_mass: Point3<f32>,
+    pub sleep_threshold: Option<f32>,
+    pub kinematic_translations: Vector3<bool>,
+    pub kinematic_rotations: Vector3<bool>,
 }
 
-impl Component for Rigidbody {
+impl Component for RigidBody {
+    type Storage = FlaggedStorage<Self>;
+}
+
+impl Default for RigidBody {
+    fn default() -> Self {
+        RigidBody {
+            name: "".to_owned(),
+            gravity_enabled: true,
+            status: BodyStatus::Dynamic,
+            velocity: Velocity3::zero(),
+            angular_inertia: Mat3::zeros(),
+            mass: 0.0,
+            local_center_of_mass: Point::origin(),
+            sleep_threshold: Some(ActivationStatus::<f32>::default_threshold()),
+            kinematic_translations: Vector3::repeat(false),
+            kinematic_rotations: Vector3::repeat(false),
+        }
+    }
+}
+
+pub struct Collider {
+    pub shape: ShapeHandle<f32>,
+    pub material: BasicMaterial<f32>,
+}
+
+impl Component for Collider {
     type Storage = FlaggedStorage<Self>;
 }
 

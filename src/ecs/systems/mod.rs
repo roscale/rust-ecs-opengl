@@ -9,18 +9,6 @@ use nalgebra_glm::{vec2, Mat4, vec3};
 
 pub struct MoveSystem;
 
-impl<'a> System<'a> for MoveSystem {
-    type SystemData = (WriteStorage<'a, Transform>, ReadStorage<'a, Velocity>);
-
-    fn run(&mut self, (mut tr, vel): Self::SystemData) {
-        for (tr, vel) in (&mut tr, &vel).join() {
-            tr.position += vel.0;
-//            tr.rotation.y += 0.01f32;
-//            println!("{}", tr.rotation.y)
-        }
-    }
-}
-
 pub struct TransformSystem {
     pub reader_id: ReaderId<ComponentEvent>,
     pub dirty: BitSet,

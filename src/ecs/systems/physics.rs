@@ -4,10 +4,12 @@ use specs::shrev::EventIterator;
 use crate::ecs::resources::*;
 use crate::ecs::components::*;
 use specs::prelude::ComponentEvent;
-use nphysics3d::object::RigidBodyDesc;
+use nphysics3d::object::{RigidBodyDesc, ColliderDesc, BodyPartHandle, BodyHandle};
 use nalgebra::{Isometry3, Isometry, Translation3, UnitQuaternion, Point3};
 use crate::utils::ToVec3;
 use nalgebra_glm::{Vec3, vec3};
+use ncollide3d::shape::{ShapeHandle, Ball};
+use nphysics3d::material::MaterialHandle;
 
 fn iterate_component_events(events: EventIterator<ComponentEvent>) -> (BitSet, BitSet, BitSet) {
     let mut inserted = BitSet::new();
@@ -41,7 +43,7 @@ pub struct SyncBodiesToPhysicsSystem {
 
 impl<'a> System<'a> for SyncBodiesToPhysicsSystem {
     type SystemData = (ReadStorage<'a, Transform>,
-                       ReadStorage<'a, Rigidbody>,
+                       ReadStorage<'a, RigidBody>,
                        Write<'a, PhysicsWorld>);
 
     fn run(&mut self, (transforms, rigidbodies, mut physics): Self::SystemData) {
@@ -53,9 +55,9 @@ impl<'a> System<'a> for SyncBodiesToPhysicsSystem {
 
 
         // Inserted rigidbodies
-        for (transform, rigidbody, id) in (&transforms, &rigidbodies, &inserted_rb).join() {
+        for (transform, rigid_body, id) in (&transforms, &rigidbodies, &inserted_rb).join() {
             let transform = transform as &Transform;
-            let rigidbody = rigidbody as &Rigidbody;
+            let rigid_body = rigid_body as &RigidBody;
 
             // remove already existing bodies for this inserted component;
             // this technically should never happen but we need to keep the list of body
@@ -65,26 +67,31 @@ impl<'a> System<'a> for SyncBodiesToPhysicsSystem {
             let body = RigidBodyDesc::new()
                 .translation(transform.position)
                 .rotation(transform.rotation)
-                .mass(rigidbody.mass)
+                .name(rigid_body.name.clone())
+                .gravity_enabled(rigid_body.gravity_enabled)
+                .status(rigid_body.status)
+                .velocity(rigid_body.velocity)
+                .angular_inertia(rigid_body.angular_inertia)
+                .mass(rigid_body.mass)
+                .local_center_of_mass(rigid_body.local_center_of_mass)
+                .sleep_threshold(rigid_body.sleep_threshold)
+                .kinematic_translations(rigid_body.kinematic_translations)
+                .kinematic_rotations(rigid_body.kinematic_rotations)
                 .user_data(id)
-                .local_center_of_mass(Point3::new(0.0, 60.0 * 0.05, 0.0))
                 .build(&mut physics.world);
 
-            body.set_linear_velocity((10.0, 30.0, 0.0).to_vec3());
-            body.set_angular_velocity(vec3(1.0, 2.0, 3.0));
-
             let handle = body.handle();
-
             physics.body_handles.insert(id, handle);
         }
 
         // Modified rigidbodies
-        for (rigidbody, id) in (&rigidbodies, &modified_rb).join() {
-            let rigidbody = rigidbody as &Rigidbody;
+        for (rigid_body, id) in (&rigidbodies, &modified_rb).join() {
+            let rigid_body = rigid_body as &RigidBody;
 
+            // TODO Handle all the changes
             let handle = physics.body_handles.get(&id).unwrap().clone();
             if let Some(body) = physics.world.rigid_body_mut(handle) {
-                body.set_mass(rigidbody.mass);
+                body.set_mass(rigid_body.mass);
             }
         }
 
@@ -107,8 +114,8 @@ impl<'a> System<'a> for SyncBodiesToPhysicsSystem {
         }
 
         // Removed rigidbodies
-        for (rigidbody, id) in (&rigidbodies, &removed_rb).join() {
-            let rigidbody = rigidbody as &Rigidbody;
+        for (rigid_body, id) in (&rigidbodies, &removed_rb).join() {
+            let rigid_body = rigid_body as &RigidBody;
 
             if let Some(handle) = physics.body_handles.remove(&id) {
                 physics.world.remove_bodies(&[handle]);
@@ -122,23 +129,59 @@ pub struct SyncBodiesFromPhysicsSystem;
 
 impl<'a> System<'a> for SyncBodiesFromPhysicsSystem {
     type SystemData = (WriteStorage<'a, Transform>,
-                       ReadStorage<'a, Rigidbody>,
+                       ReadStorage<'a, RigidBody>,
                        Read<'a, PhysicsWorld>,
                        Entities<'a>);
 
     fn run(&mut self, (mut transforms, rigidbodies, physics, entities): Self::SystemData) {
-        for (transform, rigidbody, e) in (&mut transforms, &rigidbodies, &entities).join() {
+        for (transform, rigid_body, e) in (&mut transforms, &rigidbodies, &entities).join() {
             let transform = transform as &mut Transform;
-            let rigidbody = rigidbody as &Rigidbody;
+            let rigid_body = rigid_body as &RigidBody;
 
             if let Some(handle) = physics.body_handles.get(&e.id()).cloned() {
-                if let Some(rigidbody) = physics.world.rigid_body(handle) {
-                    let iso = rigidbody.position();
+                if let Some(rigid_body) = physics.world.rigid_body(handle) {
+                    let iso = rigid_body.position();
                     transform.position = iso.translation.vector;
                     let a = iso.rotation as UnitQuaternion<f32>;
                     transform.rotation = a.euler_angles().to_vec3();
                 }
             }
+        }
+    }
+}
+
+pub struct SyncCollidersToPhysicsSystem {
+    pub colliders_reader_id: ReaderId<ComponentEvent>,
+}
+
+impl<'a> System<'a> for SyncCollidersToPhysicsSystem {
+    type SystemData = (ReadStorage<'a, Transform>,
+                       ReadStorage<'a, Collider>,
+                       Write<'a, PhysicsWorld>);
+
+    fn run(&mut self, (transforms, colliders, mut physics): Self::SystemData) {
+        let (inserted_col, modified_col, removed_col) =
+            iterate_component_events(colliders.channel().read(&mut self.colliders_reader_id));
+
+        for (transform, collider, id) in (&transforms, &colliders, &inserted_col).join() {
+            let transform = transform as &Transform;
+            let collider = collider as &Collider;
+
+            let body_part_handle = match physics.body_handles.get(&id) {
+                Some(handle) => physics
+                    .world
+                    .rigid_body(*handle)
+                    .map_or(BodyPartHandle::ground(), |rb| rb.part_handle()),
+                None => BodyPartHandle::ground()
+            };
+
+            let collider_handle = ColliderDesc::new(collider.shape.clone())
+                .material(MaterialHandle::new(collider.material))
+                .build_with_parent(body_part_handle, &mut physics.world)
+                .unwrap()
+                .handle();
+
+            physics.collider_handles.insert(id, collider_handle);
         }
     }
 }

@@ -28,8 +28,9 @@ use crate::containers::global_instances::CONTAINER;
 use crate::utils::ToVec3;
 use nalgebra::Vector;
 use ncollide3d::shape::{ShapeHandle, Cuboid};
-use nphysics3d::object::{ColliderDesc, RigidBodyDesc};
+use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
 use nphysics3d::material::BasicMaterial;
+use nphysics3d::algebra::Velocity3;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -55,7 +56,6 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 fn main() {
     let mut world = World::new();
     world.register::<Transform>();
-    world.register::<Velocity>();
     world.register::<MeshRenderer>();
     world.register::<Camera>();
     world.insert(ActiveCamera::default());
@@ -76,8 +76,9 @@ fn main() {
         },
         ..PhysicsWorld::default()
     });
-    world.register::<Rigidbody>();
+    world.register::<RigidBody>();
     world.register::<BoxCollider>();
+    world.register::<Collider>();
 
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
@@ -113,10 +114,17 @@ fn main() {
 
     let sync_bodies_to_physics_system = {
         let mut transforms = world.write_storage::<Transform>();
-        let mut rigidbodies = world.write_storage::<Rigidbody>();
+        let mut rigidbodies = world.write_storage::<RigidBody>();
         SyncBodiesToPhysicsSystem {
             transforms_reader_id: transforms.register_reader(),
             rigidbodies_reader_id: rigidbodies.register_reader(),
+        }
+    };
+
+    let sync_colliders_to_physics_system = {
+        let mut colliders = world.write_storage::<Collider>();
+        SyncCollidersToPhysicsSystem {
+            colliders_reader_id: colliders.register_reader(),
         }
     };
 
@@ -129,20 +137,23 @@ fn main() {
 //    };
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(MoveSystem, "move_system", &[])
-        .with_barrier()
-        .with(transform_system, "transform_system", &[])
-        .with_barrier()
 //        .with(box_collider_system, "box_collider_system", &[])
 //        .with_barrier()
         // Physics
         .with(sync_bodies_to_physics_system, "sync_bodies_to_physics_system", &[])
-        .with(PhysicsStepperSystem, "physics_system", &[
+        .with(sync_colliders_to_physics_system, "sync_colliders_to_physics_system", &[
             "sync_bodies_to_physics_system"
         ])
-        .with(SyncBodiesFromPhysicsSystem, "sync_bodies_from_physics_system",&[
-            "physics_system"
+
+        .with(PhysicsStepperSystem, "physics_stepper", &[
+            "sync_bodies_to_physics_system",
+            "sync_colliders_to_physics_system"
         ])
+        .with(SyncBodiesFromPhysicsSystem, "sync_bodies_from_physics_system", &[
+            "physics_stepper"
+        ])
+        .with_barrier()
+        .with(transform_system, "transform_system", &[])
         .with_thread_local(MeshRendererSystem)
         .build();
 //    let (diffuse, specular) = {
@@ -164,37 +175,86 @@ fn main() {
 //        }
 //    }
 
+    use nalgebra::Point3;
 
-    let entity = world.create_entity()
+
+    let floor = world.create_entity()
         .with(Transform {
-            position: vec3(0.0, 0.0, 0.0),
-            scale: vec3(0.05f32, 0.05, 0.05),
+            position: vec3(0.0, -200.0, 0.0),
             ..Transform::default()
         })
-//        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(mesh_renderer.clone())
-//        .with(BoxCollider {
-//            box_size: 1.0.to_vec3(),
-//            material: BasicMaterial::default(),
-//        })
-        .with(Rigidbody {
-            mass: 0.05
+        .with(RigidBody {
+            status: BodyStatus::Static,
+            ..RigidBody::default()
+        })
+        .with(Collider {
+            shape: ShapeHandle::new(Cuboid::new(vec3(130.0, 130.0, 130.0))),
+            material: BasicMaterial::default()
+        })
+        .build();
+
+
+    let entity1 = world.create_entity()
+        .with(Transform {
+            position: vec3(0.0, 0.0, 0.0),
+            scale: 0.1.to_vec3(),
+            ..Transform::default()
+        })
+        .with(mesh_renderer.clone())
+        .with(RigidBody {
+            mass: 1.0,
+//            velocity: Velocity3 {
+//                linear: vec3(5.0, 30.0, 0.0),
+//                angular: vec3(1.0, 2.0, 3.0),
+//            },
+            local_center_of_mass: Point3::new(0.0, 60.0 * 0.01, 0.0),
+            ..RigidBody::default()
+        })
+        .with(Collider {
+            shape: ShapeHandle::new(Cuboid::new(vec3(60.0, 60.0, 60.0) * 0.01)),
+            material: BasicMaterial::new(0.5, 0.5)
+        })
+        .build();
+
+    let entity2 = world.create_entity()
+        .with(Transform {
+            position: vec3(1.0, -20.0, 0.0),
+            scale: 0.1.to_vec3(),
+            ..Transform::default()
+        })
+        .with(mesh_renderer.clone())
+        .with(RigidBody {
+            mass: 1.0,
+            velocity: Velocity3 {
+                linear: vec3(0.0, 1.0, 0.0),
+                angular: 0.0.to_vec3(),
+            },
+            local_center_of_mass: Point3::new(0.0, 60.0 * 0.01, 0.0),
+            ..RigidBody::default()
+        })
+        .with(Collider {
+            shape: ShapeHandle::new(Cuboid::new(vec3(60.0, 60.0, 60.0) * 0.01)),
+            material: BasicMaterial::default()
         })
         .build();
 
     let light = world.create_entity()
         .with(Transform {
             position: vec3(10.0, 10.0, 10.0),
-            scale: vec3(0.01f32, 0.01, 0.01),
+            scale: 0.01.to_vec3(),
             ..Transform::default()
         })
-        .with(Velocity(vec3(-0.001, 0.0, 0.0)))
-//        .with(Velocity(vec3(0.0, 0.0, -0.01)))
         .with(mesh_renderer.clone())
         .with(PointLight {
             color: 1.0.to_vec3(),
             range: 100.0,
             intensity: 1.0,
+        })
+        .with(RigidBody {
+            velocity: Velocity3::linear(-1.0, 0.0, 0.0),
+            status: BodyStatus::Kinematic,
+            ..RigidBody::default()
         })
         .build();
 
