@@ -22,11 +22,11 @@ use ecs::resources::*;
 use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
 use glfw::ffi::{glfwSwapInterval, glfwGetTime};
-use nalgebra_glm::vec3;
+use nalgebra_glm::{vec3, Mat3};
 use containers::global_instances::*;
 use crate::containers::global_instances::CONTAINER;
 use crate::utils::ToVec3;
-use nalgebra::Vector;
+use nalgebra::{Vector, Matrix};
 use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
 use nphysics3d::material::BasicMaterial;
@@ -102,7 +102,7 @@ fn main() {
     gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
-    let mesh_renderer = model_loader.load("models/cube/Cube.obj");
+    let mesh_renderer = model_loader.load("models/cube/box_test.obj");
 
     let transform_system = {
         let mut comps = world.write_storage::<Transform>();
@@ -177,10 +177,10 @@ fn main() {
 
     use nalgebra::Point3;
 
-
     let floor = world.create_entity()
         .with(Transform {
-            position: vec3(0.0, -200.0, 0.0),
+            position: vec3(0.0, 0.0, 0.0),
+            scale: 10.0.to_vec3(),
             ..Transform::default()
         })
         .with(mesh_renderer.clone())
@@ -189,7 +189,7 @@ fn main() {
             ..RigidBody::default()
         })
         .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(130.0, 130.0, 130.0))),
+            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25) * 10.0)),
             material: BasicMaterial::default()
         })
         .build();
@@ -197,44 +197,43 @@ fn main() {
 
     let entity1 = world.create_entity()
         .with(Transform {
-            position: vec3(0.0, 0.0, 0.0),
-            scale: 0.1.to_vec3(),
+            position: vec3(0.0, 20.0, 0.0),
             ..Transform::default()
         })
         .with(mesh_renderer.clone())
         .with(RigidBody {
             mass: 1.0,
+            angular_inertia: Mat3::identity(),
+//            angular_inertia: 1.0.to_vec3(),
 //            velocity: Velocity3 {
 //                linear: vec3(5.0, 30.0, 0.0),
 //                angular: vec3(1.0, 2.0, 3.0),
 //            },
-            local_center_of_mass: Point3::new(0.0, 60.0 * 0.01, 0.0),
             ..RigidBody::default()
         })
         .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(60.0, 60.0, 60.0) * 0.01)),
+            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
             material: BasicMaterial::new(0.5, 0.5)
         })
         .build();
 
     let entity2 = world.create_entity()
         .with(Transform {
-            position: vec3(1.0, -20.0, 0.0),
-            scale: 0.1.to_vec3(),
+            position: vec3(0.4, 10.0, 0.2),
             ..Transform::default()
         })
         .with(mesh_renderer.clone())
         .with(RigidBody {
             mass: 1.0,
-            velocity: Velocity3 {
-                linear: vec3(0.0, 1.0, 0.0),
-                angular: 0.0.to_vec3(),
-            },
-            local_center_of_mass: Point3::new(0.0, 60.0 * 0.01, 0.0),
+            angular_inertia: Mat3::identity(),
+//            velocity: Velocity3 {
+//                linear: vec3(0.0, 20.0, 0.0),
+//                angular: 0.0.to_vec3(),
+//            },
             ..RigidBody::default()
         })
         .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(60.0, 60.0, 60.0) * 0.01)),
+            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
             material: BasicMaterial::default()
         })
         .build();
@@ -242,7 +241,7 @@ fn main() {
     let light = world.create_entity()
         .with(Transform {
             position: vec3(10.0, 10.0, 10.0),
-            scale: 0.01.to_vec3(),
+            scale: 0.1.to_vec3(),
             ..Transform::default()
         })
         .with(mesh_renderer.clone())
@@ -261,7 +260,7 @@ fn main() {
     use std::f32;
     let camera_entity = world.create_entity()
         .with(Transform {
-            position: vec3(0.0, 0.0, 3.0),
+            position: vec3(0.0, 5.0, 3.0),
             rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
             ..Transform::default()
         })

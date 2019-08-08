@@ -94,22 +94,22 @@ impl<'a> System<'a> for InputSystem {
 
         if input_cache.is_key_pressed(Key::W) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position += transform.forward().scale(0.1f32);
+            transform.position += transform.forward().scale(0.01f32);
         }
 
         if input_cache.is_key_pressed(Key::S) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position -= transform.forward().scale(0.1f32);
+            transform.position -= transform.forward().scale(0.01f32);
         }
 
         if input_cache.is_key_pressed(Key::A) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position -= transform.forward().cross(&Vector3::y()).scale(0.1f32);
+            transform.position -= transform.forward().cross(&Vector3::y()).scale(0.01f32);
         }
 
         if input_cache.is_key_pressed(Key::D) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position += transform.forward().cross(&Vector3::y()).scale(0.1f32);
+            transform.position += transform.forward().cross(&Vector3::y()).scale(0.01f32);
         }
     }
 }

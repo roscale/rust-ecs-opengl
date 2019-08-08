@@ -163,6 +163,7 @@ impl<'a> System<'a> for SyncCollidersToPhysicsSystem {
         let (inserted_col, modified_col, removed_col) =
             iterate_component_events(colliders.channel().read(&mut self.colliders_reader_id));
 
+        // Inserted colliders
         for (transform, collider, id) in (&transforms, &colliders, &inserted_col).join() {
             let transform = transform as &Transform;
             let collider = collider as &Collider;
@@ -182,6 +183,18 @@ impl<'a> System<'a> for SyncCollidersToPhysicsSystem {
                 .handle();
 
             physics.collider_handles.insert(id, collider_handle);
+        }
+
+        // TODO Modified colliders
+
+        // Removed colliders
+        for (_, id) in (&colliders, &removed_col).join() {
+            if let Some(handle) = physics.collider_handles.remove(&id) {
+                if physics.world.collider(handle).is_some() {
+                    physics.world.remove_colliders(&[handle]);
+                }
+                println!("Removed collider from world with id: {}", id);
+            }
         }
     }
 }
