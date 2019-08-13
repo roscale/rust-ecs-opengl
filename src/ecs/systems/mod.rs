@@ -7,8 +7,6 @@ use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use nalgebra_glm::{vec2, Mat4, vec3};
 
-pub struct MoveSystem;
-
 pub struct TransformSystem {
     pub reader_id: ReaderId<ComponentEvent>,
     pub dirty: BitSet,
@@ -121,6 +119,7 @@ use glfw::{Key, WindowEvent};
 use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::ColliderDesc;
 use nphysics3d::material::MaterialHandle;
+use glfw::ffi::glfwGetTime;
 
 impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (ReadStorage<'a, Transform>,
@@ -211,6 +210,27 @@ impl<'a> System<'a> for BoxColliderSystem {
                 .rotation(transform.rotation)
                 .material(MaterialHandle::new(box_collider.material))
                 .build(&mut physics_world.world);
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct PrintFramerate {
+    prev: f64,
+    frames: u32,
+}
+
+impl<'a> System<'a> for PrintFramerate {
+    type SystemData = Read<'a, Time>;
+
+    fn run(&mut self, time: Self::SystemData) {
+        self.frames += 1;
+        let now = unsafe { glfwGetTime() };
+        let delta = now - self.prev;
+        if delta >= 1.0 {
+            self.prev = now;
+            println!("Framerate: {}", f64::from(self.frames) / delta);
+            self.frames = 0;
         }
     }
 }

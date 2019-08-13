@@ -65,12 +65,12 @@ fn main() {
     world.register::<Input>();
     world.insert(InputEventQueue::default());
     world.insert(InputCache::default());
+    world.insert(Time::default());
 
     // Physics stuff
     world.insert(PhysicsWorld {
         world: {
             let mut physics_world = nphysics3d::world::World::<f32>::new();
-            physics_world.set_timestep(1.0f32 / 500.0f32);
             physics_world.set_gravity(Vector::y() * -9.81);
             physics_world
         },
@@ -83,19 +83,7 @@ fn main() {
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
-
-
-//    let shape = ShapeHandle::<f32>::new(Cuboid::new(0.5.to_vec3()));
-//    let collider = ColliderDesc::new(shape)
-//        .name("First box collider".to_owned());
-
-//    let body_handle = RigidBodyDesc::new()
-//        .mass(1.0)
-//        .velocity(nphysics3d::algebra::Velocity3::linear(0.0, 50.0, 0.0))
-//        .collider(&collider)
-//        .build(&mut physics_world).handle();
-
-
+    
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     gl_call!(gl::Viewport(0, 0, 1000, 1000));
@@ -128,24 +116,19 @@ fn main() {
         }
     };
 
-//    let box_collider_system = {
-//        let mut comps = world.write_storage::<BoxCollider>();
-//        BoxColliderSystem {
-//            reader_id: comps.register_reader(),
-//            dirty: BitSet::new(),
-//        }
-//    };
+    let mut physics_stepper = {
+        let mut physics_world = world.write_resource::<PhysicsWorld>();
+        PhysicsStepperSystem::new(&mut physics_world.world, 128)
+    };
 
     let mut dispatcher = DispatcherBuilder::new()
-//        .with(box_collider_system, "box_collider_system", &[])
-//        .with_barrier()
         // Physics
         .with(sync_bodies_to_physics_system, "sync_bodies_to_physics_system", &[])
         .with(sync_colliders_to_physics_system, "sync_colliders_to_physics_system", &[
             "sync_bodies_to_physics_system"
         ])
 
-        .with(PhysicsStepperSystem, "physics_stepper", &[
+        .with(physics_stepper, "physics_stepper", &[
             "sync_bodies_to_physics_system",
             "sync_colliders_to_physics_system"
         ])
@@ -156,26 +139,6 @@ fn main() {
         .with(transform_system, "transform_system", &[])
         .with_thread_local(MeshRendererSystem)
         .build();
-//    let (diffuse, specular) = {
-//        let textures = CONTAINER.get_local::<TextureCache>();
-//        (textures.get("src/planks_oak.png"),
-//         textures.get("src/specular.png"))
-//    };
-
-//    for i in 0..10 {
-//        for j in 0..10 {
-//            let entity = world.create_entity()
-//                .with(Transform {
-//                    position: vec3(i as f32, -3.0, j as f32),
-//                    scale: vec3(0.008, 0.008, 0.008),
-//                    ..Transform::default()
-//                })
-//                .with(mesh_renderer.clone())
-//                .build();
-//        }
-//    }
-
-    use nalgebra::Point3;
 
     let floor = world.create_entity()
         .with(Transform {
@@ -204,11 +167,6 @@ fn main() {
         .with(RigidBody {
             mass: 1.0,
             angular_inertia: Mat3::identity(),
-//            angular_inertia: 1.0.to_vec3(),
-//            velocity: Velocity3 {
-//                linear: vec3(5.0, 30.0, 0.0),
-//                angular: vec3(1.0, 2.0, 3.0),
-//            },
             ..RigidBody::default()
         })
         .with(Collider {
@@ -226,10 +184,6 @@ fn main() {
         .with(RigidBody {
             mass: 1.0,
             angular_inertia: Mat3::identity(),
-//            velocity: Velocity3 {
-//                linear: vec3(0.0, 20.0, 0.0),
-//                angular: 0.0.to_vec3(),
-//            },
             ..RigidBody::default()
         })
         .with(Collider {
@@ -264,7 +218,6 @@ fn main() {
             rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
             ..Transform::default()
         })
-//        .with(Velocity(vec3(0.0f32, 0.0, 0.0)))
         .with(Camera {
             fov: 60.0f32.to_radians(),
             aspect_ratio: 1.0,
@@ -278,13 +231,11 @@ fn main() {
     world.write_resource::<ActiveCamera>().entity = Some(camera_entity);
 
     let mut input_system = InputSystem;
+    let mut print_framerate = PrintFramerate::default();
 
     gl_call!(gl::Enable(gl::CULL_FACE));
     gl_call!(gl::CullFace(gl::BACK));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
-
-    let mut prev = 0.0;
-    let mut frames = 0;
 
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
@@ -299,26 +250,14 @@ fn main() {
         };
         gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
 
-
         dispatcher.dispatch(&world);
         input_system.run_now(&world);
         world.maintain();
-//        {
-//            let body = physics_world.rigid_body(body_handle);
-//            println!("Cube physics pos: {}", body.unwrap().position());
-//        }
 
         window.swap_buffers();
         window.glfw.poll_events();
 
-        // Calculate framerate
-        let now = unsafe { glfwGetTime() };
-        frames += 1;
-        let delta = now - prev;
-        if delta >= 1.0 {
-            prev = now;
-            println!("Framerate: {}", f64::from(frames) / delta);
-            frames = 0;
-        }
+        world.write_resource::<Time>().tick();
+        print_framerate.run_now(&world);
     }
 }

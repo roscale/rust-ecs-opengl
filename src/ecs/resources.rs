@@ -3,6 +3,7 @@ use std::collections::{VecDeque, HashMap};
 use nalgebra_glm::{Vec2, vec2};
 use glfw::{Key, Action};
 use nphysics3d::object::{BodyHandle, ColliderHandle};
+use glfw::ffi::glfwGetTime;
 
 pub struct ActiveCamera {
     pub entity: Option<Entity>
@@ -50,4 +51,21 @@ pub struct PhysicsWorld {
     pub world: nphysics3d::world::World<f32>,
     pub body_handles: HashMap<u32, BodyHandle>,
     pub collider_handles: HashMap<u32, ColliderHandle>
+}
+
+#[derive(Default)]
+pub struct Time {
+    pub frame_count: u32,
+    pub frame_rate: f32,
+    prev: f64,
+    pub dt: f64,
+}
+
+impl Time {
+    pub fn tick(&mut self) {
+        self.frame_count += 1;
+        let now = unsafe { glfwGetTime() };
+        self.dt = now - self.prev;
+        self.prev = now;
+    }
 }

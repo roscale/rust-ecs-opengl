@@ -10,6 +10,8 @@ use crate::utils::ToVec3;
 use nalgebra_glm::{Vec3, vec3};
 use ncollide3d::shape::{ShapeHandle, Ball};
 use nphysics3d::material::MaterialHandle;
+use nphysics3d::counters::Timer;
+use glfw::ffi::glfwGetTime;
 
 fn iterate_component_events(events: EventIterator<ComponentEvent>) -> (BitSet, BitSet, BitSet) {
     let mut inserted = BitSet::new();
@@ -26,13 +28,36 @@ fn iterate_component_events(events: EventIterator<ComponentEvent>) -> (BitSet, B
     (inserted, modified, removed)
 }
 
-pub struct PhysicsStepperSystem;
+pub struct PhysicsStepperSystem {
+    tickrate: u32,
+    last_time: f64,
+}
+
+impl PhysicsStepperSystem {
+    pub fn new(physics: &mut nphysics3d::world::World<f32>, tickrate: u32) -> Self {
+        let mut stepper = PhysicsStepperSystem {
+            tickrate,
+            last_time: 0.0
+        };
+
+        stepper.set_tickrate(physics, tickrate);
+        stepper
+    }
+
+    fn set_tickrate(&mut self, physics: &mut nphysics3d::world::World<f32>, tickrate: u32) {
+        physics.set_timestep(1.0f32 / tickrate as f32);
+    }
+}
 
 impl<'a> System<'a> for PhysicsStepperSystem {
     type SystemData = (Write<'a, PhysicsWorld>);
 
     fn run(&mut self, mut pw: Self::SystemData) {
-        pw.world.step();
+        let now = unsafe { glfwGetTime() };
+        if now - self.last_time >= pw.world.timestep().into() {
+            pw.world.step();
+            self.last_time = now;
+        }
     }
 }
 
