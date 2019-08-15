@@ -120,15 +120,19 @@ use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::ColliderDesc;
 use nphysics3d::material::MaterialHandle;
 use glfw::ffi::glfwGetTime;
+use crate::shaders::outline::OutlineData;
+use crate::shaders::ShaderData;
 
 impl<'a> System<'a> for MeshRendererSystem {
-    type SystemData = (ReadStorage<'a, Transform>,
+    type SystemData = (Entities<'a>,
+                       ReadStorage<'a, Transform>,
                        ReadStorage<'a, MeshRenderer>,
                        ReadStorage<'a, Camera>,
                        Read<'a, ActiveCamera>,
-                       ReadStorage<'a, PointLight>);
+                       ReadStorage<'a, PointLight>,
+                       ReadStorage<'a, Outliner>);
 
-    fn run(&mut self, (transforms, mesh_renderer, camera, active_camera, point_lights): Self::SystemData) {
+    fn run(&mut self, (entities, transforms, mesh_renderer, camera, active_camera, point_lights, outliners): Self::SystemData) {
         let (camera, cam_tr) = match active_camera.entity {
             Some(e) => (
                 camera.get(e).expect("Active camera must have a Camera component"),
@@ -148,24 +152,66 @@ impl<'a> System<'a> for MeshRendererSystem {
 
         let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
 
-//        for (light, tr) in (&point_lights, &transforms).join() {
-//            println!("Range: {}", light.range);
-//        }
-
-        for (transform, mesh_renderer) in (&transforms, &mesh_renderer).join() {
+        gl_call!(gl::StencilFunc(gl::ALWAYS, 1, 0xFF));
+        for (entity, transform, mesh_renderer) in (&entities, &transforms, &mesh_renderer).join() {
             let model_matrix = transform.model_matrix;
 
             let mesh_renderer = mesh_renderer as &MeshRenderer;
 
             let shader_data = &mesh_renderer.material.shader_data;
-//            let ref shader = mesh_renderer.material.shader;
             shader_data.bind_mvp(&model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
             shader_data.bind_lights(&transforms, &point_lights);
-//            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, mesh.0.len() as i32));
+
+            // Outline stencil test
+            if outliners.get(entity).is_some() {
+                gl_call!(gl::StencilMask(0xFF));
+                gl_call!(gl::StencilOp(gl::REPLACE, gl::REPLACE, gl::REPLACE));
+            } else {
+                // Disable stencil write
+                gl_call!(gl::StencilMask(0x00));
+                gl_call!(gl::StencilOp(gl::KEEP, gl::KEEP, gl::KEEP));
+            }
+
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,
                                   gl::UNSIGNED_INT, std::ptr::null()));
         }
+
+        // Draw outlined objects
+        gl_call!(gl::StencilFunc(gl::NOTEQUAL, 1, 0xFF));
+        gl_call!(gl::StencilMask(0x00));
+        gl_call!(gl::Disable(gl::DEPTH_TEST));
+
+        for (transform, mesh_renderer, outliner) in (&transforms, &mesh_renderer, &outliners).join() {
+            // Calculate scaled model matrix
+            let scaled_model_matrix = {
+                let translate_matrix = Matrix4::new_translation(&transform.position);
+
+                let rotate_matrix = Matrix4::from_euler_angles(
+                    transform.rotation.x,
+                    transform.rotation.y,
+                    transform.rotation.z,
+                );
+
+                let scale_vec = transform.scale * outliner.scale;
+                let scale_matrix: Mat4 = Matrix4::new_nonuniform_scaling(&scale_vec);
+                translate_matrix * rotate_matrix * scale_matrix
+            };
+
+            let mesh_renderer = mesh_renderer as &MeshRenderer;
+
+            let shader_data = OutlineData {
+                color: outliner.color
+            };
+
+            shader_data.bind_mvp(&scaled_model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
+            gl_call!(gl::DrawElements(gl::TRIANGLES,
+                                  mesh_renderer.mesh.indices.len() as i32,
+                                  gl::UNSIGNED_INT, std::ptr::null()));
+        }
+
+        gl_call!(gl::Enable(gl::DEPTH_TEST));
+        gl_call!(gl::StencilMask(0xFF));
     }
 }
 
@@ -191,10 +237,10 @@ impl<'a> System<'a> for BoxColliderSystem {
             match event {
                 ComponentEvent::Inserted(id) => {
                     inserted.add(*id);
-                },
+                }
                 ComponentEvent::Modified(id) => {
                     self.dirty.add(*id);
-                },
+                }
                 ComponentEvent::Removed(_) => (),
             }
         }

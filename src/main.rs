@@ -31,6 +31,7 @@ use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
 use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
+use crate::shaders::outline::OutlineShader;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -66,6 +67,7 @@ fn main() {
     world.insert(InputEventQueue::default());
     world.insert(InputCache::default());
     world.insert(Time::default());
+    world.register::<Outliner>();
 
     // Physics stuff
     world.insert(PhysicsWorld {
@@ -83,7 +85,8 @@ fn main() {
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
-    
+    CONTAINER.set_local(OutlineShader::default);
+
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     gl_call!(gl::Viewport(0, 0, 1000, 1000));
@@ -154,6 +157,23 @@ fn main() {
         .with(Collider {
             shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25) * 10.0)),
             material: BasicMaterial::default()
+        })
+        .with(Outliner {
+            scale: 1.05f32,
+            color: vec3(1.0, 1.0, 0.0)
+        })
+        .build();
+
+    let floor2 = world.create_entity()
+        .with(Transform {
+            position: vec3(-15.0, 0.0, 0.0),
+            scale: 10.0.to_vec3(),
+            ..Transform::default()
+        })
+        .with(mesh_renderer.clone())
+        .with(Outliner {
+            scale: 1.05f32,
+            color: vec3(1.0, 1.0, 0.0)
         })
         .build();
 
@@ -236,6 +256,7 @@ fn main() {
     gl_call!(gl::Enable(gl::CULL_FACE));
     gl_call!(gl::CullFace(gl::BACK));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
+    gl_call!(gl::Enable(gl::STENCIL_TEST));
 
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
@@ -248,7 +269,7 @@ fn main() {
                 }
             }
         };
-        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT));
+        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
 
         dispatcher.dispatch(&world);
         input_system.run_now(&world);

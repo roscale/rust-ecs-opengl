@@ -3,6 +3,7 @@ use specs::ReadStorage;
 use crate::ecs::components::*;
 
 pub mod diffuse;
+pub mod outline;
 
 pub trait ShaderData: Sync + Send {
     fn bind_mvp(&self,

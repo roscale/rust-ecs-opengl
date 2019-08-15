@@ -151,3 +151,9 @@ pub struct Spotlight {
 #[derive(Component, Default)]
 #[storage(NullStorage)]
 pub struct Input;
+
+#[derive(Component)]
+pub struct Outliner {
+    pub scale: f32,
+    pub color: Vec3,
+}
