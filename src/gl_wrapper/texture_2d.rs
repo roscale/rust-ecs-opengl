@@ -3,7 +3,7 @@ use std::os::raw::c_void;
 
 #[derive(Clone)]
 pub struct Texture2D {
-    id: u32
+    pub id: u32
 }
 
 impl Texture2D {
@@ -45,6 +45,21 @@ impl Texture2D {
         gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
 
         self
+    }
+
+    pub fn allocate_color(&self, width: i32, height: i32) {
+        gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
+                                gl::RGB as i32, width, height, 0, gl::RGB,
+                                gl::UNSIGNED_BYTE, 0 as *const c_void));
+
+        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32));
+        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
+    }
+
+    pub fn allocate_depth_stencil(&self, width: i32, height: i32) {
+        gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
+                                gl::DEPTH24_STENCIL8 as i32, width, height, 0, gl::DEPTH_STENCIL,
+                                gl::UNSIGNED_INT_24_8, 0 as *const c_void));
     }
 }
 

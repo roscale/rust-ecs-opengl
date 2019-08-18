@@ -13,16 +13,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/shaders/outline/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shaders/outline/outline.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shaders/outline/outline.vert" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/statistic.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gl_wrapper/rbo.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/components.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/systems/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse/diffuse.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/diffuse/diffuse.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/mod.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -51,10 +52,21 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="GLSL Shader" />
         <option value="Rust File" />
+        <option value="GLSL Shader" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>MeshRendererSystem</find>
+      <find>set_attributes</find>
+      <find>set_attribute</find>
+      <find>CONTAINER</find>
+      <find>VAO</find>
+      <find>bind</find>
+      <find>mesh_renderer.mesh.vao</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -62,28 +74,34 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="hOAoISmG" />
   </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="40" />
+    <option name="width" value="1920" />
+    <option name="height" value="1040" />
+  </component>
   <component name="ProjectId" id="1PNlI6DTdzp4x8NaYUSw8Z5aKlT" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/models/cube" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/target" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="reference.settings.project.statistic.project.settings" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/models/cube" />
-      <recent name="$PROJECT_DIR$/src" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/shaders/diffuse" />
       <recent name="$PROJECT_DIR$/src/ecs/systems" />
       <recent name="$PROJECT_DIR$/models/cube" />
       <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/src/shaders" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/shaders/post_processing" />
+      <recent name="$PROJECT_DIR$/models/cube" />
+      <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -179,7 +197,13 @@
       <workItem from="1565869636564" duration="17000" />
       <workItem from="1565869674318" duration="10000" />
       <workItem from="1565869723547" duration="32000" />
-      <workItem from="1565869780832" duration="5787000" />
+      <workItem from="1565869780832" duration="6451000" />
+      <workItem from="1565905793449" duration="2643000" />
+      <workItem from="1565953077547" duration="44000" />
+      <workItem from="1565980459803" duration="8993000" />
+      <workItem from="1565990880979" duration="1513000" />
+      <workItem from="1566059777776" duration="499000" />
+      <workItem from="1566128238922" duration="20000" />
     </task>
     <servers />
   </component>

@@ -32,6 +32,7 @@ use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
 use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
 use crate::shaders::outline::OutlineShader;
+use crate::shaders::post_processing::PostProcessingShader;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -86,11 +87,9 @@ fn main() {
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
     CONTAINER.set_local(OutlineShader::default);
+    CONTAINER.set_local(PostProcessingShader::default);
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
-
-    gl_call!(gl::Viewport(0, 0, 1000, 1000));
-    gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
     let mesh_renderer = model_loader.load("models/cube/box_test.obj");
@@ -140,7 +139,7 @@ fn main() {
         ])
         .with_barrier()
         .with(transform_system, "transform_system", &[])
-        .with_thread_local(MeshRendererSystem)
+        .with_thread_local(MeshRendererSystem::new())
         .build();
 
     let floor = world.create_entity()
@@ -269,7 +268,6 @@ fn main() {
                 }
             }
         };
-        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
 
         dispatcher.dispatch(&world);
         input_system.run_now(&world);

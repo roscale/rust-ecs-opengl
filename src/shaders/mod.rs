@@ -4,6 +4,7 @@ use crate::ecs::components::*;
 
 pub mod diffuse;
 pub mod outline;
+pub mod post_processing;
 
 pub trait ShaderData: Sync + Send {
     fn bind_mvp(&self,
