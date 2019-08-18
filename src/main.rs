@@ -12,6 +12,7 @@ mod ecs;
 mod shaders;
 mod containers;
 mod utils;
+mod post_processing_effects;
 
 use glfw::{Action, Context, Key, WindowHint, OpenGlProfileHint, WindowMode, Window, WindowEvent, CursorMode};
 use std::sync::mpsc::Receiver;
@@ -33,6 +34,10 @@ use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
 use crate::shaders::outline::OutlineShader;
 use crate::shaders::post_processing::PostProcessingShader;
+use crate::gl_wrapper::vao::VAO;
+use crate::gl_wrapper::vbo::VBO;
+use state::Container;
+use crate::post_processing_effects::Kernel3x3;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -89,6 +94,41 @@ fn main() {
     CONTAINER.set_local(OutlineShader::default);
     CONTAINER.set_local(PostProcessingShader::default);
 
+    CONTAINER.set_local(|| {
+        // All screen quad
+        let quad_pos = [
+            -1.0f32, 1.0,
+            -1.0, -1.0,
+            1.0, -1.0,
+            -1.0, 1.0,
+            1.0, -1.0,
+            1.0, 1.0,
+        ];
+
+        let quad_tex = [
+            0.0f32, 1.0,
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ];
+
+        let quad_vao = VAO::new();
+        quad_vao.bind();
+
+        let quad_pos_vbo = VBO::new();
+        quad_pos_vbo.bind();
+        quad_pos_vbo.fill(&quad_pos);
+        quad_vao.set_attribute((0, 2, gl::FLOAT, std::mem::size_of::<f32>()));
+
+        let quad_tex_vbo = VBO::new();
+        quad_tex_vbo.bind();
+        quad_tex_vbo.fill(&quad_tex);
+        quad_vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
+        quad_vao
+    });
+
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
@@ -139,7 +179,7 @@ fn main() {
         ])
         .with_barrier()
         .with(transform_system, "transform_system", &[])
-        .with_thread_local(MeshRendererSystem::new())
+        .with_thread_local(MeshRendererSystem)
         .build();
 
     let floor = world.create_entity()
@@ -237,12 +277,21 @@ fn main() {
             rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
             ..Transform::default()
         })
-        .with(Camera {
-            fov: 60.0f32.to_radians(),
-            aspect_ratio: 1.0,
-            near_plane: 0.1,
-            far_plane: 10000.0,
-        })
+        .with(Camera::new(60.0f32.to_radians(),
+                          1.0,
+                          0.1,
+                          10000.0, vec![
+                Box::new(Kernel3x3::new(vec![
+                    1.0, 1.0, 1.0,
+                    1.0, -8.0, 1.0,
+                    1.0, 1.0, 1.0
+                ])),
+                Box::new(Kernel3x3::new(vec![
+                    0.077847,	0.123317,	0.077847,
+                    0.123317,	0.195346,	0.123317,
+                    0.077847,	0.123317,	0.077847,
+                ]))
+            ]))
         .with(Input)
         .build();
 

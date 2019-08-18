@@ -120,69 +120,7 @@ impl<'a> System<'a> for InputSystem {
     }
 }
 
-pub struct MeshRendererSystem {
-    pp_fb: FBO,
-    pp_color_texture: Texture2D,
-    quad_vao: VAO,
-}
-
-// TODO Move framebuffer into camera
-impl MeshRendererSystem {
-    pub fn new() -> Self {
-        // Post processing
-        let pp_color_texture = Texture2D::new();
-        pp_color_texture.bind();
-        pp_color_texture.allocate_color(800, 800);
-
-        let depth_stencil_rb = RBO::new();
-        depth_stencil_rb.bind();
-        depth_stencil_rb.create_depth_stencil(800, 800);
-
-        let pp_fb = FBO::new();
-        pp_fb.bind();
-        pp_fb.attach_color_texture(&pp_color_texture);
-        pp_fb.attach_depth_stencil_renderbuffer(&depth_stencil_rb);
-        FBO::bind_default();
-
-        // All screen quad
-        let quad_pos = [
-            -1.0f32, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0,
-            -1.0, 1.0,
-            1.0, -1.0,
-            1.0, 1.0,
-        ];
-
-        let quad_tex = [
-            0.0f32, 1.0,
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0
-        ];
-
-        let quad_vao = VAO::new();
-        quad_vao.bind();
-
-        let quad_pos_vbo = VBO::new();
-        quad_pos_vbo.bind();
-        quad_pos_vbo.fill(&quad_pos);
-        quad_vao.set_attribute((0, 2, gl::FLOAT, std::mem::size_of::<f32>()));
-
-        let quad_tex_vbo = VBO::new();
-        quad_tex_vbo.bind();
-        quad_tex_vbo.fill(&quad_tex);
-        quad_vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
-
-        MeshRendererSystem {
-            pp_fb,
-            pp_color_texture,
-            quad_vao
-        }
-    }
-}
+pub struct MeshRendererSystem;
 
 use nalgebra::{Vector3, Matrix4};
 use glfw::{Key, WindowEvent};
@@ -223,7 +161,8 @@ impl<'a> System<'a> for MeshRendererSystem {
         let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
 
         // Post processing
-        self.pp_fb.bind();
+        camera.fb.bind();
+//        FBO::bind_default();
 
         gl_call!(gl::Viewport(0, 0, 800, 800));
         gl_call!(gl::Enable(gl::DEPTH_TEST));
@@ -290,17 +229,11 @@ impl<'a> System<'a> for MeshRendererSystem {
                                   gl::UNSIGNED_INT, std::ptr::null()));
         }
 
-        // Post processing
-        FBO::bind_default();
-        gl_call!(gl::Viewport(0, 0, 800, 800));
-        gl_call!(gl::ClearColor(1.0, 0.5, 1.0, 1.0));
-        gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
-
-        let pp_shader = CONTAINER.get_local::<PostProcessingShader>();
-        pp_shader.bind_screen_texture(&self.pp_color_texture);
-        self.quad_vao.bind();
-        gl_call!(gl::Disable(gl::DEPTH_TEST));
-        gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, 6));
+        let mut last_fb = &camera.fb;
+        for i in 0..camera.post_processing_effects.len() - 1 {
+            last_fb = camera.post_processing_effects[i].apply(last_fb);
+        }
+        camera.post_processing_effects.last().unwrap().apply_to_display(last_fb);
     }
 }
 

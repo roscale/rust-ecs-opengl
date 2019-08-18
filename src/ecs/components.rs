@@ -8,6 +8,10 @@ use nphysics3d::material::BasicMaterial;
 use nphysics3d::object::{BodyStatus, ActivationStatus, RigidBodyDesc};
 use nphysics3d::algebra::Velocity3;
 use ncollide3d::shape::ShapeHandle;
+use crate::post_processing_effects::PPEffect;
+use crate::gl_wrapper::fbo::FBO;
+use crate::gl_wrapper::texture_2d::Texture2D;
+use crate::gl_wrapper::rbo::RBO;
 
 // TODO implement Default trait to all the components
 
@@ -118,12 +122,42 @@ impl Component for Collider {
     type Storage = FlaggedStorage<Self>;
 }
 
-#[derive(Component, Debug)]
+#[derive(Component)]
 pub struct Camera {
     pub fov: f32,
     pub aspect_ratio: f32,
     pub near_plane: f32,
-    pub far_plane: f32
+    pub far_plane: f32,
+
+    pub post_processing_effects: Vec<Box<dyn PPEffect>>,
+    pub fb: FBO
+}
+
+impl Camera {
+    pub fn new(fov: f32, aspect_ratio: f32, near_plane: f32, far_plane: f32, post_processing_effects: Vec<Box<dyn PPEffect>>) -> Self {
+        let color_texture = Texture2D::new();
+        color_texture.bind();
+        color_texture.allocate_color(800, 800);
+
+        let depth_stencil_rb: RBO = RBO::new();
+        depth_stencil_rb.bind();
+        depth_stencil_rb.create_depth_stencil(800, 800);
+
+        // TODO Prefer composition over setters
+        let mut fb = FBO::new();
+        fb.bind();
+        fb.attach_color_texture(&color_texture);
+        fb.attach_depth_stencil_renderbuffer(&depth_stencil_rb);
+
+        Camera {
+            fov,
+            aspect_ratio,
+            near_plane,
+            far_plane,
+            post_processing_effects,
+            fb
+        }
+    }
 }
 
 #[derive(Component, Debug)]

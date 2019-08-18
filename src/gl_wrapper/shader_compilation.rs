@@ -103,6 +103,12 @@ impl ShaderProgram {
         self
     }
 
+    pub fn set_uniform_1fv(&self, name: &str, vec: &[f32]) -> &Self {
+        let location = self.get_uniform_location(name);
+        gl_call!(gl::Uniform1fv(location, vec.len() as i32, vec.as_ptr()));
+        self
+    }
+
     pub fn set_uniform1f(&self, name: &str, value: f32) -> &Self {
         let location = self.get_uniform_location(name);
         gl_call!(gl::Uniform1f(location, value));

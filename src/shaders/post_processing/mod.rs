@@ -40,4 +40,8 @@ impl PostProcessingShader {
         texture.bind();
         self.program.set_uniform1i("screen_texture", 0);
     }
+
+    pub fn bind_kernel(&self, kernel: &[f32]) {
+        self.program.set_uniform_1fv("kernel", kernel);
+    }
 }

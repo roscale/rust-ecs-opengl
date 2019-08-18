@@ -13,18 +13,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/statistic.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gl_wrapper/rbo.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.vert" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/post_processing_effects.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/components.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/systems/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -52,8 +50,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Rust File" />
         <option value="GLSL Shader" />
+        <option value="Rust File" />
       </list>
     </option>
   </component>
@@ -73,11 +71,6 @@
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="hOAoISmG" />
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="40" />
-    <option name="width" value="1920" />
-    <option name="height" value="1040" />
   </component>
   <component name="ProjectId" id="1PNlI6DTdzp4x8NaYUSw8Z5aKlT" />
   <component name="PropertiesComponent">
@@ -204,6 +197,8 @@
       <workItem from="1565990880979" duration="1513000" />
       <workItem from="1566059777776" duration="499000" />
       <workItem from="1566128238922" duration="20000" />
+      <workItem from="1566128281194" duration="7756000" />
+      <workItem from="1566161008888" duration="81000" />
     </task>
     <servers />
   </component>

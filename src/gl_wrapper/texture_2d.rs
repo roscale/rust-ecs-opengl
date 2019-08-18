@@ -63,8 +63,8 @@ impl Texture2D {
     }
 }
 
-impl Drop for Texture2D {
-    fn drop(&mut self) {
-        gl_call!(gl::DeleteTextures(1, &self.id))
-    }
-}
+//impl Drop for Texture2D {
+//    fn drop(&mut self) {
+//        gl_call!(gl::DeleteTextures(1, &self.id))
+//    }
+//}
