@@ -13,7 +13,7 @@ use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::VBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::containers::global_instances::CONTAINER;
-use crate::shaders::post_processing::PostProcessingShader;
+use crate::shaders::post_processing::KernelShader;
 
 pub struct TransformSystem {
     pub reader_id: ReaderId<ComponentEvent>,
@@ -233,7 +233,7 @@ impl<'a> System<'a> for MeshRendererSystem {
         for i in 0..camera.post_processing_effects.len() - 1 {
             last_fb = camera.post_processing_effects[i].apply(last_fb);
         }
-        camera.post_processing_effects.last().unwrap().apply_to_display(last_fb);
+        camera.post_processing_effects.last().unwrap().apply_to_screen(last_fb);
     }
 }
 

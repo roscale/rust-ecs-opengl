@@ -33,11 +33,11 @@ use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
 use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
 use crate::shaders::outline::OutlineShader;
-use crate::shaders::post_processing::PostProcessingShader;
+use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
 use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::VBO;
 use state::Container;
-use crate::post_processing_effects::Kernel3x3;
+use crate::post_processing_effects::{Kernel, GaussianBlur};
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -92,7 +92,8 @@ fn main() {
     CONTAINER.set_local(TextureCache::default);
     CONTAINER.set_local(DiffuseShader::default);
     CONTAINER.set_local(OutlineShader::default);
-    CONTAINER.set_local(PostProcessingShader::default);
+    CONTAINER.set_local(KernelShader::default);
+    CONTAINER.set_local(GaussianBlurShader::default);
 
     CONTAINER.set_local(|| {
         // All screen quad
@@ -195,11 +196,11 @@ fn main() {
         })
         .with(Collider {
             shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25) * 10.0)),
-            material: BasicMaterial::default()
+            material: BasicMaterial::default(),
         })
         .with(Outliner {
             scale: 1.05f32,
-            color: vec3(1.0, 1.0, 0.0)
+            color: vec3(1.0, 1.0, 0.0),
         })
         .build();
 
@@ -212,7 +213,7 @@ fn main() {
         .with(mesh_renderer.clone())
         .with(Outliner {
             scale: 1.05f32,
-            color: vec3(1.0, 1.0, 0.0)
+            color: vec3(1.0, 1.0, 0.0),
         })
         .build();
 
@@ -230,7 +231,7 @@ fn main() {
         })
         .with(Collider {
             shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
-            material: BasicMaterial::new(0.5, 0.5)
+            material: BasicMaterial::new(0.5, 0.5),
         })
         .build();
 
@@ -247,7 +248,7 @@ fn main() {
         })
         .with(Collider {
             shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
-            material: BasicMaterial::default()
+            material: BasicMaterial::default(),
         })
         .build();
 
@@ -281,16 +282,12 @@ fn main() {
                           1.0,
                           0.1,
                           10000.0, vec![
-                Box::new(Kernel3x3::new(vec![
-                    1.0, 1.0, 1.0,
-                    1.0, -8.0, 1.0,
-                    1.0, 1.0, 1.0
-                ])),
-                Box::new(Kernel3x3::new(vec![
-                    0.077847,	0.123317,	0.077847,
-                    0.123317,	0.195346,	0.123317,
-                    0.077847,	0.123317,	0.077847,
-                ]))
+//                Box::new(Kernel::new(vec![
+//                    1.0, 1.0, 1.0,
+//                    1.0, -8.0, 1.0,
+//                    1.0, 1.0, 1.0
+//                ])),
+                Box::new(GaussianBlur::new(vec![0.034619, 0.044859, 0.055857, 0.066833, 0.076841, 0.084894, 0.090126, 0.09194, 0.090126, 0.084894, 0.076841, 0.066833, 0.055857, 0.044859, 0.034619])),
             ]))
         .with(Input)
         .build();

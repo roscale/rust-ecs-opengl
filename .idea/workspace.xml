@@ -13,16 +13,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/post_processing_effects.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur/blur.frag" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/kernel/kernel.frag" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shaders/post_processing/kernel/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/components.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/systems/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/post_processing_effects.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/post_processing_effects.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/post_processing.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/post_processing/simple.vert" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -55,17 +58,6 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>MeshRendererSystem</find>
-      <find>set_attributes</find>
-      <find>set_attribute</find>
-      <find>CONTAINER</find>
-      <find>VAO</find>
-      <find>bind</find>
-      <find>mesh_renderer.mesh.vao</find>
-    </findStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -76,7 +68,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/target" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -84,17 +76,18 @@
     <property name="settings.editor.selected.configurable" value="reference.settings.project.statistic.project.settings" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/shaders/diffuse" />
-      <recent name="$PROJECT_DIR$/src/ecs/systems" />
-      <recent name="$PROJECT_DIR$/models/cube" />
-      <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/src/shaders" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur" />
       <recent name="$PROJECT_DIR$/src/shaders/post_processing" />
       <recent name="$PROJECT_DIR$/models/cube" />
       <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/shaders/post_processing" />
+      <recent name="$PROJECT_DIR$/src/shaders/simple.vert" />
+      <recent name="$PROJECT_DIR$/src/shaders/post_processing/kernel" />
+      <recent name="$PROJECT_DIR$/src/shaders/diffuse" />
+      <recent name="$PROJECT_DIR$/src/ecs/systems" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -198,7 +191,9 @@
       <workItem from="1566059777776" duration="499000" />
       <workItem from="1566128238922" duration="20000" />
       <workItem from="1566128281194" duration="7756000" />
-      <workItem from="1566161008888" duration="81000" />
+      <workItem from="1566161008888" duration="5835000" />
+      <workItem from="1566242525200" duration="320000" />
+      <workItem from="1566317691570" duration="9938000" />
     </task>
     <servers />
   </component>
