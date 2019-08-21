@@ -22,3 +22,7 @@ state = { version = "0.4.1", features = ["const_fn", "tls"] }
 [features]
 default = ["gl_debug"]
 gl_debug = []
+
+[lib]
+name = "engine"
+path = "src/engine/lib.rs"

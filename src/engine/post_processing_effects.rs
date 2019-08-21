@@ -4,7 +4,6 @@ use crate::gl_wrapper::rbo::RBO;
 use crate::containers::global_instances::CONTAINER;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
 use crate::gl_wrapper::vao::VAO;
-use nalgebra_glm::sqrt;
 
 pub trait PPEffect: Send + Sync {
     fn apply(&self, input: &FBO) -> &FBO;

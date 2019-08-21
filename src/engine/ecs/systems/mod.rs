@@ -7,13 +7,6 @@ use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use nalgebra_glm::{vec2, Mat4, vec3};
-use crate::gl_wrapper::fbo::FBO;
-use crate::gl_wrapper::rbo::RBO;
-use crate::gl_wrapper::vao::VAO;
-use crate::gl_wrapper::vbo::VBO;
-use crate::gl_wrapper::texture_2d::Texture2D;
-use crate::containers::global_instances::CONTAINER;
-use crate::shaders::post_processing::KernelShader;
 
 pub struct TransformSystem {
     pub reader_id: ReaderId<ComponentEvent>,
@@ -267,13 +260,13 @@ impl<'a> System<'a> for BoxColliderSystem {
             }
         }
 
-        for (transform, box_collider, entity) in (&transforms, &box_colliders, &inserted).join() {
+        for (transform, box_collider, _entity) in (&transforms, &box_colliders, &inserted).join() {
             let transform = transform as &Transform;
             let box_collider = box_collider as &BoxCollider;
 
             let half_size = box_collider.box_size.scale(0.5);
             let shape = ShapeHandle::<f32>::new(Cuboid::new(half_size));
-            let collider = ColliderDesc::new(shape)
+            let _collider = ColliderDesc::new(shape)
                 .translation(transform.position)
                 .rotation(transform.rotation)
                 .material(MaterialHandle::new(box_collider.material))
@@ -291,7 +284,7 @@ pub struct PrintFramerate {
 impl<'a> System<'a> for PrintFramerate {
     type SystemData = Read<'a, Time>;
 
-    fn run(&mut self, time: Self::SystemData) {
+    fn run(&mut self, _time: Self::SystemData) {
         self.frames += 1;
         let now = unsafe { glfwGetTime() };
         let delta = now - self.prev;

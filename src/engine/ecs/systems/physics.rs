@@ -1,16 +1,13 @@
 use specs::prelude::*;
-use specs::{System, Write, ReaderId, ReadStorage, Storage, BitSet};
+use specs::{System, Write, ReaderId, ReadStorage, BitSet};
 use specs::shrev::EventIterator;
 use crate::ecs::resources::*;
 use crate::ecs::components::*;
 use specs::prelude::ComponentEvent;
-use nphysics3d::object::{RigidBodyDesc, ColliderDesc, BodyPartHandle, BodyHandle};
-use nalgebra::{Isometry3, Isometry, Translation3, UnitQuaternion, Point3};
+use nphysics3d::object::{RigidBodyDesc, ColliderDesc, BodyPartHandle};
+use nalgebra::{Isometry, UnitQuaternion};
 use crate::utils::ToVec3;
-use nalgebra_glm::{Vec3, vec3};
-use ncollide3d::shape::{ShapeHandle, Ball};
 use nphysics3d::material::MaterialHandle;
-use nphysics3d::counters::Timer;
 use glfw::ffi::glfwGetTime;
 
 fn iterate_component_events(events: EventIterator<ComponentEvent>) -> (BitSet, BitSet, BitSet) {
@@ -139,9 +136,7 @@ impl<'a> System<'a> for SyncBodiesToPhysicsSystem {
         }
 
         // Removed rigidbodies
-        for (rigid_body, id) in (&rigidbodies, &removed_rb).join() {
-            let rigid_body = rigid_body as &RigidBody;
-
+        for (_rigid_body, id) in (&rigidbodies, &removed_rb).join() {
             if let Some(handle) = physics.body_handles.remove(&id) {
                 physics.world.remove_bodies(&[handle]);
                 println!("Removed rigid body from world with id: {}", id);
@@ -159,9 +154,8 @@ impl<'a> System<'a> for SyncBodiesFromPhysicsSystem {
                        Entities<'a>);
 
     fn run(&mut self, (mut transforms, rigidbodies, physics, entities): Self::SystemData) {
-        for (transform, rigid_body, e) in (&mut transforms, &rigidbodies, &entities).join() {
+        for (transform, _rigid_body, e) in (&mut transforms, &rigidbodies, &entities).join() {
             let transform = transform as &mut Transform;
-            let rigid_body = rigid_body as &RigidBody;
 
             if let Some(handle) = physics.body_handles.get(&e.id()).cloned() {
                 if let Some(rigid_body) = physics.world.rigid_body(handle) {
@@ -185,12 +179,11 @@ impl<'a> System<'a> for SyncCollidersToPhysicsSystem {
                        Write<'a, PhysicsWorld>);
 
     fn run(&mut self, (transforms, colliders, mut physics): Self::SystemData) {
-        let (inserted_col, modified_col, removed_col) =
+        let (inserted_col, _modified_col, removed_col) =
             iterate_component_events(colliders.channel().read(&mut self.colliders_reader_id));
 
         // Inserted colliders
-        for (transform, collider, id) in (&transforms, &colliders, &inserted_col).join() {
-            let transform = transform as &Transform;
+        for (_transform, collider, id) in (&transforms, &colliders, &inserted_col).join() {
             let collider = collider as &Collider;
 
             let body_part_handle = match physics.body_handles.get(&id) {

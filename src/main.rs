@@ -1,18 +1,9 @@
 #![feature(const_fn)]
 extern crate glfw;
 extern crate gl;
-#[macro_use]
-extern crate specs_derive;
-extern crate state;
 
-#[macro_use]
-mod debugging;
-mod gl_wrapper;
-mod ecs;
-mod shaders;
-mod containers;
-mod utils;
-mod post_processing_effects;
+extern crate state;
+use engine::*;
 
 use glfw::{Action, Context, Key, WindowHint, OpenGlProfileHint, WindowMode, Window, WindowEvent, CursorMode};
 use std::sync::mpsc::Receiver;
@@ -22,22 +13,21 @@ use ecs::systems::*;
 use ecs::resources::*;
 use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
-use glfw::ffi::{glfwSwapInterval, glfwGetTime};
+use glfw::ffi::glfwSwapInterval;
 use nalgebra_glm::{vec3, Mat3};
 use containers::global_instances::*;
 use crate::containers::global_instances::CONTAINER;
 use crate::utils::ToVec3;
-use nalgebra::{Vector, Matrix};
+use nalgebra::{Vector};
 use ncollide3d::shape::{ShapeHandle, Cuboid};
-use nphysics3d::object::{ColliderDesc, RigidBodyDesc, BodyStatus};
+use nphysics3d::object::{BodyStatus};
 use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
 use crate::shaders::outline::OutlineShader;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
 use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::VBO;
-use state::Container;
-use crate::post_processing_effects::{Kernel, GaussianBlur};
+use crate::post_processing_effects::{GaussianBlur};
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -159,7 +149,7 @@ fn main() {
         }
     };
 
-    let mut physics_stepper = {
+    let physics_stepper = {
         let mut physics_world = world.write_resource::<PhysicsWorld>();
         PhysicsStepperSystem::new(&mut physics_world.world, 128)
     };
@@ -183,7 +173,7 @@ fn main() {
         .with_thread_local(MeshRendererSystem)
         .build();
 
-    let floor = world.create_entity()
+    let _floor = world.create_entity()
         .with(Transform {
             position: vec3(0.0, 0.0, 0.0),
             scale: 10.0.to_vec3(),
@@ -204,7 +194,7 @@ fn main() {
         })
         .build();
 
-    let floor2 = world.create_entity()
+    let _floor2 = world.create_entity()
         .with(Transform {
             position: vec3(-15.0, 0.0, 0.0),
             scale: 10.0.to_vec3(),
@@ -218,7 +208,7 @@ fn main() {
         .build();
 
 
-    let entity1 = world.create_entity()
+    let _entity1 = world.create_entity()
         .with(Transform {
             position: vec3(0.0, 20.0, 0.0),
             ..Transform::default()
@@ -235,7 +225,7 @@ fn main() {
         })
         .build();
 
-    let entity2 = world.create_entity()
+    let _entity2 = world.create_entity()
         .with(Transform {
             position: vec3(0.4, 10.0, 0.2),
             ..Transform::default()
@@ -252,7 +242,7 @@ fn main() {
         })
         .build();
 
-    let light = world.create_entity()
+    let _light = world.create_entity()
         .with(Transform {
             position: vec3(10.0, 10.0, 10.0),
             scale: 0.1.to_vec3(),

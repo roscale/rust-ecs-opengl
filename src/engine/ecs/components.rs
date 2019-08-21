@@ -1,11 +1,11 @@
 use specs::prelude::*;
 use nalgebra_glm::{Vec3, vec3, Mat4, Mat3};
 use crate::shaders::*;
-use nalgebra::{Matrix4, Point3, Point, Vector, Vector3};
+use nalgebra::{Matrix4, Point3, Point, Vector3};
 use crate::gl_wrapper::vao::VAO;
 use std::sync::Arc;
 use nphysics3d::material::BasicMaterial;
-use nphysics3d::object::{BodyStatus, ActivationStatus, RigidBodyDesc};
+use nphysics3d::object::{BodyStatus, ActivationStatus};
 use nphysics3d::algebra::Velocity3;
 use ncollide3d::shape::ShapeHandle;
 use crate::post_processing_effects::PPEffect;

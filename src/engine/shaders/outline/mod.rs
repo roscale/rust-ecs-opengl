@@ -16,7 +16,7 @@ impl ShaderData for OutlineData {
         shader.program.set_uniform3f("color", self.color.as_slice());
     }
 
-    fn bind_lights(&self, transforms: &ReadStorage<Transform>, point_lights: &ReadStorage<PointLight>) {
+    fn bind_lights(&self, _transforms: &ReadStorage<Transform>, _point_lights: &ReadStorage<PointLight>) {
         unimplemented!()
     }
 }
@@ -52,7 +52,7 @@ impl OutlineShader {
     fn bind_mvp(&self, model: &Mat4,
                 view: &Mat4,
                 projection: &Mat4,
-                camera_pos: &Vec3) {
+                _camera_pos: &Vec3) {
         self.program.use_program();
 
         self.program.set_uniform_matrix4fv("model", model.as_ptr());
