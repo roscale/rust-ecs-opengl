@@ -14,47 +14,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/engine/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/rust-learn.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-learn.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/companion_cube.obj" beforeDir="false" afterPath="$PROJECT_DIR$/models/other/companion_cube.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/containers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/debugging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/debugging.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/diffuse.png" beforeDir="false" afterPath="$PROJECT_DIR$/models/other/diffuse.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/components.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/resources.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/systems/physics.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/systems/physics.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/ebo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/ebo.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/fbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/fbo.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/rbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/rbo.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/shader_compilation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/shader_compilation.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/vao.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gl_wrapper/vbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vbo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/cube/Cube_obj.mtl" beforeDir="false" afterPath="$PROJECT_DIR$/models/cube/Cube_obj.mtl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/containers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/post_processing_effects.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/post_processing_effects.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/outline/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/planks_oak.png" beforeDir="false" afterPath="$PROJECT_DIR$/models/other/planks_oak.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/post_processing_effects.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/post_processing_effects.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse/diffuse.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse/diffuse.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.vert" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/diffuse/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/outline/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/outline/outline.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/outline.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/outline/outline.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/outline.vert" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur/blur.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/gaussian_blur/blur.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/gaussian_blur/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/kernel/kernel.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/kernel/kernel.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/kernel/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/kernel/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/post_processing/simple.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/post_processing/simple.vert" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/specular.png" beforeDir="false" afterPath="$PROJECT_DIR$/models/other/specular.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/teapot.obj" beforeDir="false" afterPath="$PROJECT_DIR$/models/other/teapot.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/utils.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -97,20 +70,20 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../tobj" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="reference.settings.project.statistic.project.settings" />
+    <property name="settings.editor.selected.configurable" value="language.rust.cargo" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/models/gun" />
       <recent name="$PROJECT_DIR$/models/other" />
       <recent name="$PROJECT_DIR$/src/engine" />
       <recent name="$PROJECT_DIR$/src/shaders/post_processing" />
       <recent name="$PROJECT_DIR$/src/shaders/simple.vert" />
-      <recent name="$PROJECT_DIR$/src/shaders/post_processing/kernel" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/shaders/post_processing/gaussian_blur" />
@@ -131,10 +104,10 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
-    <configuration name="Run rust-learn" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+  <component name="RunManager" selected="Cargo Command.Run rust-learn">
+    <configuration name="Expand engine::utils [engine]" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="channel" value="DEFAULT" />
-      <option name="command" value="run --package rust-learn --bin rust-learn --release" />
+      <option name="command" value="expand --lib --color=always --theme=GitHub --tests utils" />
       <option name="allFeatures" value="false" />
       <option name="nocapture" value="false" />
       <option name="emulateTerminal" value="false" />
@@ -143,9 +116,27 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="Run rust-learn" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --package rust-learn --bin rust-learn" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="true" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs>
+        <env name="RUST_LOG" value="trace" />
+      </envs>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Cargo Command.Run rust-learn" />
+      <item itemvalue="Cargo Command.Expand engine::utils [engine]" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Cargo Command.Run rust-learn" />
+        <item itemvalue="Cargo Command.Expand engine::utils [engine]" />
       </list>
     </recent_temporary>
   </component>
@@ -224,7 +215,15 @@
       <workItem from="1566242525200" duration="320000" />
       <workItem from="1566317691570" duration="10632000" />
       <workItem from="1566407326416" duration="9000" />
-      <workItem from="1566410935145" duration="1740000" />
+      <workItem from="1566410935145" duration="9321000" />
+      <workItem from="1566474809906" duration="616000" />
+      <workItem from="1566492093398" duration="1095000" />
+      <workItem from="1566507323477" duration="6280000" />
+      <workItem from="1566559167315" duration="1377000" />
+      <workItem from="1566560776768" duration="910000" />
+      <workItem from="1566562365274" duration="5257000" />
+      <workItem from="1566676750659" duration="665000" />
+      <workItem from="1566765370414" duration="299000" />
     </task>
     <servers />
   </component>

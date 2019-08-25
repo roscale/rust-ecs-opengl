@@ -1,6 +1,6 @@
 use nalgebra_glm::Vec3;
 use super::*;
-use crate::containers::global_instances::CONTAINER;
+use crate::containers::CONTAINER;
 use crate::gl_wrapper::shader_compilation::{ShaderProgram, ShaderPart};
 use std::ffi::CString;
 

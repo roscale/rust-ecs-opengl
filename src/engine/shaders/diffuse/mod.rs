@@ -4,31 +4,31 @@ use crate::gl_wrapper::shader_compilation::*;
 use std::ffi::CString;
 use nalgebra_glm::{Vec3, Mat4, vec3};
 use std::sync::Arc;
-use crate::containers::global_instances::CONTAINER;
+use crate::containers::CONTAINER;
 use specs::ReadStorage;
 use specs::join::Join;
+use crate::ToVec3;
 
 #[derive(Clone)]
-pub enum DiffuseData {
-    Textures {
-        // TODO Rc<Texture2D>
-        diffuse_texture: Arc<Texture2D>,
-        specular_texture: Arc<Texture2D>,
-        normal_texture: Arc<Texture2D>,
-        shininess: f32,
-    },
-    Colors {
-        diffuse_color: Vec3,
-        specular_color: Vec3,
-        shininess: f32,
-    },
+pub(crate) enum PixelData {
+    Color(Vec3),
+    Texture(Arc<Texture2D>),
+}
+
+#[derive(Clone)]
+pub struct DiffuseData {
+    pub(crate) diffuse: PixelData,
+    pub(crate) specular: PixelData,
+    pub normal: Option<Arc<Texture2D>>,
+    pub shininess: f32,
 }
 
 impl Default for DiffuseData {
     fn default() -> Self {
-        DiffuseData::Colors {
-            diffuse_color: vec3(0.7, 0.7, 0.7),
-            specular_color: vec3(0.5, 0.5, 0.5),
+        DiffuseData {
+            diffuse: PixelData::Color(0.7.to_vec3()),
+            specular: PixelData::Color(0.5.to_vec3()),
+            normal: None,
             shininess: 32.0,
         }
     }
@@ -44,41 +44,50 @@ impl ShaderData for DiffuseData {
         let shader = CONTAINER.get_local::<DiffuseShader>();
         shader.bind_mvp(model, view, projection, camera_pos);
 
-        match &self {
-            DiffuseData::Textures {
-                diffuse_texture,
-                specular_texture,
-                normal_texture,
-                shininess,
-            } => {
+        // Bind diffuse
+        match &self.diffuse {
+            PixelData::Texture(texture) => {
                 Texture2D::activate(0);
-                diffuse_texture.bind();
-
-                Texture2D::activate(1);
-                specular_texture.bind();
-
-                Texture2D::activate(2);
-                normal_texture.bind();
-
-                shader.program.set_uniform1i("material.using_textures", 1);
+                texture.bind();
                 shader.program.set_uniform1i("material.diffuse_texture", 0);
-                shader.program.set_uniform1i("material.specular_texture", 1);
-                shader.program.set_uniform1i("material.normal_texture", 2);
+                shader.program.set_uniform1i("material.using_diffuse_texture", 1);
 
-                shader.program.set_uniform1f("material.shininess", *shininess);
-            }
-            DiffuseData::Colors {
-                diffuse_color,
-                specular_color,
-                shininess
-            } => {
-                shader.program.set_uniform1i("material.using_textures", 0);
-                shader.program.set_uniform3f("material.diffuse_color", diffuse_color.as_slice());
-                shader.program.set_uniform3f("material.specular_color", specular_color.as_slice());
-
-                shader.program.set_uniform1f("material.shininess", *shininess);
+            },
+            PixelData::Color(color) => {
+                shader.program.set_uniform3f("material.diffuse_color", color.as_slice());
+                shader.program.set_uniform1i("material.using_diffuse_texture", 0);
             }
         }
+
+        // Bind specular
+        match &self.specular {
+            PixelData::Texture(texture) => {
+                Texture2D::activate(1);
+                texture.bind();
+                shader.program.set_uniform1i("material.specular_texture", 1);
+                shader.program.set_uniform1i("material.using_specular_texture", 1);
+            },
+            PixelData::Color(color) => {
+                shader.program.set_uniform3f("material.specular_color", color.as_slice());
+                shader.program.set_uniform1i("material.using_specular_texture", 0);
+            }
+        }
+
+        // Bind normal
+        match &self.normal {
+            Some(texture) => {
+                Texture2D::activate(2);
+                texture.bind();
+                shader.program.set_uniform1i("material.normal_texture", 2);
+            },
+            None => {
+//                panic!("Normal texture doesn't exist");
+//                shader.program.set_uniform1i("material.normal_texture", -1);
+            }
+        }
+
+        // Bind shininess
+        shader.program.set_uniform1f("material.shininess", self.shininess);
     }
 
     fn bind_lights(&self,
@@ -107,32 +116,6 @@ impl DiffuseShader {
 
         ShaderProgram::from_shaders(vert_shader, frag_shader).unwrap()
     }
-
-//    pub fn new_with_textures(diffuse_texture: Arc<Texture2D>,
-//                             specular_texture: Arc<Texture2D>,
-//                             shininess: f32) -> Self {
-//        DiffuseShader {
-//            program: Self::compile_program(),
-//            data: Some(Data::Textures {
-//                diffuse_texture,
-//                specular_texture,
-//                shininess,
-//            }),
-//        }
-//    }
-
-//    pub fn new_without_textures(diffuse_color: Vec3,
-//                                specular_color: Vec3,
-//                                shininess: f32) -> Self {
-//        DiffuseShader {
-//            program: Self::compile_program(),
-//            data: Some(Data::Colors {
-//                diffuse_color,
-//                specular_color,
-//                shininess,
-//            }),
-//        }
-//    }
 }
 
 impl Default for DiffuseShader {

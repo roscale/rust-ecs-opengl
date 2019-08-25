@@ -1,1 +1,2 @@
-pub mod global_instances;
+mod global_instances;
+pub use global_instances::*;

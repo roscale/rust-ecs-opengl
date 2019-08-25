@@ -123,6 +123,7 @@ use nphysics3d::material::MaterialHandle;
 use glfw::ffi::glfwGetTime;
 use crate::shaders::outline::OutlineData;
 use crate::shaders::ShaderData;
+use crate::gl_wrapper::fbo::FBO;
 
 impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (Entities<'a>,
@@ -154,8 +155,11 @@ impl<'a> System<'a> for MeshRendererSystem {
         let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
 
         // Post processing
-        camera.fb.bind();
-//        FBO::bind_default();
+        if camera.post_processing_effects.is_empty() {
+            FBO::bind_default();
+        } else {
+            camera.fb.bind();
+        }
 
         gl_call!(gl::Viewport(0, 0, 800, 800));
         gl_call!(gl::Enable(gl::DEPTH_TEST));
@@ -222,11 +226,13 @@ impl<'a> System<'a> for MeshRendererSystem {
                                   gl::UNSIGNED_INT, std::ptr::null()));
         }
 
-        let mut last_fb = &camera.fb;
-        for i in 0..camera.post_processing_effects.len() - 1 {
-            last_fb = camera.post_processing_effects[i].apply(last_fb);
+        if !camera.post_processing_effects.is_empty() {
+            let mut last_fb = &camera.fb;
+            for i in 0..camera.post_processing_effects.len() - 1 {
+                last_fb = camera.post_processing_effects[i].apply(last_fb);
+            }
+            camera.post_processing_effects.last().unwrap().apply_to_screen(last_fb);
         }
-        camera.post_processing_effects.last().unwrap().apply_to_screen(last_fb);
     }
 }
 

@@ -15,9 +15,7 @@ use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
 use glfw::ffi::glfwSwapInterval;
 use nalgebra_glm::{vec3, Mat3};
-use containers::global_instances::*;
-use crate::containers::global_instances::CONTAINER;
-use crate::utils::ToVec3;
+use crate::containers::*;
 use nalgebra::{Vector};
 use ncollide3d::shape::{ShapeHandle, Cuboid};
 use nphysics3d::object::{BodyStatus};
@@ -51,6 +49,8 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 }
 
 fn main() {
+    pretty_env_logger::init();
+
     let mut world = World::new();
     world.register::<Transform>();
     world.register::<MeshRenderer>();
@@ -124,7 +124,8 @@ fn main() {
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
     let mesh_renderer = model_loader.load("models/cube/box_test.obj");
-
+    let gun = model_loader.load("models/gun/modified_gun.obj");
+    
     let transform_system = {
         let mut comps = world.write_storage::<Transform>();
         TransformSystem {
@@ -197,14 +198,14 @@ fn main() {
     let _floor2 = world.create_entity()
         .with(Transform {
             position: vec3(-15.0, 0.0, 0.0),
-            scale: 10.0.to_vec3(),
+            scale: 1.0.to_vec3(),
             ..Transform::default()
         })
-        .with(mesh_renderer.clone())
-        .with(Outliner {
-            scale: 1.05f32,
-            color: vec3(1.0, 1.0, 0.0),
-        })
+        .with(gun.clone())
+//        .with(Outliner {
+//            scale: 1.05f32,
+//            color: vec3(1.0, 1.0, 0.0),
+//        })
         .build();
 
 
@@ -277,7 +278,7 @@ fn main() {
 //                    1.0, -8.0, 1.0,
 //                    1.0, 1.0, 1.0
 //                ])),
-                Box::new(GaussianBlur::new(vec![0.034619, 0.044859, 0.055857, 0.066833, 0.076841, 0.084894, 0.090126, 0.09194, 0.090126, 0.084894, 0.076841, 0.066833, 0.055857, 0.044859, 0.034619])),
+//                Box::new(GaussianBlur::new(vec![0.034619, 0.044859, 0.055857, 0.066833, 0.076841, 0.084894, 0.090126, 0.09194, 0.090126, 0.084894, 0.076841, 0.066833, 0.055857, 0.044859, 0.034619])),
             ]))
         .with(Input)
         .build();

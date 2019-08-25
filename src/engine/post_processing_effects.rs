@@ -1,7 +1,7 @@
 use crate::gl_wrapper::fbo::FBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::gl_wrapper::rbo::RBO;
-use crate::containers::global_instances::CONTAINER;
+use crate::containers::CONTAINER;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
 use crate::gl_wrapper::vao::VAO;
 

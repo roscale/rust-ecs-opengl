@@ -6,7 +6,7 @@ use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
 use std::cell::{RefCell};
 use crate::ecs::components::*;
-use crate::shaders::diffuse::{self, DiffuseData};
+use crate::shaders::diffuse::{self, DiffuseData, PixelData};
 use tobj;
 use crate::utils::ToVec3;
 use std::sync::{Arc, Weak};
@@ -58,113 +58,119 @@ impl TextureCache {
 pub struct ModelLoader;
 
 impl ModelLoader {
+    fn load_mesh(model: &tobj::Model) -> Mesh {
+        let vao = VAO::new();
+        vao.bind();
+
+        // Upload indices
+        let ebo = EBO::new();
+        ebo.bind().fill(&model.mesh.indices);
+
+        // Upload positions
+        let vbo_positions = VBO::new();
+        vbo_positions.bind().fill(&model.mesh.positions);
+        vao.set_attribute((0, 3, gl::FLOAT, std::mem::size_of::<f32>()));
+
+        // TODO Maybe there aren't any normals/texture coords
+        // Upload texture coordinates
+        let vbo_texcoords = VBO::new();
+        vbo_texcoords.bind().fill(&model.mesh.texcoords);
+        vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
+
+        // Upload normals
+        let vbo_normals = VBO::new();
+        vbo_normals.bind().fill(&model.mesh.normals);
+        vao.set_attribute((2, 3, gl::FLOAT, std::mem::size_of::<f32>()));
+
+        Mesh {
+            vao,
+            positions: model.mesh.positions.clone(),
+            indices: model.mesh.indices.clone(),
+            normals: model.mesh.normals.clone(),
+            texcoords: model.mesh.texcoords.clone()
+        }
+    }
+
+    fn load_material(obj_path: &Path, model: &tobj::Model, materials: &[tobj::Material]) -> Material {
+        let mut shader_data = DiffuseData::default();
+
+        let material = model.mesh.material_id.map(|id| &materials[id]);
+        let shader_data = if let Some(material) = material {
+            trace!("Loading material {}", material.name);
+            debug!("material.Ka = {:?}", material.ambient);
+            debug!("material.Kd = {:?}", material.diffuse);
+            debug!("material.Ks = {:?}", material.specular);
+            debug!("material.d = {}", material.dissolve);
+            debug!("material.map_Ka = {}", material.ambient_texture);
+            debug!("material.map_Kd = {}", material.diffuse_texture);
+            debug!("material.map_Ks = {}", material.specular_texture);
+            debug!("material.map_Ns = {}", material.normal_texture);
+            debug!("material.map_d = {}", material.dissolve_texture);
+
+            let texture_cache = CONTAINER.get_local::<TextureCache>();
+            let files_path = dbg!(obj_path.parent().unwrap());
+
+            // Load diffuse
+            let diffuse = if material.diffuse_texture.is_empty() {
+                warn!("No diffuse texture");
+                PixelData::Color(material.diffuse.to_vec3())
+            } else {
+                // TODO load textures and material
+                let diffuse_path = files_path.join(&material.diffuse_texture);
+                PixelData::Texture(texture_cache.get_texture(diffuse_path.to_str().unwrap()))
+            };
+
+            // Load specular
+            let specular = if material.specular_texture.is_empty() {
+                warn!("No specular texture");
+                PixelData::Color(material.specular.to_vec3())
+            } else {
+                let specular_path = files_path.join(&material.specular_texture);
+                PixelData::Texture(texture_cache.get_texture(specular_path.to_str().unwrap()))
+            };
+
+            // Load normal
+            let normal = if material.normal_texture.is_empty() {
+                warn!("No normal texture");
+                None
+            } else {
+                let normal_path = files_path.join(&material.normal_texture);
+                Some(texture_cache.get_texture(normal_path.to_str().unwrap()))
+            };
+
+            let shininess = material.shininess;
+
+            DiffuseData {
+                diffuse,
+                specular,
+                normal,
+                shininess
+            }
+        } else {
+            warn!("Model {} doesn't have a material", model.name);
+            warn!("Loading default material");
+            DiffuseData::default()
+        };
+
+        Material {
+            shader_data: Box::new(shader_data)
+        }
+    }
+
     pub fn load(&self, filename: &str) -> MeshRenderer {
-        let obj = tobj::load_obj(&Path::new(filename));
+        let obj_path = Path::new(filename);
+        let obj = tobj::load_obj(&obj_path);
         assert!(obj.is_ok());
 
         let (models, materials) = obj.unwrap();
         let first_model = models.first().unwrap();
 
-        /// Mesh
-        let texture_cache = CONTAINER.get_local::<TextureCache>();
-
-        let mesh_name = format!("{}/{}", filename, first_model.name);
-//        let mesh = texture_cache.get_mesh(&mesh_name).unwrap_or_else( || {
-        let mesh = {
-            println!("NEW MESH: {}", &mesh_name);
-
-            let vao = VAO::new();
-            vao.bind();
-
-            // Indices
-            let ebo = EBO::new();
-            ebo.bind().fill(&first_model.mesh.indices);
-            println!("Len ind: {}", &first_model.mesh.indices.len());
-
-            // Positions
-            let vbo_vertices = VBO::new();
-            vbo_vertices.bind().fill(&first_model.mesh.positions);
-            println!("Len pos: {}", &first_model.mesh.positions.len());
-
-            vao.set_attribute((0, 3, gl::FLOAT, std::mem::size_of::<f32>()));
-
-            // TODO Maybe there aren't any normals/texture coords
-
-            // Texture coordinates
-            let vbo_tex = VBO::new();
-            vbo_tex.bind().fill(&first_model.mesh.texcoords);
-            vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
-
-            // Normals
-            let vbo_normals = VBO::new();
-            vbo_normals.bind().fill(&first_model.mesh.normals);
-            println!("Len norm: {}", &first_model.mesh.normals.len());
-
-            vao.set_attribute((2, 3, gl::FLOAT, std::mem::size_of::<f32>()));
-
-            // TODO TexCoords
-
-            // TODO Cache the mesh
-            let mesh = Arc::new(Mesh {
-                vao,
-                positions: first_model.mesh.positions.clone(),
-                indices: first_model.mesh.indices.clone(),
-                normals: first_model.mesh.normals.clone(),
-                texcoords: first_model.mesh.texcoords.clone()
-            });
-            dbg!(&mesh.texcoords);
-//            texture_cache.insert_mesh(mesh_name, &mesh);
-            mesh
-        };
-
-        let material = {
-            let mut shader_data = DiffuseData::default();
-
-            let material = first_model.mesh.material_id.map(|id| &materials[id]);
-            if let Some(material) = material {
-                println!("{}", material.name);
-                println!("    material.Ka = ({}, {}, {})", material.ambient[0], material.ambient[1], material.ambient[2]);
-                println!("    material.Kd = ({}, {}, {})", material.diffuse[0], material.diffuse[1], material.diffuse[2]);
-                println!("    material.Ks = ({}, {}, {})", material.specular[0], material.specular[1], material.specular[2]);
-                println!("    material.Ns = {}", material.shininess);
-                println!("    material.d = {}", material.dissolve);
-                println!("    material.map_Ka = {}", material.ambient_texture);
-                println!("    material.map_Kd = {}", material.diffuse_texture);
-                println!("    material.map_Ks = {}", material.specular_texture);
-                println!("    material.map_Ns = {}", material.normal_texture);
-                println!("    material.map_d = {}", material.dissolve_texture);
-                if material.diffuse_texture.is_empty() {
-                    shader_data = diffuse::DiffuseData::Colors {
-                        diffuse_color: material.diffuse.to_vec3(),
-                        specular_color: material.specular.to_vec3(),
-                        shininess: material.shininess
-                    };
-                } else {
-                    // TODO load textures and material
-                    let diffuse_texture = texture_cache.get_texture(&material.diffuse_texture);
-                    let specular_texture = texture_cache.get_texture(&material.specular_texture);
-                    let normal_texture = texture_cache.get_texture(&material.normal_texture);
-                    let shininess = material.shininess;
-                    shader_data = diffuse::DiffuseData::Textures {
-                        diffuse_texture,
-                        specular_texture,
-                        normal_texture,
-                        shininess
-                    };
-//                    shader_data = DiffuseData::default();
-                }
-            } else {
-                shader_data = diffuse::DiffuseData::default();
-            }
-
-            Arc::new(Material {
-                shader_data: Box::new(shader_data)
-            })
-        };
+        let mesh = Self::load_mesh(&first_model);
+        let material = Self::load_material(&obj_path, &first_model, &materials);
 
         MeshRenderer {
-            mesh,
-            material
+            mesh: Arc::new(mesh),
+            material: Arc::new(material)
         }
     }
 }

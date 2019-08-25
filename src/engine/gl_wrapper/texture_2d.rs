@@ -26,7 +26,7 @@ impl Texture2D {
         let img = image::open(filename);
         let img = match img {
             Ok(img) => img,
-            Err(err) => panic!(err.to_string())
+            Err(err) => panic!("Filename: {}, error: {}", filename, err.to_string())
         };
 
         let (width, height) = img.dimensions();

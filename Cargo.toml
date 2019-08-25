@@ -15,9 +15,11 @@ nalgebra-glm = "0.4.0"
 nalgebra = "0.18.0"
 ncollide3d = "0.19.2"
 nphysics3d = "0.11.1"
-tobj = "0.1.7"
+tobj = "0.1.10"
 time = "0.1.42"
 state = { version = "0.4.1", features = ["const_fn", "tls"] }
+log = "0.4.8"
+pretty_env_logger = "0.3.1"
 
 [features]
 default = ["gl_debug"]
