@@ -1,5 +1,6 @@
+#[derive(Debug)]
 pub struct RBO {
-    pub id: u32
+    pub(crate) id: u32
 }
 
 impl RBO {
@@ -15,5 +16,11 @@ impl RBO {
 
     pub fn create_depth_stencil(&self, width: i32, height: i32) {
         gl_call!(gl::RenderbufferStorage(gl::RENDERBUFFER, gl::DEPTH24_STENCIL8, width, height));
+    }
+}
+
+impl Drop for RBO {
+    fn drop(&mut self) {
+        gl_call!(gl::DeleteRenderbuffers(1, &self.id));
     }
 }

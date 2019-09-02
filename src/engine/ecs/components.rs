@@ -9,9 +9,10 @@ use nphysics3d::object::{BodyStatus, ActivationStatus};
 use nphysics3d::algebra::Velocity3;
 use ncollide3d::shape::ShapeHandle;
 use crate::post_processing_effects::PPEffect;
-use crate::gl_wrapper::fbo::FBO;
+use crate::gl_wrapper::fbo::{FBO, DepthStencilTarget};
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::gl_wrapper::rbo::RBO;
+use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
 
 // TODO implement Default trait to all the components
 
@@ -59,13 +60,13 @@ pub struct Material {
     pub shader_data: Box<dyn ShaderData>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Mesh {
-    pub vao: VAO,
-    pub positions: Vec<f32>,
-    pub indices: Vec<u32>,
-    pub normals: Vec<f32>,
-    pub texcoords: Vec<f32>
+    pub(crate) vao: VAO,
+    pub(crate) positions: Vec<f32>,
+    pub(crate) indices: Vec<u32>,
+    pub(crate) normals: Vec<f32>,
+    pub(crate) texcoords: Vec<f32>
 }
 
 #[derive(Debug)]
@@ -122,6 +123,11 @@ impl Component for Collider {
     type Storage = FlaggedStorage<Self>;
 }
 
+pub enum Background {
+    Color(f32, f32, f32),
+    Skybox(Arc<TextureCubeMap>)
+}
+
 #[derive(Component)]
 pub struct Camera {
     pub fov: f32,
@@ -129,12 +135,20 @@ pub struct Camera {
     pub near_plane: f32,
     pub far_plane: f32,
 
+    pub background: Background,
     pub post_processing_effects: Vec<Box<dyn PPEffect>>,
     pub fb: FBO
 }
 
 impl Camera {
-    pub fn new(fov: f32, aspect_ratio: f32, near_plane: f32, far_plane: f32, post_processing_effects: Vec<Box<dyn PPEffect>>) -> Self {
+    pub fn new(
+        fov: f32,
+        aspect_ratio: f32,
+        near_plane: f32,
+        far_plane: f32,
+        background: Background,
+        post_processing_effects: Vec<Box<dyn PPEffect>>
+    ) -> Self {
         let color_texture = Texture2D::new();
         color_texture.bind();
         color_texture.allocate_color(800, 800);
@@ -143,19 +157,14 @@ impl Camera {
         depth_stencil_rb.bind();
         depth_stencil_rb.create_depth_stencil(800, 800);
 
-        // TODO Prefer composition over setters
-        let mut fb = FBO::new();
-        fb.bind();
-        fb.attach_color_texture(&color_texture);
-        fb.attach_depth_stencil_renderbuffer(&depth_stencil_rb);
-
         Camera {
             fov,
             aspect_ratio,
             near_plane,
             far_plane,
+            background,
             post_processing_effects,
-            fb
+            fb: FBO::new(color_texture, DepthStencilTarget::RBO(depth_stencil_rb))
         }
     }
 }

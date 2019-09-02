@@ -11,5 +11,6 @@ pub mod shaders;
 pub mod containers;
 pub mod utils;
 pub mod post_processing_effects;
+pub mod shapes;
 
 pub use utils::*;

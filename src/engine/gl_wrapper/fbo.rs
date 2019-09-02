@@ -1,18 +1,39 @@
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::gl_wrapper::rbo::RBO;
 
-//#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug)]
+pub enum DepthStencilTarget {
+    Texture2D(Texture2D),
+    RBO(RBO)
+}
+
+#[derive(Debug)]
 pub struct FBO {
-    pub id: u32,
-    pub color_texture: Option<Texture2D>,
+    id: u32,
+    pub(crate) color_texture: Texture2D,
+    depth_stencil_target: DepthStencilTarget,
 }
 
 impl FBO {
-    pub fn new() -> Self {
+    pub fn new(color_texture: Texture2D, depth_stencil_target: DepthStencilTarget) -> Self {
         let mut id = 0u32;
         gl_call!(gl::GenFramebuffers(1, &mut id));
-        FBO { id, color_texture: None }
+        gl_call!(gl::BindFramebuffer(gl::FRAMEBUFFER, id));
+        // Bind color
+        gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, color_texture.id, 0));
+        // Bind depth & stencil
+        match &depth_stencil_target {
+            DepthStencilTarget::Texture2D(texture) => {
+                gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::TEXTURE_2D, texture.id, 0));
+            }
+            DepthStencilTarget::RBO(rbo) => {
+                gl_call!(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, rbo.id));
+            }
+        }
+        if gl_call!(gl::CheckFramebufferStatus(gl::FRAMEBUFFER)) != gl::FRAMEBUFFER_COMPLETE {
+            panic!("Framebuffer {} is not complete", id);
+        }
+        FBO { id, color_texture, depth_stencil_target }
     }
 
     pub fn bind(&self) {
@@ -21,23 +42,6 @@ impl FBO {
 
     pub fn bind_default() {
         gl_call!(gl::BindFramebuffer(gl::FRAMEBUFFER, 0));
-    }
-
-    pub fn is_complete(&self) -> bool {
-        gl_call!(gl::CheckFramebufferStatus(gl::FRAMEBUFFER)) == gl::FRAMEBUFFER_COMPLETE
-    }
-
-    pub fn attach_color_texture(&mut self, texture: &Texture2D) {
-        gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, texture.id, 0));
-        self.color_texture = Some(texture.clone());
-    }
-
-    pub fn attach_depth_stencil_texture(&self, texture: &Texture2D) {
-        gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::TEXTURE_2D, texture.id, 0));
-    }
-
-    pub fn attach_depth_stencil_renderbuffer(&self, renderbuffer: &RBO) {
-        gl_call!(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, renderbuffer.id));
     }
 }
 

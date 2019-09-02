@@ -1,9 +1,10 @@
 use image::GenericImageView;
 use std::os::raw::c_void;
+use std::path::Path;
 
-#[derive(Clone)]
+#[derive(Debug)]
 pub struct Texture2D {
-    pub id: u32
+    pub(crate) id: u32,
 }
 
 impl Texture2D {
@@ -65,8 +66,8 @@ impl Texture2D {
     }
 }
 
-//impl Drop for Texture2D {
-//    fn drop(&mut self) {
-//        gl_call!(gl::DeleteTextures(1, &self.id))
-//    }
-//}
+impl Drop for Texture2D {
+    fn drop(&mut self) {
+        gl_call!(gl::DeleteTextures(1, &self.id))
+    }
+}

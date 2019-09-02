@@ -1,14 +1,26 @@
 use std::os::raw::{c_uint, c_void};
+use crate::gl_wrapper::vbo::{VBO, VertexAttribute};
+use crate::gl_wrapper::ebo::EBO;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct VAO {
-    pub id: u32
+    id: u32
 }
 
 impl VAO {
-    pub fn new() -> Self {
+    pub fn new(vbos: &[VBO], ebo: Option<&EBO>) -> Self {
         let mut id: u32 = 0;
         gl_call!(gl::GenVertexArrays(1, &mut id));
+        gl_call!(gl::BindVertexArray(id));
+
+        for vbo in vbos {
+            vbo.bind();
+            Self::set_attributes(&vbo.attributes);
+        }
+        if let Some(ebo) = ebo {
+            ebo.bind();
+        }
+        gl_call!(gl::BindVertexArray(0));
         VAO { id }
     }
 
@@ -17,28 +29,35 @@ impl VAO {
         self
     }
 
-    pub fn set_attribute(&self, attr: (u32, i32, c_uint, usize)) {
-        let (index, count, gl_type, _type_size) = &attr;
-        gl_call!(gl::VertexAttribPointer(*index, *count, *gl_type, gl::FALSE,
-                                    0, std::ptr::null()));
-        gl_call!(gl::EnableVertexAttribArray(*index));
+    pub fn unbind(&self) -> &Self {
+        gl_call!(gl::BindVertexArray(0));
+        self
     }
 
-    pub fn set_attributes(&self, attributes: &[(u32, i32, c_uint, usize)]) -> &Self {
-        let stride = attributes.iter().fold(0, |mut sum, (_, count, _, size)| {
-            sum += count * *size as i32;
-            sum
-        });
+    fn set_attributes(attributes: &[VertexAttribute]) {
+        let stride = if attributes.len() == 1 {
+            0 // Tightly packed, see OpenGL docs
+        } else {
+            attributes.iter().fold(0, |mut sum, VertexAttribute { index, components }| {
+                sum += (*components as usize * std::mem::size_of::<f32>()) as i32;
+                sum
+            })
+        };
 
         let mut offset = 0;
-        for (index, count, gl_type, type_size) in attributes {
-            let total_size = *count as usize * *type_size;
-            gl_call!(gl::VertexAttribPointer(*index, *count, *gl_type, gl::FALSE,
+        for VertexAttribute { index, components} in attributes {
+            let total_size = *components as usize * std::mem::size_of::<f32>();
+            gl_call!(gl::VertexAttribPointer(*index, *components as i32, gl::FLOAT, gl::FALSE,
                                     stride,
                                     offset as *const c_void));
             gl_call!(gl::EnableVertexAttribArray(*index));
             offset += total_size;
         }
-        self
+    }
+}
+
+impl Drop for VAO {
+    fn drop(&mut self) {
+        gl_call!(gl::DeleteVertexArrays(1, &self.id));
     }
 }

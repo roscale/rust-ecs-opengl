@@ -1,9 +1,9 @@
-use crate::gl_wrapper::fbo::FBO;
+use crate::gl_wrapper::fbo::{FBO, DepthStencilTarget};
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::gl_wrapper::rbo::RBO;
 use crate::containers::CONTAINER;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
-use crate::gl_wrapper::vao::VAO;
+use crate::shapes::PredefinedShapes;
 
 pub trait PPEffect: Send + Sync {
     fn apply(&self, input: &FBO) -> &FBO;
@@ -31,15 +31,9 @@ impl Kernel {
         depth_stencil_rb.bind();
         depth_stencil_rb.create_depth_stencil(800, 800);
 
-        // TODO Prefer composition over setters
-        let mut fb = FBO::new();
-        fb.bind();
-        fb.attach_color_texture(&color_texture);
-        fb.attach_depth_stencil_renderbuffer(&depth_stencil_rb);
-
         Kernel {
             kernel,
-            fb
+            fb: FBO::new(color_texture, DepthStencilTarget::RBO(depth_stencil_rb))
         }
     }
 
@@ -48,9 +42,9 @@ impl Kernel {
         gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
 
         let pp_shader = CONTAINER.get_local::<KernelShader>();
-        let quad_vao = CONTAINER.get_local::<VAO>();
+        let quad_vao = CONTAINER.get_local::<PredefinedShapes>().shapes.get("unit_quad").unwrap();
 
-        pp_shader.bind_screen_texture(input.color_texture.as_ref().unwrap());
+        pp_shader.bind_screen_texture(&input.color_texture);
         pp_shader.bind_kernel(&self.kernel);
         quad_vao.bind();
         gl_call!(gl::Disable(gl::DEPTH_TEST));
@@ -95,11 +89,7 @@ impl GaussianBlur {
             depth_stencil_rb.create_depth_stencil(800, 800);
 
             // TODO Prefer composition over setters
-            let mut fb = FBO::new();
-            fb.bind();
-            fb.attach_color_texture(&color_texture);
-            fb.attach_depth_stencil_renderbuffer(&depth_stencil_rb);
-            fb
+            FBO::new(color_texture, DepthStencilTarget::RBO(depth_stencil_rb))
         };
 
         GaussianBlur {
@@ -111,10 +101,10 @@ impl GaussianBlur {
 
     fn _apply(&self, input: &FBO, to_screen: bool) {
         let pp_shader = CONTAINER.get_local::<GaussianBlurShader>();
-        let quad_vao = CONTAINER.get_local::<VAO>();
+        let quad_vao = CONTAINER.get_local::<PredefinedShapes>().shapes.get("unit_quad").unwrap();
 
         // v pass
-        pp_shader.bind_screen_texture(input.color_texture.as_ref().unwrap());
+        pp_shader.bind_screen_texture(&input.color_texture);
         pp_shader.bind_kernel(&self.kernel, true);
         quad_vao.bind();
 
@@ -125,7 +115,7 @@ impl GaussianBlur {
         gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, 6));
 
         // h pass
-        pp_shader.bind_screen_texture(self.v_pass.color_texture.as_ref().unwrap());
+        pp_shader.bind_screen_texture(&self.v_pass.color_texture);
         pp_shader.bind_kernel(&self.kernel, false);
         quad_vao.bind();
 

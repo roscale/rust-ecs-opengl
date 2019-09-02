@@ -124,6 +124,10 @@ use glfw::ffi::glfwGetTime;
 use crate::shaders::outline::OutlineData;
 use crate::shaders::ShaderData;
 use crate::gl_wrapper::fbo::FBO;
+use crate::containers::CONTAINER;
+use crate::shapes::PredefinedShapes;
+use crate::shaders::cube_map::CubeMapShader;
+use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
 
 impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (Entities<'a>,
@@ -163,8 +167,14 @@ impl<'a> System<'a> for MeshRendererSystem {
 
         gl_call!(gl::Viewport(0, 0, 800, 800));
         gl_call!(gl::Enable(gl::DEPTH_TEST));
+        gl_call!(gl::DepthFunc(gl::LESS));
+        gl_call!(gl::Enable(gl::STENCIL_TEST));
         gl_call!(gl::StencilMask(0xFF));
-        gl_call!(gl::ClearColor(0.5, 0.8, 1.0, 1.0));
+
+        if let Background::Color(r, g, b) = camera.background {
+            gl_call!(gl::ClearColor(r, g, b, 1.0));
+        }
+
         gl_call!(gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT | gl::STENCIL_BUFFER_BIT));
 
         gl_call!(gl::StencilFunc(gl::ALWAYS, 1, 0xFF));
@@ -193,6 +203,28 @@ impl<'a> System<'a> for MeshRendererSystem {
                                   gl::UNSIGNED_INT, std::ptr::null()));
         }
 
+        // Draw skybox
+        if let Background::Skybox(texture) = &camera.background {
+            // Disable stencil write
+            gl_call!(gl::StencilMask(0x00));
+            gl_call!(gl::StencilOp(gl::KEEP, gl::KEEP, gl::KEEP));
+
+            gl_call!(gl::DepthFunc(gl::LEQUAL));
+
+            let cubemap_shader = CONTAINER.get_local::<CubeMapShader>();
+            let mut cut = view_matrix.clone();
+            cut.fill_column(3, 0.0);
+            cut.fill_row(3, 0.0);
+            cubemap_shader.bind(&cut, &projection_matrix);
+
+            let cube_vao = CONTAINER.get_local::<PredefinedShapes>().shapes.get("unit_cube").unwrap();
+            cube_vao.bind();
+            TextureCubeMap::activate(0);
+            texture.bind();
+
+            gl_call!(gl::DrawArrays(gl::TRIANGLES, 0, 36));
+        }
+
         // Draw outlined objects
         gl_call!(gl::StencilFunc(gl::NOTEQUAL, 1, 0xFF));
         gl_call!(gl::StencilMask(0x00));
@@ -215,6 +247,7 @@ impl<'a> System<'a> for MeshRendererSystem {
             };
 
             let mesh_renderer = mesh_renderer as &MeshRenderer;
+            mesh_renderer.mesh.vao.bind();
 
             let shader_data = OutlineData {
                 color: outliner.color

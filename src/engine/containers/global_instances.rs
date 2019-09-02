@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 use crate::gl_wrapper::vao::VAO;
-use crate::gl_wrapper::vbo::VBO;
+use crate::gl_wrapper::vbo::{VBO, VertexAttribute};
 use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
 use std::cell::{RefCell};
@@ -59,28 +59,25 @@ pub struct ModelLoader;
 
 impl ModelLoader {
     fn load_mesh(model: &tobj::Model) -> Mesh {
-        let vao = VAO::new();
-        vao.bind();
-
-        // Upload indices
-        let ebo = EBO::new();
-        ebo.bind().fill(&model.mesh.indices);
-
-        // Upload positions
-        let vbo_positions = VBO::new();
-        vbo_positions.bind().fill(&model.mesh.positions);
-        vao.set_attribute((0, 3, gl::FLOAT, std::mem::size_of::<f32>()));
-
         // TODO Maybe there aren't any normals/texture coords
-        // Upload texture coordinates
-        let vbo_texcoords = VBO::new();
-        vbo_texcoords.bind().fill(&model.mesh.texcoords);
-        vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
 
-        // Upload normals
-        let vbo_normals = VBO::new();
-        vbo_normals.bind().fill(&model.mesh.normals);
-        vao.set_attribute((2, 3, gl::FLOAT, std::mem::size_of::<f32>()));
+        let vao = VAO::new(
+            &[
+                // positions
+                VBO::new(&model.mesh.positions, vec![
+                    VertexAttribute { index: 0, components: 3 }
+                ]),
+                // texcoords
+                VBO::new(&model.mesh.texcoords, vec![
+                    VertexAttribute { index: 1, components: 2 }
+                ]),
+                // normals
+                VBO::new(&model.mesh.normals, vec![
+                    VertexAttribute { index: 2, components: 3 }
+                ]),
+            ],
+            Some(&EBO::new(&model.mesh.indices))
+        );
 
         Mesh {
             vao,

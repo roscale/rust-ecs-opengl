@@ -13,7 +13,7 @@ use ecs::systems::*;
 use ecs::resources::*;
 use crate::shaders::diffuse::DiffuseShader;
 use crate::ecs::components::PointLight;
-use glfw::ffi::glfwSwapInterval;
+use glfw::ffi::{glfwSwapInterval};
 use nalgebra_glm::{vec3, Mat3};
 use crate::containers::*;
 use nalgebra::{Vector};
@@ -23,9 +23,10 @@ use nphysics3d::material::BasicMaterial;
 use nphysics3d::algebra::Velocity3;
 use crate::shaders::outline::OutlineShader;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
-use crate::gl_wrapper::vao::VAO;
-use crate::gl_wrapper::vbo::VBO;
-use crate::post_processing_effects::{GaussianBlur};
+use engine::shaders::cube_map::CubeMapShader;
+use engine::gl_wrapper::texture_cube_map::TextureCubeMap;
+use engine::shapes::PredefinedShapes;
+use std::sync::Arc;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -80,51 +81,19 @@ fn main() {
 
     CONTAINER.set_local(ModelLoader::default);
     CONTAINER.set_local(TextureCache::default);
+    CONTAINER.set_local(CubeMapShader::default);
     CONTAINER.set_local(DiffuseShader::default);
     CONTAINER.set_local(OutlineShader::default);
     CONTAINER.set_local(KernelShader::default);
     CONTAINER.set_local(GaussianBlurShader::default);
 
-    CONTAINER.set_local(|| {
-        // All screen quad
-        let quad_pos = [
-            -1.0f32, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0,
-            -1.0, 1.0,
-            1.0, -1.0,
-            1.0, 1.0,
-        ];
-
-        let quad_tex = [
-            0.0f32, 1.0,
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0
-        ];
-
-        let quad_vao = VAO::new();
-        quad_vao.bind();
-
-        let quad_pos_vbo = VBO::new();
-        quad_pos_vbo.bind();
-        quad_pos_vbo.fill(&quad_pos);
-        quad_vao.set_attribute((0, 2, gl::FLOAT, std::mem::size_of::<f32>()));
-
-        let quad_tex_vbo = VBO::new();
-        quad_tex_vbo.bind();
-        quad_tex_vbo.fill(&quad_tex);
-        quad_vao.set_attribute((1, 2, gl::FLOAT, std::mem::size_of::<f32>()));
-        quad_vao
-    });
+    CONTAINER.set_local(PredefinedShapes::default);
 
     let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
     let mesh_renderer = model_loader.load("models/cube/box_test.obj");
-    let gun = model_loader.load("models/gun/modified_gun.obj");
+//    let gun = model_loader.load("models/gun/modified_gun.obj");
     
     let transform_system = {
         let mut comps = world.write_storage::<Transform>();
@@ -174,6 +143,21 @@ fn main() {
         .with_thread_local(MeshRendererSystem)
         .build();
 
+
+    // Scene objects & resources
+
+    let skybox_texture = TextureCubeMap::new();
+    skybox_texture.bind();
+    skybox_texture.fill(&[
+        "models/skybox/right.jpg",
+        "models/skybox/left.jpg",
+        "models/skybox/top.jpg",
+        "models/skybox/bottom.jpg",
+        "models/skybox/front.jpg",
+        "models/skybox/back.jpg"
+    ]);
+    let skybox_texture = Arc::new(skybox_texture);
+
     let _floor = world.create_entity()
         .with(Transform {
             position: vec3(0.0, 0.0, 0.0),
@@ -195,18 +179,18 @@ fn main() {
         })
         .build();
 
-    let _floor2 = world.create_entity()
-        .with(Transform {
-            position: vec3(-15.0, 0.0, 0.0),
-            scale: 1.0.to_vec3(),
-            ..Transform::default()
-        })
-        .with(gun.clone())
-//        .with(Outliner {
-//            scale: 1.05f32,
-//            color: vec3(1.0, 1.0, 0.0),
+//    let _floor2 = world.create_entity()
+//        .with(Transform {
+//            position: vec3(-15.0, 0.0, 0.0),
+//            scale: 1.0.to_vec3(),
+//            ..Transform::default()
 //        })
-        .build();
+//        .with(gun.clone())
+////        .with(Outliner {
+////            scale: 1.05f32,
+////            color: vec3(1.0, 1.0, 0.0),
+////        })
+//        .build();
 
 
     let _entity1 = world.create_entity()
@@ -269,10 +253,12 @@ fn main() {
             rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
             ..Transform::default()
         })
-        .with(Camera::new(60.0f32.to_radians(),
+        .with(Camera::new(70.0f32.to_radians(),
                           1.0,
                           0.1,
-                          10000.0, vec![
+                          1000.0,
+                          Background::Skybox(skybox_texture),
+                          vec![
 //                Box::new(Kernel::new(vec![
 //                    1.0, 1.0, 1.0,
 //                    1.0, -8.0, 1.0,
@@ -298,12 +284,12 @@ fn main() {
         for (_, event) in glfw::flush_messages(&events) {
             match event {
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-                    window.set_should_close(true)
+                    window.set_should_close(true);
                 }
                 _ => {
                     world.write_resource::<InputEventQueue>().queue.push_back(event);
                 }
-            }
+            };
         };
 
         dispatcher.dispatch(&world);
