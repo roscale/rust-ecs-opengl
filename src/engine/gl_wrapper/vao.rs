@@ -10,7 +10,7 @@ pub struct VAO {
 impl VAO {
     pub fn new(vbos: &[VBO], ebo: Option<&EBO>) -> Self {
         let mut id: u32 = 0;
-        gl_call!(gl::GenVertexArrays(1, &mut id));
+        gl_call!(gl::CreateVertexArrays(1, &mut id));
         gl_call!(gl::BindVertexArray(id));
 
         for vbo in vbos {

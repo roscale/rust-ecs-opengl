@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 glfw = "0.29.0"
-gl = "0.6.0"
+gl = "0.13.0"
 image = "0.21.2"
 specs = "0.15.0"
 specs-derive = "0.4.0"

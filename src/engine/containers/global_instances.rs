@@ -24,7 +24,7 @@ impl TextureCache {
         let update_tex = || {
             let t = Arc::new(Texture2D::new());
             self.textures.borrow_mut().insert(id.into(), Arc::downgrade(&t));
-            t.bind().fill(id);
+            t.fill(id);
             t
         };
 

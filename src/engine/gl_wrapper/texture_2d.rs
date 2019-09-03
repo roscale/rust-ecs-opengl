@@ -10,7 +10,7 @@ pub struct Texture2D {
 impl Texture2D {
     pub fn new() -> Self {
         let mut id: u32 = 0;
-        gl_call!(gl::GenTextures(1, &mut id));
+        gl_call!(gl::CreateTextures(gl::TEXTURE_2D, 1, &mut id));
         Texture2D { id }
     }
 
@@ -36,33 +36,33 @@ impl Texture2D {
 
         let pixels = img.raw_pixels();
 
-        gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
-                                gl::RGB as i32, width, height, 0, gl::RGB,
-                                gl::UNSIGNED_BYTE, pixels.as_ptr() as *const c_void));
+        let mipmap_levels = 8;
+        gl_call!(gl::TextureStorage2D(self.id, mipmap_levels, gl::RGB8, width, height));
+        gl_call!(gl::TextureSubImage2D(
+            self.id, 0,
+            0, 0, width, height,
+            gl::RGB, gl::UNSIGNED_BYTE,
+            pixels.as_ptr() as *const c_void));
 
-        gl_call!(gl::GenerateMipmap(gl::TEXTURE_2D));
+        gl_call!(gl::GenerateTextureMipmap(self.id));
 
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST_MIPMAP_NEAREST as i32));
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_MIN_FILTER, gl::NEAREST_MIPMAP_NEAREST as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
 
         self
     }
 
     pub fn allocate_color(&self, width: i32, height: i32) {
-        gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
-                                gl::RGB as i32, width, height, 0, gl::RGB,
-                                gl::UNSIGNED_BYTE, 0 as *const c_void));
+        gl_call!(gl::TextureStorage2D(self.id, 1, gl::RGB8, width, height));
 
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32));
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32));
-        gl_call!(gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32));
+        gl_call!(gl::TextureParameteri(self.id, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32));
     }
 
     pub fn allocate_depth_stencil(&self, width: i32, height: i32) {
-        gl_call!(gl::TexImage2D(gl::TEXTURE_2D, 0,
-                                gl::DEPTH24_STENCIL8 as i32, width, height, 0, gl::DEPTH_STENCIL,
-                                gl::UNSIGNED_INT_24_8, 0 as *const c_void));
+        gl_call!(gl::TextureStorage2D(self.id, 1, gl::DEPTH24_STENCIL8, width, height));
     }
 }
 

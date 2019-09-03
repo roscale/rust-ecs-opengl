@@ -30,8 +30,8 @@ use std::sync::Arc;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-    glfw.window_hint(WindowHint::ContextVersionMajor(3));
-    glfw.window_hint(WindowHint::ContextVersionMinor(3));
+    glfw.window_hint(WindowHint::ContextVersionMajor(4));
+    glfw.window_hint(WindowHint::ContextVersionMinor(5));
     glfw.window_hint(WindowHint::OpenGlProfile(OpenGlProfileHint::Core));
 
     let (mut window, events) = glfw.create_window(width, height, title, mode).unwrap();
@@ -146,9 +146,7 @@ fn main() {
 
     // Scene objects & resources
 
-    let skybox_texture = TextureCubeMap::new();
-    skybox_texture.bind();
-    skybox_texture.fill(&[
+    let skybox_texture = TextureCubeMap::new(&[
         "models/skybox/right.jpg",
         "models/skybox/left.jpg",
         "models/skybox/top.jpg",

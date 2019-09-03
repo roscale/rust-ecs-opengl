@@ -17,20 +17,19 @@ pub struct FBO {
 impl FBO {
     pub fn new(color_texture: Texture2D, depth_stencil_target: DepthStencilTarget) -> Self {
         let mut id = 0u32;
-        gl_call!(gl::GenFramebuffers(1, &mut id));
-        gl_call!(gl::BindFramebuffer(gl::FRAMEBUFFER, id));
+        gl_call!(gl::CreateFramebuffers(1, &mut id));
         // Bind color
-        gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, color_texture.id, 0));
+        gl_call!(gl::NamedFramebufferTexture(id, gl::COLOR_ATTACHMENT0, color_texture.id, 0));
         // Bind depth & stencil
         match &depth_stencil_target {
             DepthStencilTarget::Texture2D(texture) => {
-                gl_call!(gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::TEXTURE_2D, texture.id, 0));
+                gl_call!(gl::NamedFramebufferTexture(id, gl::DEPTH_STENCIL_ATTACHMENT, texture.id, 0));
             }
             DepthStencilTarget::RBO(rbo) => {
-                gl_call!(gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, rbo.id));
+                gl_call!(gl::NamedFramebufferRenderbuffer(id, gl::DEPTH_STENCIL_ATTACHMENT, gl::RENDERBUFFER, rbo.id));
             }
         }
-        if gl_call!(gl::CheckFramebufferStatus(gl::FRAMEBUFFER)) != gl::FRAMEBUFFER_COMPLETE {
+        if gl_call!(gl::CheckNamedFramebufferStatus(id, gl::FRAMEBUFFER)) != gl::FRAMEBUFFER_COMPLETE {
             panic!("Framebuffer {} is not complete", id);
         }
         FBO { id, color_texture, depth_stencil_target }

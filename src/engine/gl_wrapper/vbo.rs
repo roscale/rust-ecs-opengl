@@ -14,13 +14,9 @@ pub struct VBO {
 
 impl VBO {
     pub fn new(data: &[f32], attributes: Vec<VertexAttribute>) -> Self {
-        // Unlink currently bound VAO
-        gl_call!(gl::BindVertexArray(0));
-
         let mut id: u32 = 0;
-        gl_call!(gl::GenBuffers(1, &mut id));
-        gl_call!(gl::BindBuffer(gl::ARRAY_BUFFER, id));
-        gl_call!(gl::BufferData(gl::ARRAY_BUFFER,
+        gl_call!(gl::CreateBuffers(1, &mut id));
+        gl_call!(gl::NamedBufferData(id,
                             (data.len() * std::mem::size_of::<f32>()) as isize,
                             data.as_ptr() as *const c_void,
                             gl::STATIC_DRAW));

@@ -8,9 +8,8 @@ pub struct EBO {
 impl EBO {
     pub fn new(indices: &[u32]) -> Self {
         let mut id: u32 = 0;
-        gl_call!(gl::GenBuffers(1, &mut id));
-        gl_call!(gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id));
-        gl_call!(gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
+        gl_call!(gl::CreateBuffers(1, &mut id));
+        gl_call!(gl::NamedBufferData(id,
                             (indices.len() * std::mem::size_of::<u32>()) as isize,
                             indices.as_ptr() as *const c_void,
                             gl::STATIC_DRAW));

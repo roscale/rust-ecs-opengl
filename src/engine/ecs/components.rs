@@ -150,11 +150,9 @@ impl Camera {
         post_processing_effects: Vec<Box<dyn PPEffect>>
     ) -> Self {
         let color_texture = Texture2D::new();
-        color_texture.bind();
         color_texture.allocate_color(800, 800);
 
         let depth_stencil_rb: RBO = RBO::new();
-        depth_stencil_rb.bind();
         depth_stencil_rb.create_depth_stencil(800, 800);
 
         Camera {

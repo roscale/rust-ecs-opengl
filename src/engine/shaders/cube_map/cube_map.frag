@@ -1,9 +1,11 @@
-#version 330 core
+#version 450 core
 
 in vec3 tex_coords;
+out vec4 frag_color;
 
-uniform samplerCube cube_map;
+// Array containing a single cubemap
+uniform samplerCubeArray cube_map;
 
 void main() {
-    gl_FragColor = texture(cube_map, tex_coords);
+    frag_color = texture(cube_map, vec4(tex_coords, 0));
 }

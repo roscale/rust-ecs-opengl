@@ -14,32 +14,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/roscale.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/back.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/bottom.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/front.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/left.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/right.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/skybox/top.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_cube_map.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.vert" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/engine/shapes.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/ecs/components.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/components.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/ebo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/ebo.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/fbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/fbo.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/rbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/rbo.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_cube_map.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_cube_map.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/vbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vbo.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/post_processing_effects.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/post_processing_effects.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -247,7 +236,8 @@
       <workItem from="1567331174603" duration="8502000" />
       <workItem from="1567366253142" duration="7509000" />
       <workItem from="1567417989880" duration="600000" />
-      <workItem from="1567426925233" duration="7869000" />
+      <workItem from="1567426925233" duration="9136000" />
+      <workItem from="1567509891574" duration="16248000" />
     </task>
     <servers />
   </component>
