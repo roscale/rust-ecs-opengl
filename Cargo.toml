@@ -21,9 +21,12 @@ state = { version = "0.4.1", features = ["const_fn", "tls"] }
 log = "0.4.8"
 pretty_env_logger = "0.3.1"
 
-[features]
-default = ["gl_debug"]
-gl_debug = []
+#[features]
+#default = ["gl_debug"]
+#gl_debug = []
+
+[profile.dev]
+opt-level = 1
 
 [lib]
 name = "engine"

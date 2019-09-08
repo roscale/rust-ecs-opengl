@@ -1,6 +1,5 @@
 use image::GenericImageView;
 use std::os::raw::c_void;
-use std::path::Path;
 
 #[derive(Debug)]
 pub struct Texture2D {

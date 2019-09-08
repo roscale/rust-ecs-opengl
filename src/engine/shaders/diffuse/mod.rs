@@ -2,7 +2,7 @@ use crate::gl_wrapper::texture_2d::*;
 use super::*;
 use crate::gl_wrapper::shader_compilation::*;
 use std::ffi::CString;
-use nalgebra_glm::{Vec3, Mat4, vec3};
+use nalgebra_glm::{Vec3, Mat4};
 use std::sync::Arc;
 use crate::containers::CONTAINER;
 use specs::ReadStorage;

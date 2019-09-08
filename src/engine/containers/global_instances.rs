@@ -6,7 +6,7 @@ use crate::gl_wrapper::ebo::EBO;
 use crate::gl_wrapper::texture_2d::Texture2D;
 use std::cell::{RefCell};
 use crate::ecs::components::*;
-use crate::shaders::diffuse::{self, DiffuseData, PixelData};
+use crate::shaders::diffuse::{DiffuseData, PixelData};
 use tobj;
 use crate::utils::ToVec3;
 use std::sync::{Arc, Weak};
@@ -89,7 +89,7 @@ impl ModelLoader {
     }
 
     fn load_material(obj_path: &Path, model: &tobj::Model, materials: &[tobj::Material]) -> Material {
-        let mut shader_data = DiffuseData::default();
+        let _shader_data = DiffuseData::default();
 
         let material = model.mesh.material_id.map(|id| &materials[id]);
         let shader_data = if let Some(material) = material {

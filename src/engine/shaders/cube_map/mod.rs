@@ -1,8 +1,6 @@
 use crate::gl_wrapper::shader_compilation::{ShaderProgram, ShaderPart};
-use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
 use std::ffi::CString;
 use nalgebra_glm::Mat4;
-use crate::shaders::ShaderData;
 
 #[derive(Clone)]
 pub struct CubeMapShader {

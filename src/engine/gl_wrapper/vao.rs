@@ -1,4 +1,3 @@
-use std::os::raw::{c_uint, c_void};
 use crate::gl_wrapper::vbo::{VBO, VertexAttribute};
 use crate::gl_wrapper::ebo::EBO;
 
@@ -11,10 +10,8 @@ impl VAO {
     pub fn new(vbos: &[VBO], ebo: Option<&EBO>) -> Self {
         let mut vao = VAO { id: 0 };
         gl_call!(gl::CreateVertexArrays(1, &mut vao.id));
-        println!("vao id {}", &vao.id);
 
         for (binding_index, vbo) in vbos.iter().enumerate() {
-            println!("Binding index {}", binding_index);
             let binding_index = binding_index as u32;
             vao.set_attributes(binding_index, &vbo);
         }
@@ -50,7 +47,6 @@ impl VAO {
 
         let mut offset = 0;
         for VertexAttribute { index, components} in &vbo.attributes {
-            println!("index_attrib {}, offset {}", index, offset);
             gl_call!(gl::EnableVertexArrayAttrib(self.id, *index));
             gl_call!(gl::VertexArrayAttribFormat(self.id, *index, *components as i32, gl::FLOAT, gl::FALSE, offset as u32));
             gl_call!(gl::VertexArrayAttribBinding(self.id, *index, binding_index));

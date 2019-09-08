@@ -15,9 +15,14 @@
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/ebo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/ebo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/debugging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/debugging.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/vbo.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vbo.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/cube_map/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -277,5 +282,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Use interface blocks" />
     <option name="LAST_COMMIT_MESSAGE" value="Use interface blocks" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/engine/debugging.rs</url>
+          <line>35</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

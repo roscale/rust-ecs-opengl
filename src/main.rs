@@ -27,12 +27,15 @@ use engine::shaders::cube_map::CubeMapShader;
 use engine::gl_wrapper::texture_cube_map::TextureCubeMap;
 use engine::shapes::PredefinedShapes;
 use std::sync::Arc;
+use debugging::debug_message_callback;
+use std::os::raw::c_void;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     glfw.window_hint(WindowHint::ContextVersionMajor(4));
     glfw.window_hint(WindowHint::ContextVersionMinor(5));
     glfw.window_hint(WindowHint::OpenGlProfile(OpenGlProfileHint::Core));
+    glfw.window_hint(WindowHint::OpenGlDebugContext(true));
 
     let (mut window, events) = glfw.create_window(width, height, title, mode).unwrap();
     window.set_key_polling(true);
@@ -272,6 +275,11 @@ fn main() {
 
     let mut input_system = InputSystem;
     let mut print_framerate = PrintFramerate::default();
+
+    gl_call!(gl::Enable(gl::DEBUG_OUTPUT));
+    gl_call!(gl::Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS));
+    gl_call!(gl::DebugMessageCallback(debug_message_callback, 0 as *const c_void));
+    gl_call!(gl::DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0, 0 as *const u32, gl::TRUE));
 
     gl_call!(gl::Enable(gl::CULL_FACE));
     gl_call!(gl::CullFace(gl::BACK));
