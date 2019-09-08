@@ -2,7 +2,7 @@ use std::os::raw::c_void;
 
 #[derive(Debug)]
 pub struct EBO {
-    id: u32
+    pub(crate) id: u32
 }
 
 impl EBO {

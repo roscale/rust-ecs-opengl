@@ -8,7 +8,7 @@ pub struct VertexAttribute {
 
 #[derive(Debug)]
 pub struct VBO {
-    id: u32,
+    pub(crate) id: u32,
     pub(crate) attributes: Vec<VertexAttribute>
 }
 

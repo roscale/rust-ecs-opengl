@@ -9,19 +9,19 @@ pub struct VAO {
 
 impl VAO {
     pub fn new(vbos: &[VBO], ebo: Option<&EBO>) -> Self {
-        let mut id: u32 = 0;
-        gl_call!(gl::CreateVertexArrays(1, &mut id));
-        gl_call!(gl::BindVertexArray(id));
+        let mut vao = VAO { id: 0 };
+        gl_call!(gl::CreateVertexArrays(1, &mut vao.id));
+        println!("vao id {}", &vao.id);
 
-        for vbo in vbos {
-            vbo.bind();
-            Self::set_attributes(&vbo.attributes);
+        for (binding_index, vbo) in vbos.iter().enumerate() {
+            println!("Binding index {}", binding_index);
+            let binding_index = binding_index as u32;
+            vao.set_attributes(binding_index, &vbo);
         }
         if let Some(ebo) = ebo {
-            ebo.bind();
+            gl_call!(gl::VertexArrayElementBuffer(vao.id, ebo.id));
         }
-        gl_call!(gl::BindVertexArray(0));
-        VAO { id }
+        vao
     }
 
     pub fn bind(&self) -> &Self {
@@ -34,24 +34,30 @@ impl VAO {
         self
     }
 
-    fn set_attributes(attributes: &[VertexAttribute]) {
-        let stride = if attributes.len() == 1 {
-            0 // Tightly packed, see OpenGL docs
-        } else {
-            attributes.iter().fold(0, |mut sum, VertexAttribute { index, components }| {
-                sum += (*components as usize * std::mem::size_of::<f32>()) as i32;
-                sum
-            })
-        };
+    fn set_attributes(&self, binding_index: u32, vbo: &VBO) {
+        // FIXME Fix multiple vertex attributes per buffer with DSA
+//        let stride = if attributes.len() == 1 {
+//            0 // Tightly packed, see OpenGL docs
+//        } else {
+//            attributes.iter().fold(0, |mut sum, VertexAttribute { index, components }| {
+//                sum += (*components as usize * std::mem::size_of::<f32>()) as i32;
+//                sum
+//            })
+//        };
+//        gl_call!(gl::VertexAttribPointer(*index, *components as i32, gl::FLOAT, gl::FALSE,
+//                                    stride,
+//                                    offset as *const c_void));
 
         let mut offset = 0;
-        for VertexAttribute { index, components} in attributes {
-            let total_size = *components as usize * std::mem::size_of::<f32>();
-            gl_call!(gl::VertexAttribPointer(*index, *components as i32, gl::FLOAT, gl::FALSE,
-                                    stride,
-                                    offset as *const c_void));
-            gl_call!(gl::EnableVertexAttribArray(*index));
+        for VertexAttribute { index, components} in &vbo.attributes {
+            println!("index_attrib {}, offset {}", index, offset);
+            gl_call!(gl::EnableVertexArrayAttrib(self.id, *index));
+            gl_call!(gl::VertexArrayAttribFormat(self.id, *index, *components as i32, gl::FLOAT, gl::FALSE, offset as u32));
+            gl_call!(gl::VertexArrayAttribBinding(self.id, *index, binding_index));
+
+            let total_size = (*components as usize) * std::mem::size_of::<f32>();
             offset += total_size;
+            gl_call!(gl::VertexArrayVertexBuffer(self.id, binding_index, vbo.id, 0, ((*components as usize) * std::mem::size_of::<f32>()) as i32));
         }
     }
 }
