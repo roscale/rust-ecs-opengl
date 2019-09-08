@@ -1,10 +1,12 @@
 #version 330 core
 
 out vec4 Color;
-in vec2 texture_coords;
 
-in vec3 frag_pos;
-in vec3 pass_normal;
+in VertexAttributes {
+    vec2 texture_coords;
+    vec3 frag_pos;
+    vec3 normal;
+} attrs;
 
 struct Material {
     vec3 diffuse_color;
@@ -37,24 +39,24 @@ void main() {
     vec3 normal;
 
     if (material.using_diffuse_texture) {
-        diffuse_frag = texture(material.diffuse_texture, texture_coords).rgb;
+        diffuse_frag = texture(material.diffuse_texture, attrs.texture_coords).rgb;
     }
 
     if (material.using_specular_texture) {
-        specular_frag = texture(material.specular_texture, texture_coords).rgb;
+        specular_frag = texture(material.specular_texture, attrs.texture_coords).rgb;
     }
 
     // ambient
     vec3 ambient_color = light.ambient_strength * diffuse_frag;
 
     // diffuse
-    normal = normalize(pass_normal);
-    vec3 light_dir = normalize(light.position - frag_pos);
+    normal = normalize(attrs.normal);
+    vec3 light_dir = normalize(light.position - attrs.frag_pos);
     float diff = max(dot(normal, light_dir), 0.0);
     vec3 diffuse_color = light.color * diff * diffuse_frag;
 
     // specular
-    vec3 frag_to_camera = normalize(camera_pos - frag_pos);
+    vec3 frag_to_camera = normalize(camera_pos - attrs.frag_pos);
     vec3 light_reflection = reflect(-light_dir, normal);
 
     float spec = pow(max(dot(frag_to_camera, light_reflection), 0.0), material.shininess);
