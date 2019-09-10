@@ -35,14 +35,9 @@ impl Default for DiffuseData {
 }
 
 impl ShaderData for DiffuseData {
-    fn bind_mvp(&self,
-                model: &Mat4,
-                view: &Mat4,
-                projection: &Mat4,
-                camera_pos: &Vec3
-    ) {
+    fn bind_model(&self, model: &Mat4) {
         let shader = CONTAINER.get_local::<DiffuseShader>();
-        shader.bind_mvp(model, view, projection, camera_pos);
+        shader.bind_model(model);
 
         // Bind diffuse
         match &self.diffuse {
@@ -127,16 +122,9 @@ impl Default for DiffuseShader {
 }
 
 impl DiffuseShader {
-    fn bind_mvp(&self, model: &Mat4,
-                view: &Mat4,
-                projection: &Mat4,
-                camera_pos: &Vec3) {
+    fn bind_model(&self, model: &Mat4) {
         self.program.use_program();
-
         self.program.set_uniform_matrix4fv("model", model.as_ptr());
-        self.program.set_uniform_matrix4fv("view", view.as_ptr());
-        self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
-        self.program.set_uniform3f("camera_pos", camera_pos.as_slice());
     }
 
     fn bind_lights(&self, transforms: &ReadStorage<Transform>, point_lights: &ReadStorage<PointLight>) {

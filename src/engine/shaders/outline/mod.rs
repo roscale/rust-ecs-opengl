@@ -10,9 +10,9 @@ pub struct OutlineData {
 }
 
 impl ShaderData for OutlineData {
-    fn bind_mvp(&self, model: &Mat4, view: &Mat4, projection: &Mat4, camera_pos: &Vec3) {
+    fn bind_model(&self, model: &Mat4) {
         let shader = CONTAINER.get_local::<OutlineShader>();
-        shader.bind_mvp(model, view, projection, camera_pos);
+        shader.bind_model(model);
         shader.program.set_uniform3f("color", self.color.as_slice());
     }
 
@@ -49,14 +49,8 @@ impl Default for OutlineShader {
 }
 
 impl OutlineShader {
-    fn bind_mvp(&self, model: &Mat4,
-                view: &Mat4,
-                projection: &Mat4,
-                _camera_pos: &Vec3) {
+    fn bind_model(&self, model: &Mat4) {
         self.program.use_program();
-
         self.program.set_uniform_matrix4fv("model", model.as_ptr());
-        self.program.set_uniform_matrix4fv("view", view.as_ptr());
-        self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
     }
 }

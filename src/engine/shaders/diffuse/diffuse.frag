@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 out vec4 Color;
 
@@ -31,7 +31,7 @@ struct Light {
 
 uniform Material material;
 uniform Light light;
-uniform vec3 camera_pos;
+in vec3 light_pos;
 
 void main() {
     vec3 diffuse_frag = material.diffuse_color;
@@ -51,12 +51,12 @@ void main() {
 
     // diffuse
     normal = normalize(attrs.normal);
-    vec3 light_dir = normalize(light.position - attrs.frag_pos);
+    vec3 light_dir = normalize(light_pos - attrs.frag_pos);
     float diff = max(dot(normal, light_dir), 0.0);
     vec3 diffuse_color = light.color * diff * diffuse_frag;
 
     // specular
-    vec3 frag_to_camera = normalize(camera_pos - attrs.frag_pos);
+    vec3 frag_to_camera = normalize(- attrs.frag_pos);
     vec3 light_reflection = reflect(-light_dir, normal);
 
     float spec = pow(max(dot(frag_to_camera, light_reflection), 0.0), material.shininess);

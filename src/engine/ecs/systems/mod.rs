@@ -7,6 +7,47 @@ use specs::{System, WriteStorage, ReadStorage};
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use nalgebra_glm::{vec2, Mat4, vec3};
+use nalgebra::{Vector3, Matrix4};
+use glfw::{Key, WindowEvent};
+use ncollide3d::shape::{ShapeHandle, Cuboid};
+use nphysics3d::object::ColliderDesc;
+use nphysics3d::material::MaterialHandle;
+use glfw::ffi::glfwGetTime;
+use crate::shaders::outline::OutlineData;
+use crate::shaders::ShaderData;
+use crate::gl_wrapper::fbo::FBO;
+use crate::containers::CONTAINER;
+use crate::shapes::PredefinedShapes;
+use crate::shaders::cube_map::CubeMapShader;
+use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
+use crate::gl_wrapper::ubo::{Std140, GlslTypes, UBO, ComputeStd140LayoutSize, BufferUpdateFrequency};
+use std::os::raw::c_void;
+
+struct CameraUBO<'a> {
+    pub view: &'a Mat4,
+    pub projection: &'a Mat4,
+}
+
+impl<'a> Std140 for CameraUBO<'a> {
+    fn get_std140_layout(&self) -> &'static [GlslTypes] {
+        &[
+            GlslTypes::Mat4,
+            GlslTypes::Mat4
+        ]
+    }
+
+    fn write_to_ubo(&self, ubo: &UBO) {
+        unsafe {
+//            gl_call!(gl::NamedBufferSubData(ubo.id, 0, 4 * 16, self.view.as_ptr() as *mut c_void));
+//            gl_call!(gl::NamedBufferSubData(ubo.id, 4 * 16, 4 * 16, self.projection.as_ptr() as *mut c_void));
+            let buf: *mut c_void = gl_call!(gl::MapNamedBufferRange(ubo.id, 0, ubo.layout.compute_std140_layout_size() as isize, gl::MAP_WRITE_BIT | gl::MAP_UNSYNCHRONIZED_BIT));
+            let buf = buf.cast::<f32>();
+            self.view.as_ptr().copy_to_nonoverlapping(buf, 16);
+            self.projection.as_ptr().copy_to_nonoverlapping(buf.offset(16), 16);
+            gl_call!(gl::UnmapNamedBuffer(ubo.id));
+        }
+    }
+}
 
 pub struct TransformSystem {
     pub reader_id: ReaderId<ComponentEvent>,
@@ -21,7 +62,6 @@ impl<'a> System<'a> for TransformSystem {
         let events = transforms.channel().read(&mut self.reader_id);
 
         for event in events {
-//            println!("EVENT: {:#?}", *event);
             match event {
                 ComponentEvent::Modified(id) | ComponentEvent::Inserted(id) => {
                     self.dirty.add(*id);
@@ -93,41 +133,53 @@ impl<'a> System<'a> for InputSystem {
 
         if input_cache.is_key_pressed(Key::W) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position += transform.forward().scale(0.01f32);
+            transform.position += transform.forward().scale(0.03f32);
         }
 
         if input_cache.is_key_pressed(Key::S) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position -= transform.forward().scale(0.01f32);
+            transform.position -= transform.forward().scale(0.03f32);
         }
 
         if input_cache.is_key_pressed(Key::A) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position -= transform.forward().cross(&Vector3::y()).scale(0.01f32);
+            transform.position -= transform.forward().cross(&Vector3::y()).scale(0.03f32);
         }
 
         if input_cache.is_key_pressed(Key::D) {
             let transform = transforms.get_mut(active_camera).unwrap();
-            transform.position += transform.forward().cross(&Vector3::y()).scale(0.01f32);
+            transform.position += transform.forward().cross(&Vector3::y()).scale(0.03f32);
+        }
+
+        if input_cache.is_key_pressed(Key::Q) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position.y += 0.03;
+        }
+
+        if input_cache.is_key_pressed(Key::Z) {
+            let transform = transforms.get_mut(active_camera).unwrap();
+            transform.position.y -= 0.03;
         }
     }
 }
 
-pub struct MeshRendererSystem;
+pub struct MeshRendererSystem {
+    camera_matrices_ubo: UBO
+}
 
-use nalgebra::{Vector3, Matrix4};
-use glfw::{Key, WindowEvent};
-use ncollide3d::shape::{ShapeHandle, Cuboid};
-use nphysics3d::object::ColliderDesc;
-use nphysics3d::material::MaterialHandle;
-use glfw::ffi::glfwGetTime;
-use crate::shaders::outline::OutlineData;
-use crate::shaders::ShaderData;
-use crate::gl_wrapper::fbo::FBO;
-use crate::containers::CONTAINER;
-use crate::shapes::PredefinedShapes;
-use crate::shaders::cube_map::CubeMapShader;
-use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
+impl Default for MeshRendererSystem {
+    fn default() -> Self {
+        let camera_matrices_ubo = UBO::new(&[
+            GlslTypes::Mat4,
+            GlslTypes::Mat4,
+        ], BufferUpdateFrequency::Often);
+
+        camera_matrices_ubo.bind(0);
+        MeshRendererSystem { camera_matrices_ubo }
+    }
+}
+
+
 
 impl<'a> System<'a> for MeshRendererSystem {
     type SystemData = (Entities<'a>,
@@ -153,10 +205,14 @@ impl<'a> System<'a> for MeshRendererSystem {
             cam_tr.rotation.x.cos() * cam_tr.rotation.y.sin(),
         );
 
-        let look_at = nalgebra_glm::look_at(&cam_tr.position, &(cam_tr.position + direction), &Vector3::y());
-        let view_matrix = look_at.prepend_translation(&(-cam_tr.position));
-
+        let view_matrix = nalgebra_glm::look_at(&cam_tr.position, &(cam_tr.position + direction), &Vector3::y());
         let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
+
+        {
+            let camera_ubo_struct = CameraUBO { view: &view_matrix, projection: &projection_matrix };
+            self.camera_matrices_ubo.update(&camera_ubo_struct);
+        }
+
 
         // Post processing
         if camera.post_processing_effects.is_empty() {
@@ -185,7 +241,7 @@ impl<'a> System<'a> for MeshRendererSystem {
             mesh_renderer.mesh.vao.bind();
 
             let shader_data = &mesh_renderer.material.shader_data;
-            shader_data.bind_mvp(&model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
+            shader_data.bind_model(&model_matrix);
             shader_data.bind_lights(&transforms, &point_lights);
 
             // Outline stencil test
@@ -212,10 +268,7 @@ impl<'a> System<'a> for MeshRendererSystem {
             gl_call!(gl::DepthFunc(gl::LEQUAL));
 
             let cubemap_shader = CONTAINER.get_local::<CubeMapShader>();
-            let mut cut = view_matrix.clone();
-            cut.fill_column(3, 0.0);
-            cut.fill_row(3, 0.0);
-            cubemap_shader.bind(&cut, &projection_matrix);
+            cubemap_shader.bind();
 
             let cube_vao = CONTAINER.get_local::<PredefinedShapes>().shapes.get("unit_cube").unwrap();
             cube_vao.bind();
@@ -253,7 +306,7 @@ impl<'a> System<'a> for MeshRendererSystem {
                 color: outliner.color
             };
 
-            shader_data.bind_mvp(&scaled_model_matrix, &view_matrix, &projection_matrix, &cam_tr.position);
+            shader_data.bind_model(&scaled_model_matrix);
             gl_call!(gl::DrawElements(gl::TRIANGLES,
                                   mesh_renderer.mesh.indices.len() as i32,
                                   gl::UNSIGNED_INT, std::ptr::null()));

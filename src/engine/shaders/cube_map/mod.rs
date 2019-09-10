@@ -1,6 +1,5 @@
 use crate::gl_wrapper::shader_compilation::{ShaderProgram, ShaderPart};
 use std::ffi::CString;
-use nalgebra_glm::Mat4;
 
 #[derive(Clone)]
 pub struct CubeMapShader {
@@ -20,10 +19,8 @@ impl CubeMapShader {
         ShaderProgram::from_shaders(vert_shader, frag_shader).unwrap()
     }
 
-    pub fn bind(&self, view: &Mat4, projection: &Mat4) {
+    pub fn bind(&self) {
         self.program.use_program();
-        self.program.set_uniform_matrix4fv("view", view.as_ptr());
-        self.program.set_uniform_matrix4fv("projection", projection.as_ptr());
         self.program.set_uniform1i("cube_map", 0);
     }
 }

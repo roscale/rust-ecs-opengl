@@ -8,12 +8,7 @@ pub mod post_processing;
 pub mod cube_map;
 
 pub trait ShaderData: Sync + Send {
-    fn bind_mvp(&self,
-                model: &Mat4,
-                view: &Mat4,
-                projection: &Mat4,
-                camera_pos: &Vec3
-    );
+    fn bind_model(&self, model: &Mat4);
 
     fn bind_lights(&self,
                    transforms: &ReadStorage<Transform>,

@@ -14,14 +14,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/ubo.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/containers/global_instances.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/debugging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/debugging.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/texture_2d.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/vao.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/ecs/systems/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/gl_wrapper/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/gl_wrapper/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/cube_map.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/shaders/cube_map/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/cube_map/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/diffuse.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/diffuse/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/outline/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/engine/shaders/outline/outline.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/engine/shaders/outline/outline.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -70,6 +74,7 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+    <property name="org.rust.hideDetachedFileNotifications/home/roscale/CLionProjects/rust-learn/src/engine/gl_wrapper/ubo.rs" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
@@ -238,6 +243,8 @@
       <workItem from="1567867827611" duration="768000" />
       <workItem from="1567880263156" duration="1393000" />
       <workItem from="1567883676507" duration="10011000" />
+      <workItem from="1568055014205" duration="32000" />
+      <workItem from="1568055074629" duration="7922000" />
     </task>
     <task id="LOCAL-00001" summary="Use interface blocks">
       <created>1567952233226</created>
@@ -251,6 +258,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">

@@ -143,7 +143,7 @@ fn main() {
         ])
         .with_barrier()
         .with(transform_system, "transform_system", &[])
-        .with_thread_local(MeshRendererSystem)
+        .with_thread_local(MeshRendererSystem::default())
         .build();
 
 
@@ -183,14 +183,14 @@ fn main() {
 //    let _floor2 = world.create_entity()
 //        .with(Transform {
 //            position: vec3(-15.0, 0.0, 0.0),
-//            scale: 1.0.to_vec3(),
+//            scale: 3.0.to_vec3(),
 //            ..Transform::default()
 //        })
 //        .with(gun.clone())
-////        .with(Outliner {
-////            scale: 1.05f32,
-////            color: vec3(1.0, 1.0, 0.0),
-////        })
+//        .with(Outliner {
+//            scale: 1.05f32,
+//            color: vec3(0.0, 1.0, 1.0),
+//        })
 //        .build();
 
 
@@ -231,7 +231,7 @@ fn main() {
     let _light = world.create_entity()
         .with(Transform {
             position: vec3(10.0, 10.0, 10.0),
-            scale: 0.1.to_vec3(),
+//            scale: 0.1.to_vec3(),
             ..Transform::default()
         })
         .with(mesh_renderer.clone())
