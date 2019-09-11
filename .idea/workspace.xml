@@ -14,8 +14,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9d4bbba8-c906-4425-950e-56fa53556a50" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -236,7 +236,7 @@
       <workItem from="1568055074629" duration="7922000" />
       <workItem from="1568196089938" duration="3621000" />
       <workItem from="1568201623407" duration="4041000" />
-      <workItem from="1568238217940" duration="970000" />
+      <workItem from="1568238217940" duration="1640000" />
     </task>
     <task id="LOCAL-00001" summary="Use interface blocks">
       <created>1567952233226</created>
