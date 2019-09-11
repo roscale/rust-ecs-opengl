@@ -2,4 +2,4 @@ language: rust
 rust:
   - nightly
 before_install:
-  - sudo apt-get install -y libxrandr-dev
+  - sudo apt-get install -y xorg-dev
