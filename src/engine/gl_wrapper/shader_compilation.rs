@@ -1,6 +1,8 @@
 use gl;
 use std;
 use std::ffi::{CString, CStr};
+use std::collections::HashMap;
+use std::cell::RefCell;
 
 #[derive(Debug)]
 pub struct ShaderPart {
@@ -67,7 +69,8 @@ fn create_whitespace_cstring_with_len(len: usize) -> CString {
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct ShaderProgram {
-    id: u32
+    id: u32,
+    uniform_cache: RefCell<HashMap<String, i32>>
 }
 
 impl ShaderProgram {
@@ -76,13 +79,21 @@ impl ShaderProgram {
     }
 
     fn get_uniform_location(&self, name: &str) -> i32 {
-        let c_name = CString::new(name).unwrap();
-        let location = gl_call!(gl::GetUniformLocation(self.id, c_name.as_ptr()));
-        // Error checking
-        if location == -1 {
-            panic!("Can't find uniform '{}' in program with id: {}", name, self.id);
+        let location = self.uniform_cache.borrow().get(name).cloned();
+        match location {
+            None => {
+                let c_name = CString::new(name).unwrap();
+                let location = gl_call!(gl::GetUniformLocation(self.id, c_name.as_ptr()));
+                // Error checking
+                if location == -1 {
+                    panic!("Can't find uniform '{}' in program with id: {}", name, self.id);
+                }
+                println!("New uniform location {}: {}", &name, &location);
+                self.uniform_cache.borrow_mut().insert(name.to_owned(), location);
+                location
+            },
+            Some(location) => location,
         }
-        location
     }
 
     pub fn set_uniform3f(&self, name: &str, values: &[f32]) -> &Self {
@@ -150,7 +161,7 @@ impl ShaderProgram {
 
         gl_call!(gl::DetachShader(program_id, vertex.id));
         gl_call!(gl::DetachShader(program_id, fragment.id));
-        Ok(ShaderProgram { id: program_id })
+        Ok(ShaderProgram { id: program_id, uniform_cache: RefCell::new(HashMap::new()) })
     }
 }
 

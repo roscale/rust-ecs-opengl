@@ -54,6 +54,11 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 
 fn main() {
     pretty_env_logger::init();
+    let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
+
+    let mut i = 0;
+    gl_call!(gl::GetIntegerv(gl::MAX_ARRAY_TEXTURE_LAYERS, &mut i));
+    println!("MAX LAYERS: {}", i);
 
     let mut world = World::new();
     world.register::<Transform>();
@@ -91,8 +96,6 @@ fn main() {
     CONTAINER.set_local(GaussianBlurShader::default);
 
     CONTAINER.set_local(PredefinedShapes::default);
-
-    let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
 
     let model_loader = CONTAINER.get_local::<ModelLoader>();
     let mesh_renderer = model_loader.load("models/cube/box_test.obj");
@@ -202,7 +205,12 @@ fn main() {
         .with(mesh_renderer.clone())
         .with(RigidBody {
             mass: 1.0,
-            angular_inertia: Mat3::identity(),
+            angular_inertia: {
+                let mut m = Mat3::identity();
+                m.fill(-1.0/4.0);
+                m.fill_diagonal(2.0/3.0);
+                m
+            },
             ..RigidBody::default()
         })
         .with(Collider {
@@ -219,7 +227,12 @@ fn main() {
         .with(mesh_renderer.clone())
         .with(RigidBody {
             mass: 1.0,
-            angular_inertia: Mat3::identity(),
+            angular_inertia: {
+                let mut m = Mat3::identity();
+                m.fill(-1.0/4.0);
+                m.fill_diagonal(2.0/3.0);
+                m
+            },
             ..RigidBody::default()
         })
         .with(Collider {
