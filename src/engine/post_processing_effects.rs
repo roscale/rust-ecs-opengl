@@ -4,6 +4,7 @@ use crate::gl_wrapper::rbo::RBO;
 use crate::containers::CONTAINER;
 use crate::shaders::post_processing::{KernelShader, GaussianBlurShader};
 use crate::shapes::PredefinedShapes;
+use crate::gl_wrapper::TextureFormat;
 
 pub trait PPEffect: Send + Sync {
     fn apply(&self, input: &FBO) -> &FBO;
@@ -23,8 +24,8 @@ impl Kernel {
             panic!("Kernel len must be square of odd number")
         }
 
-        let color_texture = Texture2D::new();
-        color_texture.allocate_color(800, 800);
+        let mut color_texture = Texture2D::new();
+        color_texture.allocate(TextureFormat::RGBA, 800, 800, 1);
 
         let depth_stencil_rb = RBO::new();
         depth_stencil_rb.create_depth_stencil(800, 800);
@@ -78,8 +79,8 @@ impl GaussianBlur {
         }
 
         let create_fb = || {
-            let color_texture = Texture2D::new();
-            color_texture.allocate_color(800, 800);
+            let mut color_texture = Texture2D::new();
+            color_texture.allocate(TextureFormat::RGBA, 800, 800, 1);
 
             let depth_stencil_rb = RBO::new();
             depth_stencil_rb.create_depth_stencil(800, 800);

@@ -13,6 +13,7 @@ use crate::gl_wrapper::fbo::{FBO, DepthStencilTarget};
 use crate::gl_wrapper::texture_2d::Texture2D;
 use crate::gl_wrapper::rbo::RBO;
 use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
+use crate::gl_wrapper::TextureFormat;
 
 // TODO implement Default trait to all the components
 
@@ -128,9 +129,14 @@ pub enum Background {
     Skybox(Arc<TextureCubeMap>)
 }
 
+pub enum Projection {
+    Orthographic(f32),
+    Perspective(f32)
+}
+
 #[derive(Component)]
 pub struct Camera {
-    pub fov: f32,
+    pub projection: Projection,
     pub aspect_ratio: f32,
     pub near_plane: f32,
     pub far_plane: f32,
@@ -142,21 +148,21 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(
-        fov: f32,
+        projection: Projection,
         aspect_ratio: f32,
         near_plane: f32,
         far_plane: f32,
         background: Background,
         post_processing_effects: Vec<Box<dyn PPEffect>>
     ) -> Self {
-        let color_texture = Texture2D::new();
-        color_texture.allocate_color(800, 800);
+        let mut color_texture = Texture2D::new();
+        color_texture.allocate(TextureFormat::RGBA, 800, 800, 1);
 
         let depth_stencil_rb: RBO = RBO::new();
         depth_stencil_rb.create_depth_stencil(800, 800);
 
         Camera {
-            fov,
+            projection,
             aspect_ratio,
             near_plane,
             far_plane,

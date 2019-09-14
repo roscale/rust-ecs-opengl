@@ -29,6 +29,9 @@ use engine::shapes::PredefinedShapes;
 use std::sync::Arc;
 use debugging::debug_message_callback;
 use std::os::raw::c_void;
+use engine::voxel_2d::{ResourceManager, BlockCatalog, VoxelWorld};
+use std::path::Path;
+use engine::shaders::voxel::VoxelShader;
 
 fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Window, Receiver<(f64, WindowEvent)>) {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -97,8 +100,8 @@ fn main() {
 
     CONTAINER.set_local(PredefinedShapes::default);
 
-    let model_loader = CONTAINER.get_local::<ModelLoader>();
-    let mesh_renderer = model_loader.load("models/cube/box_test.obj");
+//    let model_loader = CONTAINER.get_local::<ModelLoader>();
+//    let mesh_renderer = model_loader.load("models/cube/box_test.obj");
 //    let gun = model_loader.load("models/gun/modified_gun.obj");
     
     let transform_system = {
@@ -152,127 +155,47 @@ fn main() {
 
     // Scene objects & resources
 
-    let skybox_texture = TextureCubeMap::new(&[
-        "models/skybox/right.jpg",
-        "models/skybox/left.jpg",
-        "models/skybox/top.jpg",
-        "models/skybox/bottom.jpg",
-        "models/skybox/front.jpg",
-        "models/skybox/back.jpg"
-    ]);
-    let skybox_texture = Arc::new(skybox_texture);
-
-    let _floor = world.create_entity()
-        .with(Transform {
-            position: vec3(0.0, 0.0, 0.0),
-            scale: 10.0.to_vec3(),
-            ..Transform::default()
-        })
-        .with(mesh_renderer.clone())
-        .with(RigidBody {
-            status: BodyStatus::Static,
-            ..RigidBody::default()
-        })
-        .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25) * 10.0)),
-            material: BasicMaterial::default(),
-        })
-        .with(Outliner {
-            scale: 1.05f32,
-            color: vec3(1.0, 1.0, 0.0),
-        })
-        .build();
-
-//    let _floor2 = world.create_entity()
+//    let _floor = world.create_entity()
 //        .with(Transform {
-//            position: vec3(-15.0, 0.0, 0.0),
-//            scale: 3.0.to_vec3(),
+//            position: vec3(0.0, 0.0, 0.0),
+//            scale: 10.0.to_vec3(),
 //            ..Transform::default()
 //        })
-//        .with(gun.clone())
+//        .with(mesh_renderer.clone())
+//        .with(RigidBody {
+//            status: BodyStatus::Static,
+//            ..RigidBody::default()
+//        })
+//        .with(Collider {
+//            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25) * 10.0)),
+//            material: BasicMaterial::default(),
+//        })
 //        .with(Outliner {
 //            scale: 1.05f32,
-//            color: vec3(0.0, 1.0, 1.0),
+//            color: vec3(1.0, 1.0, 0.0),
 //        })
 //        .build();
 
-
-    let _entity1 = world.create_entity()
-        .with(Transform {
-            position: vec3(0.0, 20.0, 0.0),
-            ..Transform::default()
-        })
-        .with(mesh_renderer.clone())
-        .with(RigidBody {
-            mass: 1.0,
-            angular_inertia: {
-                let mut m = Mat3::identity();
-                m.fill(-1.0/4.0);
-                m.fill_diagonal(2.0/3.0);
-                m
-            },
-            ..RigidBody::default()
-        })
-        .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
-            material: BasicMaterial::new(0.5, 0.5),
-        })
-        .build();
-
-    let _entity2 = world.create_entity()
-        .with(Transform {
-            position: vec3(0.4, 10.0, 0.2),
-            ..Transform::default()
-        })
-        .with(mesh_renderer.clone())
-        .with(RigidBody {
-            mass: 1.0,
-            angular_inertia: {
-                let mut m = Mat3::identity();
-                m.fill(-1.0/4.0);
-                m.fill_diagonal(2.0/3.0);
-                m
-            },
-            ..RigidBody::default()
-        })
-        .with(Collider {
-            shape: ShapeHandle::new(Cuboid::new(vec3(0.25, 0.25, 0.25))),
-            material: BasicMaterial::default(),
-        })
-        .build();
-
-    let _light = world.create_entity()
-        .with(Transform {
-            position: vec3(10.0, 10.0, 10.0),
-//            scale: 0.1.to_vec3(),
-            ..Transform::default()
-        })
-        .with(mesh_renderer.clone())
-        .with(PointLight {
-            color: 1.0.to_vec3(),
-            range: 100.0,
-            intensity: 1.0,
-        })
-        .with(RigidBody {
-            velocity: Velocity3::linear(-1.0, 0.0, 0.0),
-            status: BodyStatus::Kinematic,
-            ..RigidBody::default()
-        })
-        .build();
+    CONTAINER.set_local(|| ResourceManager::gen_blocks_texture_atlas(Path::new("models/papercraft/textures/blocks")));
+    CONTAINER.set_local(VoxelShader::default);
+    let mut voxel_world = VoxelWorld::new();
+    voxel_world.place_some_blocks();
 
     use std::f32;
     let camera_entity = world.create_entity()
         .with(Transform {
-            position: vec3(0.0, 5.0, 3.0),
-            rotation: vec3(0.0, f32::consts::PI / 2.0 * 3.0, 1.0),
+            position: vec3(0.0, 0.0, 10.0),
+            rotation: vec3(0.0, -f32::consts::PI / 2.0, 0.0),
             ..Transform::default()
         })
-        .with(Camera::new(70.0f32.to_radians(),
-                          1.0,
-                          0.1,
-                          1000.0,
-                          Background::Skybox(skybox_texture),
-                          vec![
+        .with(Camera::new(
+//            Projection::Perspective(70.0f32.to_radians()),
+            Projection::Orthographic(10.0f32),
+            1.0,
+            0.1,
+            1000.0,
+            Background::Color(0.8, 0.8, 0.8),
+            vec![
 //                Box::new(Kernel::new(vec![
 //                    1.0, 1.0, 1.0,
 //                    1.0, -8.0, 1.0,
@@ -298,6 +221,8 @@ fn main() {
     gl_call!(gl::CullFace(gl::BACK));
     gl_call!(gl::Enable(gl::DEPTH_TEST));
     gl_call!(gl::Enable(gl::STENCIL_TEST));
+    gl_call!(gl::Enable(gl::BLEND));
+    gl_call!(gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA));
 
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
@@ -312,6 +237,8 @@ fn main() {
         };
 
         dispatcher.dispatch(&world);
+        gl_call!(gl::Disable(gl::CULL_FACE));
+        voxel_world.render();
         input_system.run_now(&world);
         world.maintain();
 

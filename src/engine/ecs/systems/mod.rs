@@ -20,8 +20,9 @@ use crate::containers::CONTAINER;
 use crate::shapes::PredefinedShapes;
 use crate::shaders::cube_map::CubeMapShader;
 use crate::gl_wrapper::texture_cube_map::TextureCubeMap;
-use crate::gl_wrapper::ubo::{Std140, GlslTypes, UBO, ComputeStd140LayoutSize, BufferUpdateFrequency};
+use crate::gl_wrapper::ubo::{Std140, GlslTypes, UBO, ComputeStd140LayoutSize};
 use std::os::raw::c_void;
+use crate::gl_wrapper::BufferUpdateFrequency;
 
 struct CameraUBO<'a> {
     pub view: &'a Mat4,
@@ -119,8 +120,8 @@ impl<'a> System<'a> for InputSystem {
                     let (x, y) = (input_cache.cursor_rel_pos.x, input_cache.cursor_rel_pos.y);
 //                    println!("x: {} y: {}", x, y);
 
-                    transform.rotation.y += x * 0.001;
-                    transform.rotation.x -= y * 0.001;
+//                    transform.rotation.y += x * 0.001;
+//                    transform.rotation.x -= y * 0.001;
                 }
 
                 WindowEvent::Key(key, _, action, _) => {
@@ -206,7 +207,15 @@ impl<'a> System<'a> for MeshRendererSystem {
         );
 
         let view_matrix = nalgebra_glm::look_at(&cam_tr.position, &(cam_tr.position + direction), &Vector3::y());
-        let projection_matrix = nalgebra_glm::perspective(1f32, camera.fov, camera.near_plane, camera.far_plane);
+
+        let projection_matrix = match camera.projection {
+            Projection::Orthographic(size) => {
+                nalgebra_glm::ortho(-camera.aspect_ratio * size, camera.aspect_ratio * size, -size, size, camera.near_plane, camera.far_plane)
+            }
+            Projection::Perspective(fov) => {
+                nalgebra_glm::perspective(camera.aspect_ratio, fov, camera.near_plane, camera.far_plane)
+            }
+        };
 
         {
             let camera_ubo_struct = CameraUBO { view: &view_matrix, projection: &projection_matrix };

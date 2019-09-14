@@ -33,8 +33,7 @@ impl KernelShader {
     pub fn bind_screen_texture(&self, texture: &Texture2D) {
         self.program.use_program();
 
-        Texture2D::activate(0);
-        texture.bind();
+        texture.activate(0);
         self.program.set_uniform1i("screen_texture", 0);
     }
 

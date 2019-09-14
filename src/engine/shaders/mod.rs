@@ -6,6 +6,7 @@ pub mod diffuse;
 pub mod outline;
 pub mod post_processing;
 pub mod cube_map;
+pub mod voxel;
 
 pub trait ShaderData: Sync + Send {
     fn bind_model(&self, model: &Mat4);

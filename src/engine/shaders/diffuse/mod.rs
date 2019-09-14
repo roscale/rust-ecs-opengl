@@ -42,8 +42,7 @@ impl ShaderData for DiffuseData {
         // Bind diffuse
         match &self.diffuse {
             PixelData::Texture(texture) => {
-                Texture2D::activate(0);
-                texture.bind();
+                texture.activate(0);
                 shader.program.set_uniform1i("material.diffuse_texture", 0);
                 shader.program.set_uniform1i("material.using_diffuse_texture", 1);
 
@@ -57,8 +56,7 @@ impl ShaderData for DiffuseData {
         // Bind specular
         match &self.specular {
             PixelData::Texture(texture) => {
-                Texture2D::activate(1);
-                texture.bind();
+                texture.activate(1);
                 shader.program.set_uniform1i("material.specular_texture", 1);
                 shader.program.set_uniform1i("material.using_specular_texture", 1);
             },
@@ -71,8 +69,7 @@ impl ShaderData for DiffuseData {
         // Bind normal
         match &self.normal {
             Some(texture) => {
-                Texture2D::activate(2);
-                texture.bind();
+                texture.activate(2);
                 shader.program.set_uniform1i("material.normal_texture", 2);
             },
             None => {

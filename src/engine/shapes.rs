@@ -1,6 +1,7 @@
 use crate::gl_wrapper::vao::VAO;
 use crate::gl_wrapper::vbo::{VBO, VertexAttribute};
 use std::collections::HashMap;
+use crate::gl_wrapper::{EBO, BufferUpdateFrequency};
 
 pub struct PredefinedShapes {
     pub shapes: HashMap<&'static str, VAO>,
@@ -66,9 +67,13 @@ fn parallelepiped() -> VAO {
 
     VAO::new(
         &[
-            VBO::new(&positions, vec![
-                VertexAttribute { index: 0, components: 3 }
-            ]),
+            {
+                let mut vbo = VBO::new(vec![
+                    VertexAttribute { index: 0, components: 3 }
+                ]);
+                vbo.with(&positions, BufferUpdateFrequency::Never);
+                vbo
+            }
         ],
         None
     )
@@ -95,12 +100,20 @@ fn quad() -> VAO {
 
     VAO::new(
         &[
-            VBO::new(&quad_pos, vec![
-                VertexAttribute { index: 0, components: 2 }
-            ]),
-            VBO::new(&quad_tex, vec![
-                VertexAttribute { index: 1, components: 2 }
-            ]),
+            {
+                let mut vbo = VBO::new(vec![
+                    VertexAttribute { index: 0, components: 2 }
+                ]);
+                vbo.with(&quad_pos, BufferUpdateFrequency::Never);
+                vbo
+            },
+            {
+                let mut vbo = VBO::new(vec![
+                    VertexAttribute { index: 1, components: 2 }
+                ]);
+                vbo.with(&quad_tex, BufferUpdateFrequency::Never);
+                vbo
+            }
         ],
         None
     )

@@ -10,6 +10,9 @@ use crate::shaders::diffuse::{DiffuseData, PixelData};
 use tobj;
 use crate::utils::ToVec3;
 use std::sync::{Arc, Weak};
+use crate::gl_wrapper::{BufferUpdateFrequency, TextureFormat};
+use image::GenericImageView;
+use std::borrow::BorrowMut;
 
 pub static CONTAINER: state::Container = state::Container::new();
 
@@ -22,9 +25,24 @@ pub struct TextureCache {
 impl TextureCache {
     pub fn get_texture(&self, id: &str) -> Arc<Texture2D> {
         let update_tex = || {
-            let t = Arc::new(Texture2D::new());
+            let mut t = Texture2D::new();
+            let img = image::open(id);
+            let img = match img {
+                Ok(img) => img.flipv(),
+                Err(err) => panic!("Filename: {}, error: {}", id, err.to_string())
+            };
+
+            let format = match img.color() {
+                image::RGB(8) => TextureFormat::RGB,
+                image::RGBA(8) => TextureFormat::RGBA,
+                _ => panic!("Texture format not supported")
+            };
+
+            t.allocate(format, img.width(), img.height(), 8);
+            t.update(0, 0, &img);
+
+            let t = Arc::new(t);
             self.textures.borrow_mut().insert(id.into(), Arc::downgrade(&t));
-            t.fill(id);
             t
         };
 
@@ -61,22 +79,40 @@ impl ModelLoader {
     fn load_mesh(model: &tobj::Model) -> Mesh {
         // TODO Maybe there aren't any normals/texture coords
 
+        let ebo = {
+            let mut ebo = EBO::new();
+            ebo.with(&model.mesh.indices, BufferUpdateFrequency::Never);
+            ebo
+        };
+
         let vao = VAO::new(
             &[
                 // positions
-                VBO::new(&model.mesh.positions, vec![
-                    VertexAttribute { index: 0, components: 3 }
-                ]),
+                {
+                    let mut vbo = VBO::new(vec![
+                        VertexAttribute { index: 0, components: 3 }
+                    ]);
+                    vbo.with(&model.mesh.positions, BufferUpdateFrequency::Never);
+                    vbo
+                },
                 // texcoords
-                VBO::new(&model.mesh.texcoords, vec![
-                    VertexAttribute { index: 1, components: 2 }
-                ]),
+                {
+                    let mut vbo = VBO::new(vec![
+                        VertexAttribute { index: 1, components: 2 }
+                    ]);
+                    vbo.with(&model.mesh.texcoords, BufferUpdateFrequency::Never);
+                    vbo
+                },
                 // normals
-                VBO::new(&model.mesh.normals, vec![
-                    VertexAttribute { index: 2, components: 3 }
-                ]),
+                {
+                    let mut vbo = VBO::new(vec![
+                        VertexAttribute { index: 2, components: 3 }
+                    ]);
+                    vbo.with(&model.mesh.normals, BufferUpdateFrequency::Never);
+                    vbo
+                }
             ],
-            Some(&EBO::new(&model.mesh.indices))
+            Some(&ebo)
         );
 
         Mesh {

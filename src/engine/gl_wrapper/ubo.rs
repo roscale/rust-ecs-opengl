@@ -1,4 +1,5 @@
 use std::os::raw::c_void;
+use crate::gl_wrapper::BufferUpdateFrequency;
 
 #[derive(PartialEq)]
 pub enum GlslTypes {
@@ -39,12 +40,6 @@ pub trait Std140 {
     fn write_to_ubo(&self, ubo: &UBO);
 }
 
-pub enum BufferUpdateFrequency {
-    Never,
-    Occasionally,
-    Often,
-}
-
 pub struct UBO {
     pub(crate) id: u32,
     pub(crate) layout: &'static [GlslTypes]
@@ -52,15 +47,9 @@ pub struct UBO {
 
 impl UBO {
     pub fn new(layout: &'static [GlslTypes], update_frequency: BufferUpdateFrequency) -> Self {
-        let update_frequency = match update_frequency {
-            BufferUpdateFrequency::Never => gl::STATIC_DRAW,
-            BufferUpdateFrequency::Occasionally => gl::DYNAMIC_DRAW,
-            BufferUpdateFrequency::Often => gl::STREAM_DRAW,
-        };
-
         let mut id: u32 = 0;
         gl_call!(gl::CreateBuffers(1, &mut id));
-        gl_call!(gl::NamedBufferData(id, layout.compute_std140_layout_size() as isize, 0 as *const c_void, update_frequency));
+        gl_call!(gl::NamedBufferData(id, layout.compute_std140_layout_size() as isize, 0 as *const c_void, update_frequency.to_gl_enum()));
         UBO { id, layout }
     }
 
