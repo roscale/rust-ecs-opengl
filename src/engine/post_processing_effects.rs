@@ -25,10 +25,10 @@ impl Kernel {
         }
 
         let mut color_texture = Texture2D::new();
-        color_texture.allocate(TextureFormat::RGBA, 800, 800, 1);
+        color_texture.allocate(TextureFormat::RGBA, 1920, 1080, 1);
 
         let depth_stencil_rb = RBO::new();
-        depth_stencil_rb.create_depth_stencil(800, 800);
+        depth_stencil_rb.create_depth_stencil(1920, 1080);
 
         Kernel {
             kernel,
@@ -80,10 +80,10 @@ impl GaussianBlur {
 
         let create_fb = || {
             let mut color_texture = Texture2D::new();
-            color_texture.allocate(TextureFormat::RGBA, 800, 800, 1);
+            color_texture.allocate(TextureFormat::RGBA, 1920, 1080, 1);
 
             let depth_stencil_rb = RBO::new();
-            depth_stencil_rb.create_depth_stencil(800, 800);
+            depth_stencil_rb.create_depth_stencil(1920, 1080);
 
             // TODO Prefer composition over setters
             FBO::new(color_texture, DepthStencilTarget::RBO(depth_stencil_rb))

@@ -230,7 +230,7 @@ impl<'a> System<'a> for MeshRendererSystem {
             camera.fb.bind();
         }
 
-        gl_call!(gl::Viewport(0, 0, 800, 800));
+        gl_call!(gl::Viewport(0, 0, 1920, 1080));
         gl_call!(gl::Enable(gl::DEPTH_TEST));
         gl_call!(gl::DepthFunc(gl::LESS));
         gl_call!(gl::Enable(gl::STENCIL_TEST));

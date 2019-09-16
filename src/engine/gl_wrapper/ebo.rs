@@ -41,6 +41,10 @@ impl EBO {
         gl_call!(gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.id));
         self
     }
+
+    pub fn len(&self) -> usize {
+        self.length
+    }
 }
 
 // TODO Implement proper destructor

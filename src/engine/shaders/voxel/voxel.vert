@@ -3,6 +3,8 @@
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 texture_coords;
 
+uniform vec2 offset;
+
 layout(std140, binding = 0) uniform CameraMatrices {
     mat4 view;
     mat4 projection;
@@ -14,5 +16,5 @@ out VertexAttributes {
 
 void main() {
     attrs.texture_coords = texture_coords;
-    gl_Position = cam.projection * cam.view * vec4(vec3(pos, 0.0f), 1.0f);
+    gl_Position = cam.projection * cam.view * vec4(vec3(pos + offset, 0.0f), 1.0f);
 }

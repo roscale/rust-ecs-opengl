@@ -22,6 +22,10 @@ impl VoxelShader {
     pub fn bind(&self) {
         self.program.use_program();
     }
+
+    pub fn set_offset(&self, offset: (i32, i32)) {
+        self.program.set_uniform2f("offset", &[offset.0 as f32, offset.1 as f32]);
+    }
 }
 
 impl Default for VoxelShader {

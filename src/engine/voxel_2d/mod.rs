@@ -1,5 +1,5 @@
 use crate::gl_wrapper::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::path::Path;
 use crate::containers::CONTAINER;
 use std::ffi::c_void;
@@ -28,7 +28,6 @@ pub struct Chunk {
     positions: VBO,
     tex_coords: VBO,
     indices: EBO,
-    indices_len: u32,
 
     lightmap: Texture2D
 }
@@ -58,7 +57,6 @@ impl Chunk {
             tex_coords,
             indices,
             // TODO Put length inside buffer
-            indices_len: 0,
             lightmap: {
                 let mut lightmap = Texture2D::new();
                 lightmap.allocate(TextureFormat::RGB, 16, 16, 1);
@@ -67,15 +65,13 @@ impl Chunk {
         }
     }
 
-    pub fn add_block(&mut self, x: usize, y: usize, block: Block) {
-        self.blocks[y * 16 + x] = block;
-        self.regen_mesh();
+    pub fn add_block(&mut self, x: u32, y: u32, block: Block) {
+        self.blocks[(y * 16 + x) as usize] = block;
         // TODO Modify lightmap if it's a light source
     }
 
-    pub fn remove_block(&mut self, x: usize, y: usize) {
-        self.blocks[y * 16 + x] = Block::air();
-        self.regen_mesh();
+    pub fn remove_block(&mut self, x: u32, y: u32) {
+        self.blocks[(y * 16 + x) as usize] = Block::air();
         // TODO Regen lightmap if it's a light source
     }
 
@@ -115,10 +111,12 @@ impl Chunk {
             }
         }
 
-        self.indices_len = vec_indices.len() as u32;
-        gl_call!(gl::NamedBufferData(self.positions.id, 4 * vec_positions.len() as isize, vec_positions.as_ptr() as *mut c_void, gl::STATIC_DRAW));
-        gl_call!(gl::NamedBufferData(self.tex_coords.id, 4 * vec_tex_coords.len() as isize, vec_tex_coords.as_ptr() as *mut c_void, gl::STATIC_DRAW));
-        gl_call!(gl::NamedBufferData(self.indices.id, 4 * vec_indices.len() as isize, vec_indices.as_ptr() as *mut c_void, gl::STATIC_DRAW));
+        self.positions.with(&vec_positions, BufferUpdateFrequency::Never);
+        self.tex_coords.with(&vec_tex_coords, BufferUpdateFrequency::Never);
+        self.indices.with(&vec_indices, BufferUpdateFrequency::Never);
+//        gl_call!(gl::NamedBufferData(self.positions.id, 4 * vec_positions.len() as isize, vec_positions.as_ptr() as *mut c_void, gl::STATIC_DRAW));
+//        gl_call!(gl::NamedBufferData(self.tex_coords.id, 4 * vec_tex_coords.len() as isize, vec_tex_coords.as_ptr() as *mut c_void, gl::STATIC_DRAW));
+//        gl_call!(gl::NamedBufferData(self.indices.id, 4 * vec_indices.len() as isize, vec_indices.as_ptr() as *mut c_void, gl::STATIC_DRAW));
     }
 
     fn add_light_source(&mut self) {
@@ -180,13 +178,19 @@ impl ResourceManager {
     }
 }
 
-pub struct VoxelWorld {
-    pub chunk: Chunk,
+pub struct VoxelWorld<'c> {
+    chunk_size: (u32, u32),
+    pub chunks: HashMap<(i32, i32), Chunk>,
+    pub dirty_chunks: VecDeque<&'c mut Chunk>
 }
 
-impl VoxelWorld {
-    pub fn new() -> Self {
-        VoxelWorld { chunk: Chunk::new() }
+impl<'c> VoxelWorld<'c> {
+    pub fn new(chunk_size: (u32, u32)) -> Self {
+        VoxelWorld {
+            chunk_size,
+            chunks: HashMap::new(),
+            dirty_chunks: VecDeque::new()
+        }
     }
 
     pub fn place_some_blocks(&mut self) {
@@ -196,30 +200,84 @@ impl VoxelWorld {
         use rand::seq::SliceRandom;
         let mut rng = rand::thread_rng();
 
-        for y in 0..16 {
-            for x in 0..16 {
-                self.chunk.add_block(x, y, Block { id: ids.choose(&mut rng).unwrap() });
+        for xx in 0..7 {
+            for yy in 0..7 {
+                let mut chunk = Chunk::new();
+
+                for y in 0..self.chunk_size.1 {
+                    for x in 0..self.chunk_size.0 {
+                        chunk.add_block(x, y, Block { id: ids.choose(&mut rng).unwrap() });
+                    }
+                }
+
+                chunk.remove_block(7, 7);
+                chunk.remove_block(7, 8);
+                chunk.remove_block(8, 8);
+                chunk.regen_mesh();
+                self.chunks.insert((xx, yy), chunk);
             }
         }
-
-        self.chunk.remove_block(7, 7);
-        self.chunk.remove_block(7, 8);
-        self.chunk.remove_block(8, 8);
     }
 
-    pub fn render(&self) {
+    fn get_chunk_and_block_coords(&self, x: i32, y: i32) -> (i32, i32, u32, u32) {
+        (
+            x / self.chunk_size.0 as i32,
+            y / self.chunk_size.1 as i32,
+            (x % self.chunk_size.0 as i32) as u32,
+            (y % self.chunk_size.1 as i32) as u32,
+        )
+    }
+
+    pub fn add_block(&'c mut self, x: i32, y: i32, block: Block) {
+        let (x_chunk, y_chunk, x_block, y_block) = self.get_chunk_and_block_coords(x, y);
+
+        let chunk = self.chunks.get_mut(&(x_chunk, y_chunk));
+        match chunk {
+            Some(chunk) => {
+                chunk.add_block(x_block, y_block, block);
+                // Invalidate chunk
+                // TODO check if the chunk is already in the list
+                // maybe a hashset or hashmap?
+                self.dirty_chunks.push_back(chunk);
+            },
+            None => panic!("Inexistent chunk ({}, {})", x_chunk, y_chunk),
+        }
+    }
+
+    pub fn remove_block(&'c mut self, x: i32, y: i32) {
+        let (x_chunk, y_chunk, x_block, y_block) = self.get_chunk_and_block_coords(x, y);
+
+        let chunk = self.chunks.get_mut(&(x_chunk, y_chunk));
+        match chunk {
+            Some(chunk) => {
+                chunk.remove_block(x_block, y_block);
+                // Invalidate chunk
+                self.dirty_chunks.push_back(chunk);
+            },
+            None => panic!("Inexistent chunk ({}, {})", x_chunk, y_chunk),
+        }
+    }
+
+    pub fn render(&mut self) {
+        // Process invalidated chunks
+        while let Some(chunk) = self.dirty_chunks.pop_front() {
+            chunk.regen_mesh();
+        }
+
         let block_catalog = CONTAINER.get_local::<BlockCatalog>();
         block_catalog.blocks_texture_atlas.activate(0);
 
         let shader = CONTAINER.get_local::<VoxelShader>();
         shader.bind();
-        self.chunk.mesh.bind();
-
-//        println!("LEN {}", self.chunk.indices_len);
-
-        gl_call!(gl::DrawElements(gl::TRIANGLES,
-                                  self.chunk.indices_len as i32,
+        
+        for (coords, chunk) in &self.chunks {
+            chunk.mesh.bind();
+            shader.set_offset((coords.0 * 16, coords.1 * 16));
+            gl_call!(gl::DrawElements(gl::TRIANGLES,
+                                  chunk.indices.len() as i32,
                                   gl::UNSIGNED_INT, std::ptr::null()));
+        }
+//        println!("LEN {}", self.chunk.indices_len);
     }
 }
 

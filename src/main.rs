@@ -57,7 +57,7 @@ fn setup_window(title: &str, width: u32, height: u32, mode: WindowMode) -> (Wind
 
 fn main() {
     pretty_env_logger::init();
-    let (mut window, events) = setup_window("Window", 800, 800, glfw::WindowMode::Windowed);
+    let (mut window, events) = setup_window("Window", 1920, 1080, glfw::WindowMode::Windowed);
 
     let mut i = 0;
     gl_call!(gl::GetIntegerv(gl::MAX_ARRAY_TEXTURE_LAYERS, &mut i));
@@ -178,7 +178,7 @@ fn main() {
 
     CONTAINER.set_local(|| ResourceManager::gen_blocks_texture_atlas(Path::new("models/papercraft/textures/blocks")));
     CONTAINER.set_local(VoxelShader::default);
-    let mut voxel_world = VoxelWorld::new();
+    let mut voxel_world = VoxelWorld::new((16, 16));
     voxel_world.place_some_blocks();
 
     use std::f32;
@@ -190,8 +190,8 @@ fn main() {
         })
         .with(Camera::new(
 //            Projection::Perspective(70.0f32.to_radians()),
-            Projection::Orthographic(10.0f32),
-            1.0,
+            Projection::Orthographic(35.0f32),
+            1920.0f32 / 1080.0f32,
             0.1,
             1000.0,
             Background::Color(0.8, 0.8, 0.8),
